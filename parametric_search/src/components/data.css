@@ -1,0 +1,4 @@
+.data:hover {
+    pointer-events: filled ;
+    background-color: #ddd;
+}
