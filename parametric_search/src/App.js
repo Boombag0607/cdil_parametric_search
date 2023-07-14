@@ -2,12 +2,8 @@ import './App.css';
 import Parameter from './components/parameter';
 
 function App() {
-  let parameters = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th'];
-
-  let parameterList = [];
-  parameters.forEach((element, index) => {
-    parameterList.push(<Parameter key={index} name={element}></Parameter>);
-  });
+  let parameters = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th']; //fetch paramter data headings here
+  parameters.map((element, index) => <Parameter name={parameters[index]}></Parameter>);
   return (
     <div className="App" id="site">
       <header className="App-header">
@@ -18,8 +14,10 @@ function App() {
         <p>
           This is a parametric search tool for finding the right product.
         </p>
-        <div style = {{flexDirection: 'row'}}>
-        {parameterList}
+        <div style = {{display: 'flex', flexDirection: 'row',  justifyContent: 'space-evenly'}}>
+          {parameters.map((element, index) => <Parameter name={parameters[index]}></Parameter>)}
+          {/* {parameters.map((element, index) => <Parameter name={parameters[index]}></Parameter>)} */}
+
         </div>
         
 

@@ -1,0 +1,26 @@
+/* .parameter {
+    border: "1px solid #ccc";
+    width: "12em";
+    height: "18em";
+    overflow-y: "scroll";
+    overflow-x: "hidden"; 
+} */
+
+.parameter-heading {
+    text-align: center;
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    height: 2em;
+    background-color: #ccc;
+    border: 1px solid #ccc;
+}
+
+/* style={{ textAlign: "center", position: "sticky" }} */
+/* style={{
+    border: "1px solid #ccc",
+    width: "12em",
+    height: "18em",
+    overflowY: "scroll",
+    overflowX: "hidden",
+  }} */
