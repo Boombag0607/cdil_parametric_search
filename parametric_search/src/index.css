@@ -1,0 +1,44 @@
+#site {
+  background-color: #fff;
+  padding: 25px 0;
+}
+
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+body {
+  font-family: georgia,serif;
+  font-size: 13px;
+  font-weight: normal;
+  line-height: 2em;
+  font-family: "Georgia","serif";
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0px;
+  line-height: 1.5em;
+  text-align: left;
+  text-transform: none;
+  color: #666;
+  background-color: #131313;
+}
+body, button, input, select, textarea {
+  font-family: sans-serif;
+  color: #222;
+}
+body {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6em;
+}
+div {
+  display: block;
+}
+
+/* code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+} */
