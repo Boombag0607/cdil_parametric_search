@@ -3,21 +3,22 @@ import "./parameter.css";
 // import React, { useState } from "react";
 import React, { Component } from "react";
 
+// let dataList = [];
 // function Parameter(props) {
 //   const [cleared, setCleared] = useState(true);
 //   let data = props.data; // Query database
 //   let name = props.name;
-// //   let data = [
-// //     "Diode",
-// //     "Transistor",
-// //     "Power Transistor",
-// //     "xx",
-// //     "xxx",
-// //     "xxxx",
-// //     "xxxxxx",
-// //     "xxxxxx",
-// //     "xxxxxxxx",
-// //   ];
+  // let data = [
+  //   "Diode",
+  //   "Transistor",
+  //   "Power Transistor",
+  //   "xx",
+  //   "xxx",
+  //   "xxxx",
+  //   "xxxxxx",
+  //   "xxxxxx",
+  //   "xxxxxxxx",
+  // ];
 //   let dataList = [];
 //   data.forEach((element, index) => {
 //     dataList.push(<Data key={"1"+index} data={element}></Data>);
@@ -60,26 +61,33 @@ class Parameter extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      cleared: true,
+      cleared: true
     };
-    this.DataElement = React.createRef();
     this.makeDataList = this.makeDataList.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
 
-  makeDataList() {
+  makeDataList(cleared) {
     let dataList = [];
     this.props.data.forEach((element, index) => {
-      dataList.push(<Data ref={this.DataElement} key={"1" + index} data={element}></Data>);
+      dataList.push(
+        <Data
+          key={"1" + index}
+          data={element}
+          cleared={cleared}
+        ></Data>
+      );
     });
     return dataList;
   }
 
   handleClick() {
+    this.makeDataList(true);
     this.setState({
-      cleared: !this.state.cleared,
+      cleared: true,
     });
-    console.log(this.cleared);
-    this.DataElement.current.changeSelected();
+    console.log(this.state.cleared);
+    
   }
 
   render() {
@@ -106,9 +114,11 @@ class Parameter extends Component {
             overflowX: "hidden",
           }}
           onClick={this.handleClick}
+          className="clear-button"
         >
           Clear Filter
         </button>
+
         <div>{this.makeDataList()}</div>
       </div>
     );

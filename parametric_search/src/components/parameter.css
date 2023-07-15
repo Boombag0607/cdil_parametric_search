@@ -16,6 +16,12 @@
     border: 1px solid #ccc;
 }
 
+.clear-button:hover{
+    cursor: pointer;
+    background-color: #959595;
+    color: #000;
+}
+
 /* style={{ textAlign: "center", position: "sticky" }} */
 /* style={{
     border: "1px solid #ccc",
