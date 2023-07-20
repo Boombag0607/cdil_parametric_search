@@ -17,7 +17,7 @@ app.use(express.json());
 
 app.get("/", async(req, res) => {
   try {
-    const allTodos = await pool.query("SELECT * FROM parameters");
+    const allTodos = await pool.query("SELECT * FROM device");
     res.json(allTodos.rows);
   } catch (err) {
     console.error(err.message);
@@ -29,7 +29,7 @@ app.get("/:id", async(req, res) => {
     // const allPosts = await pool.query("SELECT * FROM cdillocal");
     // res.json();
     const { id } = req.params.id;
-    const data = await pool.query("SELECT * FROM cdillocal WHERE id = $1", [id]);
+    const data = await pool.query("SELECT * FROM device WHERE id = $1", [id]);
     res.json(data.rows[0]);
   } catch (error) {
     console.log(error.message);
