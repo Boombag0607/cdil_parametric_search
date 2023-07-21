@@ -6,6 +6,6 @@ CREATE TABLE device(
 );
 
 CREATE TABLE parameters(
-    device_id SERIAL PRIMARY KEY,
-    parameters VARCHAR(255) NOT NULL
+    device_id SERIAL PRIMARY KEY
+    device_name VARCHAR(255) NOT NULL
 );
