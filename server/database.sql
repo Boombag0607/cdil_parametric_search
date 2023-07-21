@@ -14,3 +14,5 @@ CREATE TABLE parameters(
     device_name VARCHAR(255) NOT NULL,
     val_dict param_val_pair[]
 );
+
+ALTER TABLE parameters ADD CONSTRAINT unique_device_name_constraint UNIQUE (device_name);
