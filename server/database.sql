@@ -13,6 +13,7 @@ CREATE TABLE parameters(
     device_id SERIAL PRIMARY KEY,
     device_name VARCHAR(255) NOT NULL,
     val_dict param_val_pair[]
+    CONSTRAINT unique_device_name_constraint UNIQUE (device_name)
 );
 
-ALTER TABLE parameters ADD CONSTRAINT unique_device_name_constraint UNIQUE (device_name);
+-- ALTER TABLE parameters ADD CONSTRAINT unique_device_name_constraint UNIQUE (device_name);

@@ -19,8 +19,8 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.get("/", async (req, res) => {
   try {
-    const allTodos = await pool.query("SELECT * FROM device");
-    res.json(allTodos.rows);
+    const allData = await pool.query("SELECT * FROM parameters");
+    res.json(allData.rows);
   } catch (err) {
     console.error(err.message);
   }
