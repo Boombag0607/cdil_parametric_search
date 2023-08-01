@@ -2,12 +2,12 @@ import React, { Fragment, useState, useEffect } from "react";
 import "./App.css";
 import Parameter from "./components/parameter";
 
-// async function displayParameters() {
-//   const response = await fetch("http://localhost:3000/");
-//   const jsonData = await response.json();
-//   console.log(jsonData);
-//   return jsonData;
-// }
+async function getResponse() {
+  const response = await fetch("http://localhost:3000/");
+  const jsonData = await response.json();
+  console.log(jsonData);
+  return jsonData;
+}
 
 // async function getParameters() {
 //   const response = await fetch("http://localhost:3000/");
@@ -29,13 +29,15 @@ async function getData() {
     }
     return dataArray[element];
   })
-  console.log(dataArray);
+  console.log(jsonData);
   return dataArray;
 }
 
 function App() {
   const [paraArray, setParaArray] = useState([]);
   const [dataArray, setDataArray] = useState([[]]);
+
+  const [responseData, setData] = useState([]);
 
   // useEffect(() => {
   //   getParameters()
@@ -54,6 +56,17 @@ function App() {
         console.log("use effect log : ", data);
         setDataArray(data);
         setParaArray(Object.keys(data));
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
+  useEffect(() => {
+    getResponse()
+      .then((data) => {
+        console.log("use effect log : ", data);
+        setData(data);
       })
       .catch((error) => {
         console.error(error);
@@ -128,12 +141,16 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {/* <tr>
-                <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
-              </tr> */}
+              {
+                Object.keys(responseData).map((element, index) => (
+                  <tr>
+                    {/* <th scope="row">{index + 1}</th> */}
+                    {paraArray.map((para) => (
+                      <td>{responseData[element][para]}</td>
+                    ))}
+                  </tr>
+                ))
+              }
             </tbody>
           </table>
         </div>
