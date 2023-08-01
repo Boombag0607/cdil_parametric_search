@@ -9,23 +9,51 @@ import Parameter from "./components/parameter";
 //   return jsonData;
 // }
 
-async function getParameters() {
+// async function getParameters() {
+//   const response = await fetch("http://localhost:3000/");
+//   const jsonData = await response.json();
+//   let paraArray = Object.keys(jsonData[0]);
+//   console.log(jsonData);
+//   return paraArray;
+// }
+
+async function getData() {
   const response = await fetch("http://localhost:3000/");
   const jsonData = await response.json();
   let paraArray = Object.keys(jsonData[0]);
-  console.log(jsonData);
-  console.log(paraArray)
-  return paraArray;
+  let dataArray = {};
+  paraArray.map((element) => {
+    dataArray[element] = [];
+    for (let i in jsonData) {
+      dataArray[element].push(jsonData[i][element]);
+    }
+    return dataArray[element];
+  })
+  console.log(dataArray);
+  return dataArray;
 }
 
 function App() {
   const [paraArray, setParaArray] = useState([]);
+  const [dataArray, setDataArray] = useState([[]]);
+
+  // useEffect(() => {
+  //   getParameters()
+  //     .then((data) => {
+  //       console.log("success");
+  //       setParaArray(data);
+  //     })
+  //     .catch((error) => {
+  //       console.error(error);
+  //     });
+  // }, []);
 
   useEffect(() => {
-    getParameters()
+    getData()
       .then((data) => {
-        console.log("success");
-        setParaArray(data);
+        console.log("use effect log : ", data);
+        setDataArray(data);
+        setParaArray(Object.keys(data));
       })
       .catch((error) => {
         console.error(error);
@@ -50,15 +78,15 @@ function App() {
   // ]; //fetch paramter data headings here
   // console.log(paraArray);
 
-  let data = [
-    ["add", "xyx", "xyd", "xyz", "huh", "hbh"],
-    ["ad2", "xkx", "xjd", "xlz", "guh", "lbh"],
-    ["amd", "1yx", "#yd", "xyl", "hih", "hweh"],
-    ["addw", "xywx", "xyq", "eyz", "huh", "h@bh"],
-    ["ad@d", "x@yx", "xy@d", "xy@z", "hu@h", "hbh@"],
-    ["add4", "3xyx", "3xyd", "3xyz", "3huh", "h3bh"],
-    ["add3", "2xyx", "14d", "x4yz", "4huh", "hbh"],
-  ];
+  // let data = [
+  //   ["add", "xyx", "xyd", "xyz", "huh", "hbh"],
+  //   ["ad2", "xkx", "xjd", "xlz", "guh", "lbh"],
+  //   ["amd", "1yx", "#yd", "xyl", "hih", "hweh"],
+  //   ["addw", "xywx", "xyq", "eyz", "huh", "h@bh"],
+  //   ["ad@d", "x@yx", "xy@d", "xy@z", "hu@h", "hbh@"],
+  //   ["add4", "3xyx", "3xyd", "3xyz", "3huh", "h3bh"],
+  //   ["add3", "2xyx", "14d", "x4yz", "4huh", "hbh"],
+  // ];
   return (
     <Fragment>
       <div className="App" id="site">
@@ -78,8 +106,8 @@ function App() {
           {paraArray.map((element, index) => (
             <Parameter
               key={index}
-              data={data[index]}
-              name={paraArray[index]}
+              data={dataArray[element]}
+              name={element}
             ></Parameter>
           ))}
           {/* {parameters.map((element, index) => <Parameter name={parameters[index]}></Parameter>)} */}
@@ -94,7 +122,9 @@ function App() {
                 <th scope="col">Param1</th>
                 <th scope="col">Param2</th>
                */}
-                {paraArray.map((element) => <th>{element}</th>)}
+                {paraArray.map((element) => (
+                  <th>{element}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
