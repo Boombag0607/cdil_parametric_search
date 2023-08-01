@@ -1,31 +1,55 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import "./App.css";
 import Parameter from "./components/parameter";
 
-async function displayParameters() {
+// async function displayParameters() {
+//   const response = await fetch("http://localhost:3000/");
+//   const jsonData = await response.json();
+//   console.log(jsonData);
+//   return jsonData;
+// }
+
+async function getParameters() {
   const response = await fetch("http://localhost:3000/");
   const jsonData = await response.json();
+  let paraArray = Object.keys(jsonData[0]);
   console.log(jsonData);
-  return jsonData;
+  console.log(paraArray)
+  return paraArray;
 }
 
 function App() {
-  let paraArray = displayParameters().then(() => {
-    console.log('sucess');
-  }).catch((error)=> {
-    console.error(error);
-  })
-  let parameters = [
-    "kerf width",
-    "size",
-    "spacing",
-    "blade height",
-    "5th",
-    "6th",
-    "7th",
-  ]; //fetch paramter data headings here  
-  console.log(paraArray);
-  
+  const [paraArray, setParaArray] = useState([]);
+
+  useEffect(() => {
+    getParameters()
+      .then((data) => {
+        console.log("success");
+        setParaArray(data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
+  // let paraArray = getParameters()
+  //   .then(() => {
+  //     console.log("sucess");
+  //   })
+  //   .catch((error) => {
+  //     console.error(error);
+  //   });
+  // let parameters = [
+  //   "kerf width",
+  //   "size",
+  //   "spacing",
+  //   "blade height",
+  //   "5th",
+  //   "6th",
+  //   "7th",
+  // ]; //fetch paramter data headings here
+  // console.log(paraArray);
+
   let data = [
     ["add", "xyx", "xyd", "xyz", "huh", "hbh"],
     ["ad2", "xkx", "xjd", "xlz", "guh", "lbh"],
@@ -51,11 +75,11 @@ function App() {
             justifyContent: "space-evenly",
           }}
         >
-          {parameters.map((element, index) => (
+          {paraArray.map((element, index) => (
             <Parameter
               key={index}
               data={data[index]}
-              name={parameters[index]}
+              name={paraArray[index]}
             ></Parameter>
           ))}
           {/* {parameters.map((element, index) => <Parameter name={parameters[index]}></Parameter>)} */}
@@ -65,10 +89,12 @@ function App() {
           <table className="table mt-5">
             <thead className="thead-dark">
               <tr>
-                <th scope="col">Device ID</th>
+                {/* <th scope="col">Device ID</th>
                 <th scope="col">Device Name</th>
                 <th scope="col">Param1</th>
                 <th scope="col">Param2</th>
+               */}
+                {paraArray.map((element) => <th>{element}</th>)}
               </tr>
             </thead>
             <tbody>
