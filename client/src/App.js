@@ -36,7 +36,7 @@ async function getData() {
 function App() {
   const [paraArray, setParaArray] = useState([]);
   const [dataArray, setDataArray] = useState([[]]);
-
+  const [selectedData, setSelectedData] = useState({});
   const [responseData, setData] = useState([]);
 
   // useEffect(() => {
@@ -100,6 +100,14 @@ function App() {
   //   ["add4", "3xyx", "3xyd", "3xyz", "3huh", "h3bh"],
   //   ["add3", "2xyx", "14d", "x4yz", "4huh", "hbh"],
   // ];
+
+  const handleDataSelect = (data, isSelected) => {
+    setSelectedData((prevState) => ({
+      ...prevState,
+      [data]: isSelected,
+    }))
+  };
+
   return (
     <Fragment>
       <div className="App" id="site">
@@ -121,6 +129,7 @@ function App() {
               key={index}
               data={dataArray[element]}
               name={element}
+              onSelect={handleDataSelect}
             ></Parameter>
           ))}
           {/* {parameters.map((element, index) => <Parameter name={parameters[index]}></Parameter>)} */}
@@ -142,11 +151,11 @@ function App() {
             </thead>
             <tbody>
               {
-                Object.keys(responseData).map((element, index) => (
+                Object.keys(responseData).map((element, _) => (
                   <tr>
                     {/* <th scope="row">{index + 1}</th> */}
                     {paraArray.map((para) => (
-                      <td>{responseData[element][para]}</td>
+                      selectedData[para] && <td>{responseData[element][para]}</td>
                     ))}
                   </tr>
                 ))

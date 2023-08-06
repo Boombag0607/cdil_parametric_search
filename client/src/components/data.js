@@ -51,7 +51,7 @@ class Data extends Component {
       selected: false,
     };
     this.toggleSelected = this.toggleSelected.bind(this);
-    this.setSelectedFalse = this.setSelectedFalse.bind(this);
+    // this.setSelectedFalse = this.setSelectedFalse.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -66,14 +66,15 @@ class Data extends Component {
       selected: !state.selected,
     }));
     console.log(this.state.selected);
+    this.props.onSelect(this.props.data, this.state.selected);
     // this.props.cleared = false;
   }
-  setSelectedFalse() {
-    this.setState({
-      selected: false,
-    });
+  // setSelectedFalse() {
+  //   this.setState({
+  //     selected: false,
+  //   });
     // console.log(this.state.selected);
-  }
+  // }
   render() {
     return (
       <div

@@ -75,6 +75,7 @@ class Parameter extends Component {
           key={"1" + index}
           data={element}
           cleared={cleared}
+          onSelect={this.props.onSelect}
         ></Data>
       );
     });
