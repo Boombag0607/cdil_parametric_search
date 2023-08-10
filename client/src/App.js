@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from "react";
 import "./App.css";
-import Parameter from "./components/parameter";
+import Parameter from "./Components/Parameter";
 
 async function getResponse() {
   const response = await fetch("http://localhost:3000/");
@@ -28,7 +28,7 @@ async function getData() {
       dataArray[element].push(jsonData[i][element]);
     }
     return dataArray[element];
-  })
+  });
   console.log(jsonData);
   return dataArray;
 }
@@ -36,8 +36,8 @@ async function getData() {
 function App() {
   const [paraArray, setParaArray] = useState([]);
   const [dataArray, setDataArray] = useState([[]]);
-  const [selectedData, setSelectedData] = useState({});
   const [responseData, setData] = useState([]);
+  const [selectedData, setSelectedData] = useState([]);
 
   // useEffect(() => {
   //   getParameters()
@@ -101,20 +101,10 @@ function App() {
   //   ["add3", "2xyx", "14d", "x4yz", "4huh", "hbh"],
   // ];
 
-  const handleDataSelect = (data, isSelected) => {
-    setSelectedData((prevState) => ({
-      ...prevState,
-      [data]: isSelected,
-    }))
-  };
-
   return (
     <Fragment>
       <div className="App" id="site">
-        <header className="App-header">
-          {/* <img src={logo} className="App-logo" alt="logo" /> */}
-          {/*Add CDIL Logo*/}
-        </header>
+        <header className="App-header">{/*Add CDIL Logo*/}</header>
         <h1>Parametric Search</h1>
         <p>This is a parametric search tool for finding the right product.</p>
         <div
@@ -129,7 +119,6 @@ function App() {
               key={index}
               data={dataArray[element]}
               name={element}
-              onSelect={handleDataSelect}
             ></Parameter>
           ))}
           {/* {parameters.map((element, index) => <Parameter name={parameters[index]}></Parameter>)} */}
@@ -139,42 +128,27 @@ function App() {
           <table className="table mt-5">
             <thead className="thead-dark">
               <tr>
-                {/* <th scope="col">Device ID</th>
-                <th scope="col">Device Name</th>
-                <th scope="col">Param1</th>
-                <th scope="col">Param2</th>
-               */}
                 {paraArray.map((element) => (
                   <th>{element}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {
-                Object.keys(responseData).map((element, _) => (
-                  <tr>
-                    {/* <th scope="row">{index + 1}</th> */}
-                    {paraArray.map((para) => (
-                      selectedData[para] && <td>{responseData[element][para]}</td>
-                    ))}
-                  </tr>
-                ))
-              }
+              {Object.keys(responseData).map((element, _) => (
+                <tr>
+                  {/* <th scope="row">{index + 1}</th> */}
+                  {selectedData.length === 0
+                    ? paraArray.map((para) => (
+                        <td>{responseData[element][para]}</td>
+                      ))
+                    : paraArray.map((para) => (
+                        <td>{responseData[element][para]}</td>
+                      ))}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
-
-        {/* <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-  </a> */}
       </div>
     </Fragment>
   );

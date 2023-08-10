@@ -66,7 +66,6 @@ class Data extends Component {
       selected: !state.selected,
     }));
     console.log(this.state.selected);
-    this.props.onSelect(this.props.data, this.state.selected);
     // this.props.cleared = false;
   }
   // setSelectedFalse() {

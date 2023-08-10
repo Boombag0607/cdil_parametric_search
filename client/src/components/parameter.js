@@ -1,4 +1,4 @@
-import Data from "./data";
+import Data from "./Data";
 import "./parameter.css";
 // import React, { useState } from "react";
 import React, { Component } from "react";
@@ -75,7 +75,7 @@ class Parameter extends Component {
           key={"1" + index}
           data={element}
           cleared={cleared}
-          onSelect={this.props.onSelect}
+          selected={this.props.selected}
         ></Data>
       );
     });
