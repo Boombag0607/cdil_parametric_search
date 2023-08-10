@@ -82,8 +82,7 @@ class Data extends Component {
         data={this.props.data}
         style={
           !this.state.selected
-            ? {
-              }
+            ? {}
             : {
                 backgroundColor: "darkblue",
                 color: "white",

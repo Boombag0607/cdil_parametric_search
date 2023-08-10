@@ -1,6 +1,5 @@
 import Data from "./Data";
-import "./parameter.css";
-// import React, { useState } from "react";
+import "./Parameter.css";
 import React, { Component } from "react";
 
 // let dataList = [];
@@ -93,27 +92,11 @@ class Parameter extends Component {
 
   render() {
     return (
-      <div
-        className="parameter"
-        style={{
-          border: "1px solid #ccc",
-          width: "12em",
-          height: "12em",
-          overflowY: "scroll",
-          overflowX: "hidden",
-        }}
-      >
+      <div className="parameter">
         <div className="parameter-heading">
           <strong>{this.props.name}</strong>
         </div>
         <button
-          style={{
-            border: "0px solid #ccc",
-            height: "2em",
-            width: "100%",
-            overflowY: "scroll",
-            overflowX: "hidden",
-          }}
           onClick={this.handleClick}
           className="clear-button"
         >
