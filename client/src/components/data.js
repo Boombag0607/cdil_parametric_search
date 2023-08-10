@@ -1,5 +1,5 @@
 // import { useState } from "react";
-import "./data.css";
+import "./Data.css";
 import { Component } from "react";
 // function Data(props) {
 //   const [selected, setSelected] = useState(true);
@@ -83,24 +83,10 @@ class Data extends Component {
         style={
           !this.state.selected
             ? {
-                borderTop: "1px solid #ccc",
-                width: "12em",
-                height: "2em",
-                overflowY: "scroll",
-                hover: "pointer",
-                hoverColor: "blue",
-                padding: "0.25em",
               }
             : {
-                borderTop: "1px solid #ccc",
                 backgroundColor: "darkblue",
                 color: "white",
-                width: "12em",
-                height: "2em",
-                overflowY: "scroll",
-                hover: "pointer",
-                hoverColor: "blue",
-                padding: "0.25em",
               }
         }
         onClick={this.toggleSelected}

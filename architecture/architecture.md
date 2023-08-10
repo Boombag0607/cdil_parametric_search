@@ -19,3 +19,8 @@ The PostgreSQL database has 2 tables -
 2. `parameters` 
     - Columns are `device_id`, `device_name` & `param_val_pair`
     - The row points to a particular device containing the ID (SERIAL PRIMARY KEY), Name (VARCHAR(255)) and Parameter-Value pair (ROW(VARCHAR(255), numeric(10, 2))).
+
+The databases for obtaining the parameters and their values should be different. 
+The table column headings would be the parameters. (stored in client parameter array by the response of a different database than the data table for devices or models)
+
+This would mean that the other table would store info with respect to the device rather than the parameters. The frontend table would display that as it is. 
