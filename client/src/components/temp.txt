@@ -1,0 +1,14 @@
+{
+    /* <div className="col d-flex align-items-start bg-light mb-3">
+                <details>
+                  <summary>{element.name}</summary>
+                  <ul>
+                    {element.types.map((type) => (
+                      <a href="">
+                        <li>{type}</li>
+                      </a>
+                    ))}
+                  </ul>
+                </details>
+              </div>*/
+  }

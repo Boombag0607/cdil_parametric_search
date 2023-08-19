@@ -19,8 +19,34 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.get("/", async (req, res) => {
   try {
-    const allData = await pool.query("SELECT * FROM parameters");
+    const allData = await pool.query("SELECT * FROM device_types");
     res.json(allData.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+app.get("/:deviceType" , async (req, res) => {
+  try {
+    const allData = await pool.query("SELECT * FROM device_types");
+    res.json(allData.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+app.get("/parameters", async (req, res) => {
+  try {
+    const allData = await pool.query("SELECT * FROM parameters");
+    const jsonData = allData.rows;
+    let paraArray = Object.keys(jsonData[0]);
+    let dataArray = {};
+    paraArray.map((element) => {
+      dataArray[element] = [];
+      for (let i in jsonData) {
+        dataArray[element].push(jsonData[i][element]);
+      }/* return dataArray[element];*/});
+    res.json(dataArray);
   } catch (err) {
     console.error(err.message);
   }
@@ -50,9 +76,12 @@ app.post("/admin/:device_name", urlencodedParser, (req, res) => {
     return res.status(400).json({ error: "Value cannot be empty or null." });
   }
 
-  const pairArray = Object.entries(val_dict).map(([param, val]) => [param, val]);
+  const pairArray = Object.entries(val_dict).map(([param, val]) => [
+    param,
+    val,
+  ]);
   console.log(pairArray);
-  const paraCols = pairArray.map((x, i) => pairArray[i][0]).join(',');
+  const paraCols = pairArray.map((x, i) => pairArray[i][0]).join(",");
   const valArray = pairArray.map((x, i) => pairArray[i][1]);
 
   // const val_dict_jsonb = JSON.stringify(val_dict);
@@ -60,9 +89,12 @@ app.post("/admin/:device_name", urlencodedParser, (req, res) => {
   // Check if the dynamic column exists in the table
   const upsertQuery = `
     INSERT INTO parameters (device_name, ${paraCols})
-    VALUES ($1, ${valArray.map((_, i) => `$${i + 2}`).join(', ')})
+    VALUES ($1, ${valArray.map((_, i) => `$${i + 2}`).join(", ")})
     ON CONFLICT (device_name)
-    DO UPDATE SET ${paraCols.split(',').map(col => `${col} = EXCLUDED.${col}`).join(', ')}
+    DO UPDATE SET ${paraCols
+      .split(",")
+      .map((col) => `${col} = EXCLUDED.${col}`)
+      .join(", ")}
   `;
   // Check if the dynamic column exists in the table
   // const upsertQuery = `

@@ -1,0 +1,23 @@
+:root{
+    --bg-primary: #ffffff;
+}
+
+body {
+    background-color: var(--bg-primary);
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
+}
+
+ul {
+    list-style-type: none;
+}
+/* 
+details > summary {
+    padding: 4px;
+    width: 200px;
+    background-color: #eeeeee;
+    border: none;
+    cursor: pointer;
+} */
