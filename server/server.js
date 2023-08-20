@@ -26,9 +26,10 @@ app.get("/", async (req, res) => {
   }
 });
 
-app.get("/:deviceType" , async (req, res) => {
+app.get("/:device", async (req, res) => {
   try {
-    const allData = await pool.query("SELECT * FROM device_types");
+    const { device } = req.params;
+    const allData = await pool.query(`SELECT * FROM ${device}`);
     res.json(allData.rows);
   } catch (err) {
     console.error(err.message);
@@ -45,7 +46,8 @@ app.get("/parameters", async (req, res) => {
       dataArray[element] = [];
       for (let i in jsonData) {
         dataArray[element].push(jsonData[i][element]);
-      }/* return dataArray[element];*/});
+      } /* return dataArray[element];*/
+    });
     res.json(dataArray);
   } catch (err) {
     console.error(err.message);

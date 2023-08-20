@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./Landing.css";
 import { styled } from "@mui/material/styles";
 import {
@@ -13,12 +13,14 @@ import {
   ListItemText,
   CircularProgress,
   Box,
+  Grid,
 } from "@mui/material";
 import MuiAccordion from "@mui/material/Accordion";
 import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import BoltIcon from "@mui/icons-material/Bolt";
+import {Link} from "react-router-dom";
 
 const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -86,16 +88,16 @@ function Landing() {
     getLandingData();
   }, []);
 
-  const checkLoading = () => {
+  const checkLoading = useCallback(() => {
     if (loading) {
       // If loading is true, wait and check again
-      setTimeout(checkLoading, 100); // Adjust the interval as needed
+      setTimeout(checkLoading, 100);
     }
-  };
+  }, [loading]);
 
   useEffect(() => {
     checkLoading();
-  }, []);
+  }, [checkLoading]);
 
   return (
     <div className="landing container m-4">
@@ -127,20 +129,20 @@ function Landing() {
                         <Typography>{element.name}</Typography>
                       </AccordionSummary>
                       <AccordionDetails>
-                        <Typography>
+                        <Grid container direction="column">
                           <List>
                             {element.types.map((type, typeIdx) => (
                               <ListItem disablePadding key={typeIdx}>
-                                <ListItemButton>
+                                <ListItemButton component={Link} to={`/table?device=${type}`}>
                                   <ListItemIcon>
                                     <BoltIcon />
-                                    <ListItemText primary={type} />
+                                    <ListItemText disableTypography primary={type} />
                                   </ListItemIcon>
                                 </ListItemButton>
                               </ListItem>
                             ))}
                           </List>
-                        </Typography>
+                          </Grid>
                       </AccordionDetails>
                     </Accordion>
                   </div>
