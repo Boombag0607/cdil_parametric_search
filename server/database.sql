@@ -1,19 +1,26 @@
-CREATE DATABASE cdillocal;
-
-CREATE TYPE param_val_pair(
-    param VARCHAR(255),
-    val numeric(10, 2)
+CREATE TABLE "device_types" (
+  "ID" INT PRIMARY KEY NOT NULL,
+  "name" TEXT,
+  "types" TEXT[]
 );
 
--- CREATE TABLE values(
---     param1 description VARCHAR(255) NOT NULL
--- );
-
-CREATE TABLE parameters(
-    device_id SERIAL PRIMARY KEY,
-    device_name VARCHAR(255) NOT NULL,
-    val_dict param_val_pair[]
-    CONSTRAINT unique_device_name_constraint UNIQUE (device_name)
+CREATE TABLE "device_data" (
+  "ID" INT PRIMARY KEY NOT NULL,
+  "data" VARCHAR[]
 );
+
+CREATE TYPE "column_group" AS (
+    "group_name" VARCHAR,
+    "col_span" INT
+)
+
+CREATE TABLE "device_params" (
+  "ID" INT PRIMARY KEY NOT NULL,
+  "packaging" VARCHAR[],
+  "column_groups" column_group[],
+  "columns" VARCHAR[]
+);
+
+ALTER TABLE "device_params" ADD FOREIGN KEY ("ID") REFERENCES "device_data" ("ID");
 
 -- ALTER TABLE parameters ADD CONSTRAINT unique_device_name_constraint UNIQUE (device_name);

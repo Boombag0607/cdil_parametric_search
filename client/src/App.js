@@ -1,12 +1,12 @@
 import Landing from "./Components/Landing";
-import Table from "./Components/Table";
+import DeviceTable from "./Components/DeviceTable";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 const App = () => (
   <Router>
     <Routes>
       <Route exact path="/" element={<Landing />} />
-      <Route path="/table" element={<Table />} />
+      <Route path="/table/:device" element={<DeviceTable />} />
     </Routes>
   </Router>
 )

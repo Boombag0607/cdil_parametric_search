@@ -36,6 +36,16 @@ app.get("/:device", async (req, res) => {
   }
 });
 
+app.get("/data/:device", async (req, res) => {
+  try {
+    const { device } = req.params;
+    const allData = await pool.query(`SELECT * FROM ${device}`);
+    res.json( allData.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+})
+
 app.get("/parameters", async (req, res) => {
   try {
     const allData = await pool.query("SELECT * FROM parameters");

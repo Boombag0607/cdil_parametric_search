@@ -133,7 +133,7 @@ function Landing() {
                           <List>
                             {element.types.map((type, typeIdx) => (
                               <ListItem disablePadding key={typeIdx}>
-                                <ListItemButton component={Link} to={`/table?device=${type}`}>
+                                <ListItemButton component={Link} to={`/table/${type}`}>
                                   <ListItemIcon>
                                     <BoltIcon />
                                     <ListItemText disableTypography primary={type} />
