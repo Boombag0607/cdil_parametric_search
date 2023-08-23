@@ -16,7 +16,6 @@ import {
   Typography,
   Paper,
   Checkbox,
-  Container,
   IconButton,
   Tooltip,
   FormControlLabel,
@@ -84,43 +83,38 @@ function stableSort(array, comparator) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-const columns = [
-  {
-    id: "name",
-    numeric: false,
-    disablePadding: true,
-    label: "Dessert (100g serving)",
-  },
-  {
-    id: "calories",
-    numeric: true,
-    disablePadding: false,
-    label: "Calories",
-  },
-  {
-    id: "fat",
-    numeric: true,
-    disablePadding: false,
-    label: "Fat (g)",
-  },
-  {
-    id: "carbs",
-    numeric: true,
-    disablePadding: false,
-    label: "Carbs (g)",
-  },
-  {
-    id: "protein",
-    numeric: true,
-    disablePadding: false,
-    label: "Protein (g)",
-  },
-];
-
-const colGroups = [
-  { name: "Food", colSpan: 1 },
-  { name: "Nutrition", colSpan: 4 },
-];
+// const columns = [
+//   {
+//     id: "name",
+//     numeric: false,
+//     disablePadding: true,
+//     label: "Dessert (100g serving)",
+//   },
+//   {
+//     id: "calories",
+//     numeric: true,
+//     disablePadding: false,
+//     label: "Calories",
+//   },
+//   {
+//     id: "fat",
+//     numeric: true,
+//     disablePadding: false,
+//     label: "Fat (g)",
+//   },
+//   {
+//     id: "carbs",
+//     numeric: true,
+//     disablePadding: false,
+//     label: "Carbs (g)",
+//   },
+//   {
+//     id: "protein",
+//     numeric: true,
+//     disablePadding: false,
+//     label: "Protein (g)",
+//   },
+// ];
 
 function EnhancedTableHead(props) {
   const {
@@ -130,6 +124,7 @@ function EnhancedTableHead(props) {
     numSelected,
     rowCount,
     onRequestSort,
+    columns
   } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -137,13 +132,6 @@ function EnhancedTableHead(props) {
 
   return (
     <TableHead>
-      <TableRow>
-        {colGroups.map((col, index) => (
-          <TableCell align="center" colSpan={col.colSpan}>
-            {col.name}
-          </TableCell>
-        ))}
-      </TableRow>
       <TableRow>
         {/* <TableCell padding="checkbox">
           <Checkbox
@@ -250,13 +238,32 @@ EnhancedTableToolbar.propTypes = {
 };
 
 export default function DeviceTable() {
-  const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("calories");
-  const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const { device } = useParams();
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("calories");
+  const [selected, setSelected] = useState([]);
+  const [page, setPage] = useState(0);
+  const [dense, setDense] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [columns, setColumns] = useState([]);
+  const { subCat } = useParams();
+
+  useEffect(() => {
+    // This code will run when the component is rendered
+    const getColumns = async (subCat) => {
+      try {
+        const response = await fetch(`http://localhost:3000/parameters/${subCat}`);
+        const data = await response.json(); // Parse the JSON response
+        // Now you can work with the data retrieved from the server
+        console.log(data);
+        setColumns(data);
+      } catch (err) {
+        console.error(err.message);
+      }
+    };
+
+    // Call the function with the desired subCat value
+    getColumns(subCat);
+  }, [subCat]); // Empty dependency array means this effect runs once when the component mounts
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -324,7 +331,7 @@ export default function DeviceTable() {
   return (
     <Box sx={{ width: "100%"}}>
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <EnhancedTableToolbar device={device} numSelected={selected.length} />
+        <EnhancedTableToolbar device={subCat} numSelected={selected.length} />
         <TableContainer>
           <Table
             stickyHeader={true}
@@ -339,6 +346,7 @@ export default function DeviceTable() {
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
               rowCount={rows.length}
+              columns = {columns}
             />
             <TableBody>
               {visibleRows

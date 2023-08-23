@@ -6,7 +6,7 @@ const App = () => (
   <Router>
     <Routes>
       <Route exact path="/" element={<Landing />} />
-      <Route path="/table/:device" element={<DeviceTable />} />
+      <Route path="/table/:subCat" element={<DeviceTable />} />
     </Routes>
   </Router>
 )

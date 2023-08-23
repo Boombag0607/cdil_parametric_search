@@ -17,20 +17,11 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 // server
 
-app.get("/", async (req, res) => {
+app.get("/data", async (req, res) => {
   try {
-    const allData = await pool.query("SELECT * FROM device_types");
-    res.json(allData.rows);
-  } catch (err) {
-    console.error(err.message);
-  }
-});
-
-app.get("/:device", async (req, res) => {
-  try {
-    const { device } = req.params;
-    const allData = await pool.query(`SELECT * FROM ${device}`);
-    res.json(allData.rows);
+    const allData = await pool.query(`SELECT * FROM device`);
+    const jsonData = allData.rows;
+    res.json(jsonData);
   } catch (err) {
     console.error(err.message);
   }
@@ -39,47 +30,63 @@ app.get("/:device", async (req, res) => {
 app.get("/data/:device", async (req, res) => {
   try {
     const { device } = req.params;
-    const allData = await pool.query(`SELECT * FROM ${device}`);
-    res.json( allData.rows);
-  } catch (err) {
-    console.error(err.message);
-  }
-})
-
-app.get("/parameters", async (req, res) => {
-  try {
-    const allData = await pool.query("SELECT * FROM parameters");
-    const jsonData = allData.rows;
-    let paraArray = Object.keys(jsonData[0]);
-    let dataArray = {};
-    paraArray.map((element) => {
-      dataArray[element] = [];
-      for (let i in jsonData) {
-        dataArray[element].push(jsonData[i][element]);
-      } /* return dataArray[element];*/
-    });
-    res.json(dataArray);
+    const allData = await pool.query(`SELECT * FROM  device WHERE "ID" = $1`, [device]);
+    res.json(allData.rows[0].data);
   } catch (err) {
     console.error(err.message);
   }
 });
 
-app.get("/:id", async (req, res) => {
+app.get("/parameters/:subCat", async (req, res) => {
   try {
-    // const allPosts = await pool.query("SELECT * FROM cdillocal");
-    // res.json();
-    const { id } = req.params;
-    const data = await pool.query("SELECT * FROM device WHERE id = $1", [id]);
-    res.json(data.rows[0]);
+    const subCat = req.params.subCat.replace(/_/g, " ");
+    const allData = await pool.query(
+      `SELECT subcat_header FROM sub_cat WHERE "ID" = $1`,
+      [subCat]
+    );
+    const jsonData = allData.rows;
+    res.json(jsonData[0].subcat_header);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+app.get("/category", async (req, res) => {
+  try {
+    const allData = await pool.query(`SELECT * FROM category`);
+    res.json(allData.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+app.post("/admin/subcat_header", async (req, res) => {
+  const { id, packaging, columns, groupName, colSpan } = req.body;
+
+  try {
+    // Insert the data into the device_params table
+    const insertQuery = `
+      INSERT INTO device_params (id, packaging, columns, group_name, col_span)
+      VALUES ($1, $2, $3, $4, $5)
+    `;
+
+    await pool.query(insertQuery, [id, packaging, columns, groupName, colSpan]);
+
+    res
+      .status(201)
+      .json({ message: "Data successfully added to device_params table" });
   } catch (error) {
-    console.log(error.message);
+    console.error("Error:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while adding data to the database" });
   }
 });
 
 // Assuming you have set up the Express app as 'app', the PostgreSQL pool as 'pool', and the server is running on port 5000
 
 // POST route to handle adding data to a dynamic column
-app.post("/admin/:device_name", urlencodedParser, (req, res) => {
+app.post("/admin/device", urlencodedParser, (req, res) => {
   const { device_name } = req.params; // Get the dynamic column name from the route parameters
   const { val_dict } = req.body; // Get the value to be added to the dynamic column from the request body
 

@@ -74,12 +74,18 @@ function Landing() {
   useEffect(() => {
     const getLandingData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/");
-        const jsonData = await response.json();
-        console.log(jsonData);
+        const response = await fetch("http://localhost:3000/category");
+        const responseData = await response.json();
+        const data = responseData.map(dataElement => {
+          return {
+            name: dataElement.name,
+            types: dataElement.sub_cat
+          }
+        });
+        console.log(data);
         setLoading(false);
 
-        const dataAsArray = await divideArray(jsonData, 3);
+        const dataAsArray = await divideArray(data, 3);
         setDisplayData(dataAsArray);
       } catch (err) {
         console.error(err.message);
