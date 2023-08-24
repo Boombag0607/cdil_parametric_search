@@ -25,31 +25,21 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { visuallyHidden } from "@mui/utils";
 
-function createData(name, calories, fat, carbs, protein) {
-  return {
-    name,
-    calories,
-    fat,
-    carbs,
-    protein,
-  };
-}
-
-const rows = [
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Donut", 452, 25.0, 51, 4.9),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-  createData("Honeycomb", 408, 3.2, 87, 6.5),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Jelly Bean", 375, 0.0, 94, 0.0),
-  createData("KitKat", 518, 26.0, 65, 7.0),
-  createData("Lollipop", 392, 0.2, 98, 0.0),
-  createData("Marshmallow", 318, 0, 81, 2.0),
-  createData("Nougat", 360, 19.0, 9, 37.0),
-  createData("Oreo", 437, 18.0, 63, 4.0),
-];
+// const rows = [
+//   createData("Cupcake", 305, 3.7, 67, 4.3),
+//   createData("Donut", 452, 25.0, 51, 4.9),
+//   createData("Eclair", 262, 16.0, 24, 6.0),
+//   createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
+//   createData("Gingerbread", 356, 16.0, 49, 3.9),
+//   createData("Honeycomb", 408, 3.2, 87, 6.5),
+//   createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
+//   createData("Jelly Bean", 375, 0.0, 94, 0.0),
+//   createData("KitKat", 518, 26.0, 65, 7.0),
+//   createData("Lollipop", 392, 0.2, 98, 0.0),
+//   createData("Marshmallow", 318, 0, 81, 2.0),
+//   createData("Nougat", 360, 19.0, 9, 37.0),
+//   createData("Oreo", 437, 18.0, 63, 4.0),
+// ];
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -124,7 +114,7 @@ function EnhancedTableHead(props) {
     numSelected,
     rowCount,
     onRequestSort,
-    columns
+    columns,
   } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -245,24 +235,116 @@ export default function DeviceTable() {
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [columns, setColumns] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [deviceData, setDeviceData] = useState([]);
   const { subCat } = useParams();
 
   useEffect(() => {
     // This code will run when the component is rendered
-    const getColumns = async (subCat) => {
+    // const getColumns = async (subCat) => {
+    //   try {
+    //     const response = await fetch(`http://localhost:3000/parameters/${subCat}`);
+    //     const data = await response.json(); // Parse the JSON response
+    //     const cols = data.map(col => {
+    //       return {
+    //         id: col.toLowerCase(),
+    //         numeric: false,
+    //         disablePadding: true,
+    //         label: col
+    //       }
+    //     })
+    //     setColumns([{id: "device", numeric:false, label: "Device"}, ...cols]);
+    //   } catch (err) {
+    //     console.error(err.message);
+    //   }
+    // };
+
+    // const getData = async (device) => {
+    //   try {
+    //     const response = await fetch(`http://localhost:3000/data/${encodeURIComponent(device)}`);
+    //     const data = await response.json();
+    //     setDeviceData(data);
+    //   } catch (err) {
+    //     console.error(err.message);
+    //   }
+    // }
+
+    // const getDevicesAndMakeData = async (subCat) => {
+    //   try {
+    //     const response = await fetch(`http://localhost:3000/devices/${subCat}`);
+    //     const data = await response.json(); // Parse the JSON response
+    //     // const devices = data.filter(device => device.sub_cat.includes(subCat));
+    //     const rows = data.map(device => {
+    //       getData(device);
+    //       return createData(...[device, ...deviceData])
+    //     })
+    //     setRows(rows);
+    //   } catch (err) {
+    //     console.error(err.message);
+    //   }
+    // }
+
+    // // Call the function with the desired subCat value
+    // getColumns(subCat);
+    // getDevicesAndMakeData(subCat);
+    const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/parameters/${subCat}`);
-        const data = await response.json(); // Parse the JSON response
-        // Now you can work with the data retrieved from the server
-        console.log(data);
-        setColumns(data);
+        // Fetch columns
+        const columnsResponse = await fetch(
+          `http://localhost:3000/parameters/${subCat}`
+        );
+        const columnsData = await columnsResponse.json();
+        const cols = columnsData.map((col) => {
+          return {
+            id: col.toLowerCase(),
+            numeric: false,
+            disablePadding: true,
+            label: col,
+          };
+        });
+
+        // Fetch devices
+        const devicesResponse = await fetch(
+          `http://localhost:3000/devices/${subCat}`
+        );
+        const devicesNameData = await devicesResponse.json();
+
+        // Fetch data for each device in parallel
+        const deviceDataPromises = devicesNameData.map(async (device) => {
+          const response = await fetch(
+            `http://localhost:3000/data/${encodeURIComponent(device)}`
+          );
+          return response.json();
+        });
+
+        // Wait for all device data to be fetched
+        const deviceData = await Promise.all(deviceDataPromises);
+        console.log("deviceData: ", deviceDataPromises);
+
+        // Set columns and rows
+        setColumns([
+          { id: "device", numeric: false, label: "Device" },
+          ...cols,
+        ]);
+
+        // Create rows
+        const rows = devicesNameData.map((device, index) => {
+          // return createData(...[device, ...deviceData[index]]);
+          let rowObj = {device: device};
+          for (let i = 0; i < cols.length; i++) {
+            rowObj[cols[i].id] = deviceData[index][i];
+          }
+          return rowObj;
+        });
+
+        setRows(rows);
       } catch (err) {
         console.error(err.message);
       }
     };
 
-    // Call the function with the desired subCat value
-    getColumns(subCat);
+    // Call the fetchData function
+    fetchData();
   }, [subCat]); // Empty dependency array means this effect runs once when the component mounts
 
   const handleRequestSort = (event, property) => {
@@ -329,7 +411,7 @@ export default function DeviceTable() {
   );
 
   return (
-    <Box sx={{ width: "100%"}}>
+    <Box sx={{ width: "100%" }}>
       <Paper sx={{ width: "100%", mb: 2 }}>
         <EnhancedTableToolbar device={subCat} numSelected={selected.length} />
         <TableContainer>
@@ -346,7 +428,7 @@ export default function DeviceTable() {
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
               rowCount={rows.length}
-              columns = {columns}
+              columns={columns}
             />
             <TableBody>
               {visibleRows
@@ -375,7 +457,7 @@ export default function DeviceTable() {
                           }}
                         />
                       </TableCell> */}
-                      <TableCell
+                      {/* <TableCell
                         component="th"
                         id={labelId}
                         scope="row"
@@ -387,7 +469,15 @@ export default function DeviceTable() {
                       <TableCell align="center">{row.calories}</TableCell>
                       <TableCell align="center">{row.fat}</TableCell>
                       <TableCell align="center">{row.carbs}</TableCell>
-                      <TableCell align="center">{row.protein}</TableCell>
+                      <TableCell align="center">{row.protein}</TableCell> */}
+                      {
+                        columns.map(column => {
+                          console.log("row: ", row);
+                          return (
+                            <TableCell align="center">{row[column.id]}</TableCell>
+                          )
+                        })
+                      }
                     </TableRow>
                   );
                 })}
@@ -415,10 +505,10 @@ export default function DeviceTable() {
       </Paper>
       <FormControlLabel
         className="rounded-3 border m-3 bottom-0 position-fixed zindex-fixed col-1"
-        style={{backgroundColor: "#eee"}}
+        style={{ backgroundColor: "#eee" }}
         variant="outlined"
         control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label={dense ? "Dense" : "Normal"}
+        // label={dense ? "Dense" : "Normal"}
       />
     </Box>
   );

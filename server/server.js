@@ -51,6 +51,20 @@ app.get("/parameters/:subCat", async (req, res) => {
   }
 });
 
+app.get("/devices/:subCat", async (req, res) => {
+  try {
+    const subCat = req.params.subCat.replace(/_/g, " ");
+    const allData = await pool.query(
+      `SELECT device FROM sub_cat WHERE "ID" = $1`,
+      [subCat]
+    );
+    const jsonData = allData.rows;
+    res.json(jsonData[0].device);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
 app.get("/category", async (req, res) => {
   try {
     const allData = await pool.query(`SELECT * FROM category`);
