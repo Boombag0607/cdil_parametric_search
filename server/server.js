@@ -30,7 +30,9 @@ app.get("/data", async (req, res) => {
 app.get("/data/:device", async (req, res) => {
   try {
     const { device } = req.params;
-    const allData = await pool.query(`SELECT * FROM  device WHERE "ID" = $1`, [device]);
+    const allData = await pool.query(`SELECT * FROM  device WHERE "ID" = $1`, [
+      device,
+    ]);
     res.json(allData.rows[0].data);
   } catch (err) {
     console.error(err.message);
@@ -46,6 +48,26 @@ app.get("/parameters/:subCat", async (req, res) => {
     );
     const jsonData = allData.rows;
     res.json(jsonData[0].subcat_header);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+app.get("/devices", async (req, res) => {
+  try {
+    const devices = [];
+    const subcats = (await pool.query(`SELECT sub_cat FROM category`)).rows[0]
+      .sub_cat;
+
+    subcats.map(async (subcat) => {
+      const allData = await pool.query(
+        `SELECT device FROM sub_cat WHERE "ID" = $1`,
+        [subcat]
+      );
+      devices.push(allData.rows[0].device);
+    });
+
+    res.json(devices);
   } catch (err) {
     console.error(err.message);
   }
@@ -68,6 +90,15 @@ app.get("/devices/:subCat", async (req, res) => {
 app.get("/category", async (req, res) => {
   try {
     const allData = await pool.query(`SELECT * FROM category`);
+    res.json(allData.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+app.get("/packages", async (req, res) => {
+  try {
+    const allData = await pool.query(`SELECT * FROM package`);
     res.json(allData.rows);
   } catch (err) {
     console.error(err.message);
