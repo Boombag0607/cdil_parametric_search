@@ -21,6 +21,7 @@ import {
   FormControlLabel,
   Switch,
   CircularProgress,
+  Link,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { visuallyHidden } from "@mui/utils";
@@ -58,12 +59,7 @@ function stableSort(array, comparator) {
 }
 
 function EnhancedTableHead(props) {
-  const {
-    order,
-    orderBy,
-    onRequestSort,
-    columns,
-  } = props;
+  const { order, orderBy, onRequestSort, columns } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -146,19 +142,19 @@ function EnhancedTableToolbar(props) {
       {numSelected > 0 ? (
         <Tooltip title="Delete">
           <IconButton>
-            <DeleteIcon onClick={onSelectAllClick}/>
+            <DeleteIcon onClick={onSelectAllClick} />
           </IconButton>
         </Tooltip>
       ) : (
-          <Checkbox 
-            color="primary"
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              "aria-label": "select all desserts",
-            }}
-          />
+        <Checkbox
+          color="primary"
+          indeterminate={numSelected > 0 && numSelected < rowCount}
+          checked={rowCount > 0 && numSelected === rowCount}
+          onChange={onSelectAllClick}
+          inputProps={{
+            "aria-label": "select all desserts",
+          }}
+        />
       )}
     </Toolbar>
   );
@@ -314,7 +310,12 @@ export default function DeviceTable() {
         />
       ) : (
         <Paper sx={{ width: "100%", mb: 2 }}>
-          <EnhancedTableToolbar subCat={subCat} numSelected={selected.length} rowCount={rows.length} onSelectAllClick={handleSelectAllClick}/>
+          <EnhancedTableToolbar
+            subCat={subCat}
+            numSelected={selected.length}
+            rowCount={rows.length}
+            onSelectAllClick={handleSelectAllClick}
+          />
           <TableContainer>
             <Table
               stickyHeader={true}
@@ -326,9 +327,7 @@ export default function DeviceTable() {
                 numSelected={selected.length}
                 order={order}
                 orderBy={orderBy}
-                
                 onRequestSort={handleRequestSort}
-                
                 columns={columns}
               />
               <TableBody>
@@ -394,6 +393,9 @@ export default function DeviceTable() {
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         // label={dense ? "Dense" : "Normal"}
       />
+      <Link className="left-9" href="/search" underline="hover">
+        {'Go to search'}
+      </Link>
     </Box>
   );
 }

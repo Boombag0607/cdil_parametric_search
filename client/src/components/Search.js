@@ -16,42 +16,73 @@ import axios from "axios";
 //     label: "$",
 //   },
 
+const industryList = [
+  {
+    value: "audio",
+    label: "Audio",
+  },
+  {
+    value: "automotive",
+    label: "Automotive",
+  },
+  {
+    value: "communications",
+    label: "Communications",
+  },
+  {
+    value: "computing",
+    label: "Computing",
+  },
+  {
+    value: "power",
+    label: "Power",
+  },
+  {
+    value: "sensing",
+    label: "Sensing",
+  },
+];
+
 export default function Search() {
   const [packages, setPackages] = useState([]);
   const [industry, setIndustry] = useState([]);
   const [devices, setDevices] = useState([]);
-  const [currentDevice, setCurrentDevice] = useState('');
+  const [matchedDevice, setMatchedDevice] = useState("");
+  const [currentDevice, setCurrentDevice] = useState("");
 
   useEffect(() => {
     const getPackages = () => {
-      axios
-        .get("http://localhost:3000/packages")
-        .then((response) => response.json())
-        .then((data) => {
-          setPackages(
-            data.map((element) => {
-              return { value: element.pkg_desc, label: element.ID };
-            })
-          );
-        });
+      axios.get("http://localhost:3000/packages").then((response) => {
+        setPackages(
+          response.data.map((element) => {
+            return { value: element.pkg_desc, label: element.ID };
+          })
+        );
+      });
     };
 
     const getDevices = () => {
-      axios
-        .get("http://localhost:3000/devices")
-        .then((response) => response.json())
-        .then((data) => {
-          setDevices(
-            data.map((element) => {
-              return { value: element.pkg_desc, label: element.ID };
-            })
-          );
-        });
+      axios.get("http://localhost:3000/devices").then((response) => {
+        setDevices(
+          response.data.map((element) => {
+            return {
+              value: element.ID.toLowerCase(),
+              label: element.ID,
+              package: element.package,
+              industry: element.industry,
+              status: element.status,
+              pdf_link: element.pdf_link,
+              data: element.data,
+            };
+          })
+        );
+      });
     };
-    
+
     getDevices();
     getPackages();
-  }, []);
+    setIndustry(industryList);
+  }, [industryList]);
 
   const SearchButton = () => (
     <IconButton onClick={handleInputDevice}>
@@ -60,8 +91,7 @@ export default function Search() {
   );
 
   const handleInputDevice = () => {
-    console.log(devices.find((element) => element.value === currentDevice.toUpperCase()));
-    console.log(currentDevice);
+    setMatchedDevice(devices.find((element) => element.value === currentDevice.toLowerCase()));
     // Perform other actions with inputValue if needed
   };
 
@@ -89,10 +119,10 @@ export default function Search() {
         id="outlined-basic"
         label="Device"
         variant="outlined"
-        value = {currentDevice}
+        value={currentDevice}
         onChange={(e) => setCurrentDevice(e.target.value)}
         InputProps={{
-          endAdornment: <SearchButton />,
+          endAdornment: <SearchButton onClick={handleClickIndustry} />,
         }}
       />
       {/* <TextField id="filled-basic" label="Filled" variant="filled" />
@@ -104,7 +134,6 @@ export default function Search() {
           id="outlined-select-currency"
           select
           label="Package"
-          defaultValue="EUR"
           helperText="Search devices via package"
         >
           {packages.map((option, index) => (
@@ -119,16 +148,53 @@ export default function Search() {
           id="outlined-select-currency"
           select
           label="Industry"
-          defaultValue="EUR"
+          defaultValue="industry"
           helperText="Search devices via industry"
         >
-          {packages.map((option, index) => (
+          {industry.map((option, index) => (
             <MenuItem key={option.value + index} value={option.value}>
               {option.label}
             </MenuItem>
           ))}
         </TextField>
       </FormGroup>
+      {currentDevice && matchedDevice ? (
+        <Box>
+          <Typography variant="body1" gutterBottom>
+            {`Selected Device: ${currentDevice},`}
+            {`\nPackage: ${
+              matchedDevice.package
+            }`}
+            {`\nIndustry: ${
+              matchedDevice.industry
+            }`}
+            {
+             matchedDevice.status === "active" ? (
+              <Typography variant="body1" gutterBottom>
+                {`\nStatus: ${matchedDevice.status}`}
+              </Typography> 
+              ) : (
+              <Typography variant="body1" gutterBottom>
+                {`\nStatus: ${matchedDevice.status}`}
+              </Typography>
+              )
+            }
+            {`\nPDF Link: ${
+              matchedDevice.pdf_link
+            }`}
+            {`\nData: ${
+              matchedDevice.data
+            }`}
+
+          </Typography>
+        </Box>
+      ) : (
+        <Box>
+          <Typography variant="body1" gutterBottom>
+            No device found
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
 }

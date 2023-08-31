@@ -55,19 +55,8 @@ app.get("/parameters/:subCat", async (req, res) => {
 
 app.get("/devices", async (req, res) => {
   try {
-    const devices = [];
-    const subcats = (await pool.query(`SELECT sub_cat FROM category`)).rows[0]
-      .sub_cat;
-
-    subcats.map(async (subcat) => {
-      const allData = await pool.query(
-        `SELECT device FROM sub_cat WHERE "ID" = $1`,
-        [subcat]
-      );
-      devices.push(allData.rows[0].device);
-    });
-
-    res.json(devices);
+    const allData = await pool.query(`SELECT * FROM device`)
+    res.json(allData.rows);
   } catch (err) {
     console.error(err.message);
   }
