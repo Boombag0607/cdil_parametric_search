@@ -22,9 +22,11 @@ import {
   Switch,
   CircularProgress,
   Link,
+  Grid,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { visuallyHidden } from "@mui/utils";
+import Search from "./Search";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -303,7 +305,7 @@ export default function DeviceTable() {
   );
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box className="p-3" sx={{ width: "100%" }}>
       {loading ? ( // Display CircularProgress while loading
         <CircularProgress
           sx={{ position: "absolute", top: "50%", left: "50%" }}
@@ -387,15 +389,21 @@ export default function DeviceTable() {
         </Paper>
       )}
       <FormControlLabel
-        className="rounded-3 border m-3 bottom-0 position-fixed zindex-fixed col-1"
+        className="rounded-3 border m-3 bottom-0 position-fixed col-1"
         style={{ backgroundColor: "#eee" }}
         variant="outlined"
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         // label={dense ? "Dense" : "Normal"}
       />
-      <Link className="left-9" href="/search" underline="hover">
-        {'Go to search'}
-      </Link>
+      <Grid
+        container
+        justifyContent="flex-end"
+        className=""
+      >
+        <Link className="m-3 btn btn-outline-primary position-fixed" href="/search" underline="none">
+          {"Go to search"}
+        </Link>
+      </Grid>
     </Box>
   );
 }

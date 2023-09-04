@@ -161,7 +161,7 @@ export default function Search() {
       {currentDevice && matchedDevice ? (
         <Box>
           <Typography variant="body1" gutterBottom>
-            {`Selected Device: ${currentDevice},`}
+            {`Selected Device: ${matchedDevice.label},`}
             {`\nPackage: ${
               matchedDevice.package
             }`}
