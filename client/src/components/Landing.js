@@ -74,7 +74,7 @@ function Landing() {
   useEffect(() => {
     const getLandingData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/category");
+        const response = await fetch("http://localhost:3000/categories");
         const responseData = await response.json();
         const data = responseData.map(dataElement => {
           return {

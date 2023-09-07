@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
 import {
@@ -24,9 +24,11 @@ import {
   Link,
   Grid,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
+// import DeleteIcon from "@mui/icons-material/Delete";
+import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
+import ViewListRoundedIcon from "@mui/icons-material/ViewListRounded";
 import { visuallyHidden } from "@mui/utils";
-import Search from "./Search";
+import axios from "axios";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -98,14 +100,22 @@ function EnhancedTableHead(props) {
 EnhancedTableHead.propTypes = {
   numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
+  // onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.oneOf(["asc", "desc"]).isRequired,
   orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired,
+  // rowCount: PropTypes.number.isRequired,
 };
 
 function EnhancedTableToolbar(props) {
-  const { numSelected, subCat, rowCount, onSelectAllClick } = props;
+  const navigate = useNavigate()
+  const { numSelected, subCat, rowCount, onSelectAllClick, selectedDevices } =
+    props;
+
+  const handleDisplayClick = () => {
+    const devices = selectedDevices
+    console.log("selected Devices: ", selectedDevices)
+    navigate("/display", {state: {devices}})
+  }
 
   return (
     <Toolbar
@@ -142,11 +152,18 @@ function EnhancedTableToolbar(props) {
       )}
 
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton>
-            <DeleteIcon onClick={onSelectAllClick} />
-          </IconButton>
-        </Tooltip>
+        <Box sx={{ display: 'flex' }}>
+          <Tooltip title="Display Selected Devices">
+            <IconButton onClick={handleDisplayClick}>
+              <ViewListRoundedIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Unselect All">
+            <IconButton>
+              <CancelRoundedIcon onClick={onSelectAllClick} />
+            </IconButton>
+          </Tooltip>
+        </Box>
       ) : (
         <Checkbox
           color="primary"
@@ -183,10 +200,10 @@ export default function DeviceTable() {
     const fetchData = async () => {
       try {
         // Fetch columns
-        const columnsResponse = await fetch(
-          `http://localhost:3000/parameters/${subCat}`
+        const columnsResponse = await axios.get(
+          `http://localhost:3000/headers/${subCat}`
         );
-        const columnsData = await columnsResponse.json();
+        const columnsData = await columnsResponse?.data;
         const cols = columnsData.map((col) => {
           return {
             id: col.toLowerCase(),
@@ -199,31 +216,44 @@ export default function DeviceTable() {
         // Set columns and rows
         setColumns([
           { id: "device", numeric: false, label: "Device" },
+          { id: "package", numeric: false, label: "Package" },
+          { id: "industry", numeric: false, label: "Industry" },
+          { id: "status", numeric: false, label: "Status" },
+          { id: "pdf_link", numeric: false, label: "PDF Link" },
           ...cols,
         ]);
 
         // Fetch devices
-        const devicesResponse = await fetch(
+        const devicesResponse = await axios.get(
           `http://localhost:3000/devices/${subCat}`
         );
-        const devicesNameData = await devicesResponse.json();
+        const devicesNameData = await devicesResponse.data;
+        // console.log("devicesNameData: ", devicesNameData);
 
         // Fetch data for each device in parallel
         const deviceDataPromises = devicesNameData.map(async (device) => {
-          const response = await fetch(
-            `http://localhost:3000/data/${encodeURIComponent(device)}`
+          const response = await axios.get(
+            `http://localhost:3000/data/${encodeURIComponent(device.id)}`
           );
-          return response.json().then((data) => data);
+          // console.log("repsonse", response)
+          return response.data;
         });
 
         // Wait for all device data to be fetched
         const deviceData = await Promise.all(deviceDataPromises);
-        console.log("deviceData: ", deviceData);
+        // console.log("deviceData: ", deviceData);
 
         // Create rows
         const rows = devicesNameData.map((device, index) => {
           // return createData(...[device, ...deviceData[index]]);
-          let rowObj = { device: device };
+          let rowObj = {
+            name: device.id.toLowerCase(),
+            device: device.id,
+            package: device.package,
+            industry: device.industry,
+            status: device.status,
+            pdf_link: device.pdf_link,
+          };
           for (let i = 0; i < cols.length; i++) {
             rowObj[cols[i].id] = deviceData[index][i];
           }
@@ -272,7 +302,7 @@ export default function DeviceTable() {
         selected.slice(selectedIndex + 1)
       );
     }
-
+    console.log("newSelected: ", newSelected);
     setSelected(newSelected);
   };
 
@@ -317,6 +347,7 @@ export default function DeviceTable() {
             numSelected={selected.length}
             rowCount={rows.length}
             onSelectAllClick={handleSelectAllClick}
+            selectedDevices={selected}
           />
           <TableContainer>
             <Table
@@ -351,7 +382,7 @@ export default function DeviceTable() {
                         sx={{ cursor: "pointer" }}
                       >
                         {columns.map((column, colidx) => {
-                          console.log("row: ", row);
+                          // console.log("row: ", row);
                           return (
                             <TableCell
                               align="center"
@@ -395,12 +426,12 @@ export default function DeviceTable() {
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         // label={dense ? "Dense" : "Normal"}
       />
-      <Grid
-        container
-        justifyContent="flex-end"
-        className=""
-      >
-        <Link className="m-3 btn btn-outline-primary position-fixed" href="/search" underline="none">
+      <Grid container justifyContent="flex-end" className="">
+        <Link
+          className="m-3 btn btn-outline-primary position-fixed"
+          href="/search"
+          underline="none"
+        >
           {"Go to search"}
         </Link>
       </Grid>

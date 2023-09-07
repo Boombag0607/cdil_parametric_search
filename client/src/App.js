@@ -11,7 +11,7 @@ const App = () => (
       <Route exact path="/" element={<Landing />} />
       <Route path="/table/:subCat" element={<DeviceTable />} />
       <Route path="/search" element={<Search/>} />
-      <Route path="device-display" element={<Display />}/>
+      <Route path="/display" element={<Display />}/>
     </Routes>
   </Router>
 )
