@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { styled } from "@mui/material/styles";
 import {
   Box,
   Typography,
@@ -9,11 +8,13 @@ import {
   IconButton,
   Grid,
   Paper,
-  Stack,
+  Card,
+  CardMedia,
+  CardContent,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
-import { DataGrid } from "@mui/x-data-grid";
+// import { DataGrid } from "@mui/x-data-grid";
 
 // const currencies = [
 //   {
@@ -101,8 +102,8 @@ function StyledPaper(props) {
         border: "1px solid",
         borderColor: (theme) =>
           theme.palette.mode === "dark" ? "grey.800" : "grey.300",
-        alignItems:"center",
-        ...sx
+        alignItems: "center",
+        ...sx,
       }}
       {...other}
     />
@@ -135,61 +136,129 @@ export default function Search() {
   const [matchedDevice, setMatchedDevice] = useState("");
   const [currentDevice, setCurrentDevice] = useState("");
   const [currentPackage, setCurrentPackage] = useState("");
-  const [matchedDeviceRows, setMatchedDeviceRows] = useState([]);
+
+  // useEffect(() => {
+  //   const getPackages = async () => {
+  //     const res = await axios.get(`http://localhost:3000/packages`);
+  //     console.log("pkgs", res);
+  //     setPackages(
+  //       res.data.map((element) => {
+  //         return {
+  //           value: element.id.toLowerCase(),
+  //           label: element.id,
+  //           desc: element.pkg_desc,
+  //         };
+  //       })
+  //     );
+  //   };
+
+  //   const getDeviceData = async (device) => {
+  //     try {
+  //       const res = await axios.get(
+  //         `http://localhost:3000/data/${encodeURIComponent(device.id)}`
+  //       );
+  //       console.log("data", res.data);
+  //       return res?.data;
+  //     } catch (err) {
+  //       console.error(err);
+  //       return null;
+  //     }
+  //   };
+
+  //   const getDeviceCategory = async(subcat) => {
+  //     const res = await axios.get(`http://localhost:3000/categories`);
+  //     return res?.data?.filter(cat => cat.sub_cat.includes(subcat)).map(cat => cat.name);
+  //   };
+
+  //   const getDevices = async () => {
+  //     const res = await axios.get(`http://localhost:3000/devices`);
+
+  //     // Use Promise.all to fetch data for all devices concurrently
+  //     const allDevicesObj = await Promise.all(
+  //       res.data.map(async (element) => {
+  //         const data = await getDeviceData(element);
+  //         return {
+  //           value: element.id.toLowerCase(),
+  //           label: element.id,
+  //           package: element.package,
+  //           industry: element.industry,
+  //           status: element.status,
+  //           pdf_link: element.pdf_link,
+  //           data: data, // Assign the fetched data
+  //           subcategory: element.subcat_id,
+  //           category: getDeviceCategory(element.subcat_id)
+  //         };
+  //       })
+  //     );
+
+  //     setDevices(allDevicesObj); // Set the devices with data
+  //   };
+
+  //   getDevices();
+  //   getPackages();
+  //   setIndustry(industryList);
+  // }, []);
 
   useEffect(() => {
-    const getPackages = async () => {
-      const res = await axios.get(`http://localhost:3000/packages`);
-      console.log("pkgs", res);
-      setPackages(
-        res.data.map((element) => {
+    const fetchData = async () => {
+      try {
+        const packagesResponse = await axios.get(
+          `http://localhost:3000/packages`
+        );
+        const packagesData = packagesResponse.data.map((element) => {
           return {
             value: element.id.toLowerCase(),
             label: element.id,
             desc: element.pkg_desc,
           };
-        })
-      );
-    };
+        });
 
-    const getDeviceData = async (device) => {
-      try {
-        const res = await axios.get(
-          `http://localhost:3000/data/${encodeURIComponent(device.id)}`
+        const devicesResponse = await axios.get(
+          `http://localhost:3000/devices`
         );
-        console.log("data", res.data);
-        return res?.data;
-      } catch (err) {
-        console.error(err);
-        return null;
+        const devicesData = devicesResponse.data;
+
+        // Fetch data for all devices concurrently using Promise.all
+        const allDevicesData = await Promise.all(
+          devicesData.map(async (element) => {
+            const dataResponse = await axios.get(
+              `http://localhost:3000/data/${encodeURIComponent(element.id)}`
+            );
+            const deviceData = dataResponse.data;
+
+            // Fetch category for the subcategory
+            const categoryResponse = await axios.get(
+              `http://localhost:3000/categories`
+            );
+            const subcategory = element.subcat_id;
+            const categoryData = categoryResponse.data
+              .filter((cat) => cat.sub_cat.includes(subcategory))
+              .map((cat) => cat.name);
+
+            return {
+              value: element.id.toLowerCase(),
+              label: element.id,
+              package: element.package,
+              industry: element.industry,
+              status: element.status,
+              pdf_link: element.pdf_link,
+              data: deviceData,
+              subcategory,
+              category: categoryData,
+            };
+          })
+        );
+
+        // Set your state variables here
+        setPackages(packagesData);
+        setDevices(allDevicesData);
+        setIndustry(industryList);
+      } catch (error) {
+        console.error(error);
       }
     };
 
-    const getDevices = async () => {
-      const res = await axios.get(`http://localhost:3000/devices`);
-
-      // Use Promise.all to fetch data for all devices concurrently
-      const devicesWithData = await Promise.all(
-        res.data.map(async (element) => {
-          const data = await getDeviceData(element);
-          return {
-            value: element.id.toLowerCase(),
-            label: element.id,
-            package: element.package,
-            industry: element.industry,
-            status: element.status,
-            pdf_link: element.pdf_link,
-            data: data, // Assign the fetched data
-          };
-        })
-      );
-
-      setDevices(devicesWithData); // Set the devices with data
-    };
-
-    getDevices();
-    getPackages();
-    setIndustry(industryList);
+    fetchData();
   }, []);
 
   const handleInputDevice = () => {
@@ -247,6 +316,7 @@ export default function Search() {
               select
               label="Package"
               helperText="Search devices via package"
+              onChange={(e) => setCurrentPackage(e.target.value)}
             >
               {packages.map((option, index) => (
                 <MenuItem key={option.value + index} value={option.value}>
@@ -276,7 +346,7 @@ export default function Search() {
           item
           xs={6}
           sx={{
-            "& > :not(style)": {  },
+            "& > :not(style)": {},
           }}
         >
           <Box
@@ -297,21 +367,38 @@ export default function Search() {
                   theme.palette.mode === "dark" ? "grey.800" : "grey.300",
               }}
             >
-              <StyledPaper className="h-100 w-50 text-center" > {
-                currentDevice && matchedDevice ? (
-                  <img src={`${matchedDevice.image}`} alt={matchedDevice.label}/>
-                ): (
-                  <Typography >No Device Selected</Typography>
-                )
-              }</StyledPaper>
+              <StyledPaper className="h-100 w-50 text-center">
+                {currentDevice && matchedDevice ? (
+                  <Card className="h-100 text-center" sx={{ maxWidth: 345 }}>
+                    <CardMedia
+                      sx={{ height: 180 }}
+                      image={matchedDevice.image}
+                      title="Device Package"
+                    />
+                    <CardContent>
+                      <Typography gutterBottom variant="h5" component="div">
+                        {matchedDevice.category}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card className="h-100 text-center" sx={{ maxWidth: 345 }}>
+                    <CardMedia sx={{ height: 90 }} title="No Device Selected" />
+                    <CardContent>
+                      <Typography gutterBottom variant="h5" component="div">
+                        No Device Selected
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                )}
+              </StyledPaper>
               <Box sx={{ alignItems: "center", height: "100%", m: 1 }}>
                 <Item>Device: {matchedDevice.label}</Item>
                 <Item>Package: {matchedDevice.package}</Item>
                 <Item>Industry: {matchedDevice.industry}</Item>
                 <Item>Status: {matchedDevice.status}</Item>
                 <Item>PDF Link: {matchedDevice.pdf_link}</Item>
-                <Item>Subcateorgy: {matchedDevice.pdf_link}</Item>
-                <Item>Category: {matchedDevice.pdf_link}</Item>
+                <Item>Subcateorgy: {matchedDevice.subcategory}</Item>
               </Box>
             </Item>
             {/* <DataGrid
