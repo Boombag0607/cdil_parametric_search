@@ -11,16 +11,14 @@ import {
   Card,
   CardMedia,
   CardContent,
+  Tooltip,
+  Button,
+  Autocomplete,
+  LinearProgress,
+  Drawer,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
-// import { DataGrid } from "@mui/x-data-grid";
-
-// const currencies = [
-//   {
-//     value: "USD",
-//     label: "$",
-//   },
 
 // const Item = styled(Paper)(({ theme }) => ({
 //   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -58,37 +56,37 @@ const industryList = [
   },
 ];
 
-const inputDeviceColumns = [
-  { field: "id", headerName: "Selected Device", width: 90 },
-  {
-    field: "package",
-    headerName: "Package",
-    width: 150,
-    editable: true,
-  },
-  {
-    field: "industry",
-    headerName: "Industry",
-    width: 150,
-    editable: true,
-  },
-  {
-    field: "status",
-    headerName: "Status",
-    type: "boolean",
-    width: 110,
-    editable: true,
-  },
-  {
-    field: "pdf_link",
-    headerName: "PDF Link",
-    description: "This column is of type URL",
-    sortable: false,
-    width: 160,
-    // valueGetter: (params) =>
-    //   `${params.row.firstName || ""} ${params.row.lastName || ""}`,
-  },
-];
+// const inputDeviceColumns = [
+//   { field: "id", headerName: "Selected Device", width: 90 },
+//   {
+//     field: "package",
+//     headerName: "Package",
+//     width: 150,
+//     editable: true,
+//   },
+//   {
+//     field: "industry",
+//     headerName: "Industry",
+//     width: 150,
+//     editable: true,
+//   },
+//   {
+//     field: "status",
+//     headerName: "Status",
+//     type: "boolean",
+//     width: 110,
+//     editable: true,
+//   },
+//   {
+//     field: "pdf_link",
+//     headerName: "PDF Link",
+//     description: "This column is of type URL",
+//     sortable: false,
+//     width: 160,
+//     // valueGetter: (params) =>
+//     //   `${params.row.firstName || ""} ${params.row.lastName || ""}`,
+//   },
+// ];
 
 function StyledPaper(props) {
   const { sx, ...other } = props;
@@ -133,9 +131,23 @@ export default function Search() {
   const [packages, setPackages] = useState([]);
   const [industry, setIndustry] = useState([]);
   const [devices, setDevices] = useState([]);
-  const [matchedDevice, setMatchedDevice] = useState("");
+  const [matchedDevices, setMatchedDevices] = useState([
+    {
+      value: "",
+      label: "",
+      package: "",
+      industry: "",
+      status: "",
+      pdf_link: "",
+      data: [],
+      subcategory: "",
+      category: "",
+    },
+  ]);
   const [currentDevice, setCurrentDevice] = useState("");
   const [currentPackage, setCurrentPackage] = useState("");
+  const [currentIndustry, setCurrentIndustry] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // useEffect(() => {
   //   const getPackages = async () => {
@@ -262,15 +274,39 @@ export default function Search() {
   }, []);
 
   const handleInputDevice = () => {
-    setMatchedDevice(
+    setMatchedDevices(
       devices.find((element) => element.value === currentDevice.toLowerCase())
     );
     // Perform other actions with inputValue if needed
   };
 
+  const handleInputs = () => {
+    if (
+      currentDevice === "" &&
+      currentPackage === "" &&
+      currentIndustry === ""
+    ) {
+      // No filters are applied, show all devices
+      setMatchedDevices(devices);
+    } else {
+      // Apply filters based on user selections
+      const filteredDevices = devices.filter((element) => {
+        return (
+          (currentDevice === "" ||
+            element.value === currentDevice.toLowerCase()) &&
+          (currentPackage === "" || element.package === currentPackage) &&
+          (currentIndustry === "" || element.industry === currentIndustry)
+        );
+      });
+      setMatchedDevices(filteredDevices);
+      console.log("filteredDevices: ", filteredDevices);
+      setLoading(false);
+    }
+  };
+
   const SearchButton = () => (
-    <IconButton onClick={handleInputDevice}>
-      <SearchIcon />
+    <IconButton>
+      <SearchIcon onClick={handleInputs} />
     </IconButton>
   );
 
@@ -279,10 +315,12 @@ export default function Search() {
       component="form"
       sx={{
         "& > :not(style)": { m: 3 },
+        width: "100%",
       }}
       noValidate
       autoComplete="off"
     >
+      {console.log("packages: ", packages)}
       <Typography variant="h3" component="h2">
         Search Your Product Here
       </Typography>
@@ -295,52 +333,96 @@ export default function Search() {
           }}
         >
           {/* <Item> */}
-          <TextField
-            sx={{ width: "100%" }}
-            id="outlined-basic"
-            label="Device"
-            variant="outlined"
-            value={currentDevice}
-            onChange={(e) => setCurrentDevice(e.target.value)}
-            InputProps={{
-              endAdornment: <SearchButton />,
-            }}
-          />
+          <FormGroup>
+            <TextField
+              sx={{ width: "100%" }}
+              id="outlined-basic"
+              label="Device"
+              variant="outlined"
+              value={currentDevice}
+              onChange={(e) => {
+                setLoading(true);
+                setCurrentDevice(e.target.value);
+                handleInputs();
+              }}
+              InputProps={{
+                endAdornment: <SearchButton />,
+              }}
+            />
+          </FormGroup>
           {/* <TextField id="filled-basic" label="Filled" variant="filled" />
       <TextField id="standard-basic" label="Standard" variant="standard" /> */}
-
-          {console.log(devices)}
-          <FormGroup sx={{ width: "100%" }}>
+          <FormGroup>
+            <Autocomplete
+              sx={{ width: "100%" }}
+              multiple
+              id="tags-outlined"
+              options={packages}
+              // getOptionLabel={(option) => option.label}
+              defaultValue={[]}
+              filterSelectedOptions
+              onChange={(e) => {
+                setCurrentPackage(e.target.value);
+                handleInputs();
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Packges"
+                  placeholder="Select packages for filtering"
+                />
+              )}
+            />
+          </FormGroup>
+          {/* <TextField/> */}
+          {/* <FormGroup sx={{ width: "100%" }}>
             <TextField
-              id="outlined-select-currency"
+              id="select-package"
               select
               label="Package"
               helperText="Search devices via package"
-              onChange={(e) => setCurrentPackage(e.target.value)}
+              value={currentPackage} // Make sure to set the value prop
+              onChange={(e) => {
+                setCurrentPackage(e.target.value);
+                handleInputs();
+              }}
             >
+              <MenuItem key="clear" value="clear">
+                Clear selection
+              </MenuItem>
               {packages.map((option, index) => (
                 <MenuItem key={option.value + index} value={option.value}>
                   {option.label}
                 </MenuItem>
               ))}
             </TextField>
-          </FormGroup>
-          <FormGroup sx={{ width: "100%" }}>
-            <TextField
-              id="outlined-select-currency"
-              select
-              label="Industry"
-              defaultValue="industry"
-              helperText="Search devices via industry"
-            >
-              {industry.map((option, index) => (
-                <MenuItem key={option.value + index} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
+          </FormGroup> */}
+          <FormGroup>
+            <Autocomplete
+              sx={{ width: "100%" }}
+              multiple
+              id="tags-outlined"
+              options={industry}
+              // getOptionLabel={(option) => option.label}
+              defaultValue={[]}
+              filterSelectedOptions
+              onChange={(e) => {
+                setCurrentIndustry(e.target.value);
+                handleInputs();
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Industry"
+                  placeholder="Select industry for filtering"
+                />
+              )}
+            />
           </FormGroup>
           {/* </Item> */}
+          <Tooltip title="Add Filters" enterDelay={500} leaveDelay={200}>
+            <Button onClick={handleInputs}>Apply Filters</Button>
+          </Tooltip>
         </Grid>
         <Grid
           item
@@ -349,59 +431,107 @@ export default function Search() {
             "& > :not(style)": {},
           }}
         >
-          <Box
-            sx={{
-              p: 1,
-              alignItems: "center",
-              bgcolor: "background.paper",
-            }}
-          >
-            <Item
+          {loading ? (
+            <Box sx={{ width: "100%" }} >
+              <LinearProgress />
+            </Box>
+          ) : (
+            <Box
               sx={{
-                width: "80%",
-                height: 260,
-                display: "flex",
-                alignItems: "flex-start",
-                border: "1px solid",
-                borderColor: (theme) =>
-                  theme.palette.mode === "dark" ? "grey.800" : "grey.300",
+                p: 1,
+                alignItems: "center",
+                bgcolor: "background.paper",
+                overflowY: "scroll", maxHeight: "80vh"
               }}
             >
-              <StyledPaper className="h-100 w-50 text-center">
-                {currentDevice && matchedDevice ? (
-                  <Card className="h-100 text-center" sx={{ maxWidth: 345 }}>
-                    <CardMedia
-                      sx={{ height: 180 }}
-                      image={matchedDevice.image}
-                      title="Device Package"
-                    />
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="div">
-                        {matchedDevice.category}
-                      </Typography>
-                    </CardContent>
-                  </Card>
+                {matchedDevices.length === 0 ? (
+                  <Item
+                    sx={{
+                      width: "80%",
+                      height: 260,
+                      display: "flex",
+                      alignItems: "flex-start",
+                      border: "1px solid",
+                      borderColor: (theme) =>
+                        theme.palette.mode === "dark" ? "grey.800" : "grey.300",
+                    }}
+                  >
+                    <StyledPaper className="h-100 text-center">
+                      <Card className="h-100 text-center">
+                        <CardMedia title="Device Package" />
+                        <CardContent>
+                          <Typography gutterBottom variant="h5" component="div">
+                            No Device with applied filters found...
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </StyledPaper>
+                  </Item>
                 ) : (
-                  <Card className="h-100 text-center" sx={{ maxWidth: 345 }}>
-                    <CardMedia sx={{ height: 90 }} title="No Device Selected" />
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="div">
-                        No Device Selected
-                      </Typography>
-                    </CardContent>
-                  </Card>
+                  matchedDevices.map((md) => (
+                    <Item
+                      sx={{
+                        width: "80%",
+                        height: 260,
+                        display: "flex",
+                        alignItems: "flex-start",
+                        border: "1px solid",
+                        borderRadius: 2,
+                        m: 1,
+                        borderColor: (theme) =>
+                          theme.palette.mode === "dark"
+                            ? "grey.800"
+                            : "grey.300",
+                      }}
+                    >
+                      <StyledPaper className="h-100 w-50 text-center">
+                        {md ? (
+                          <Card className="h-100 text-center">
+                            <CardMedia
+                              sx={{ height: 180 }}
+                              image={md.image}
+                              title="Device Package"
+                            />
+                            <CardContent>
+                              <Typography
+                                gutterBottom
+                                variant="h5"
+                                component="div"
+                              >
+                                {md.category}
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        ) : (
+                          <Card className="h-100 text-center">
+                            <CardMedia
+                              sx={{ height: 90 }}
+                              title="No Device Selected"
+                            />
+                            <CardContent>
+                              <Typography
+                                gutterBottom
+                                variant="h5"
+                                component="div"
+                              >
+                                No Device Selected
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        )}
+                      </StyledPaper>
+                      <Box sx={{ alignItems: "center", height: "100%", m: 1 }}>
+                        <Item>Device: {md.label}</Item>
+                        <Item>Package: {md.package}</Item>
+                        <Item>Industry: {md.industry}</Item>
+                        <Item>Status: {md.status}</Item>
+                        <Item>PDF Link: {md.pdf_link}</Item>
+                        <Item>Subcateorgy: {md.subcategory}</Item>
+                      </Box>
+                    </Item>
+                  ))
                 )}
-              </StyledPaper>
-              <Box sx={{ alignItems: "center", height: "100%", m: 1 }}>
-                <Item>Device: {matchedDevice.label}</Item>
-                <Item>Package: {matchedDevice.package}</Item>
-                <Item>Industry: {matchedDevice.industry}</Item>
-                <Item>Status: {matchedDevice.status}</Item>
-                <Item>PDF Link: {matchedDevice.pdf_link}</Item>
-                <Item>Subcateorgy: {matchedDevice.subcategory}</Item>
-              </Box>
-            </Item>
-            {/* <DataGrid
+                {/* <DataGrid
                 rows={matchedDeviceRows}
                 columns={inputDeviceColumns}
                 initialState={{
@@ -415,7 +545,8 @@ export default function Search() {
                 checkboxSelection
                 disableRowSelectionOnClick
               /> */}
-          </Box>
+            </Box>
+          )}
         </Grid>
       </Grid>
     </Box>
