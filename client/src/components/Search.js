@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import {
   Box,
   Typography,
-  MenuItem,
   TextField,
   FormGroup,
   IconButton,
@@ -15,7 +14,6 @@ import {
   Button,
   Autocomplete,
   LinearProgress,
-  Drawer,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
@@ -88,6 +86,33 @@ const industryList = [
 //   },
 // ];
 
+function StyledAutocomplete(props) {
+  const { sx, ...other } = props;
+  return (
+    <Autocomplete
+      sx={{
+        width: "100%",
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: (theme) =>
+              theme.palette.mode === "dark" ? "grey.800" : "grey.300",
+          },
+          "&:hover fieldset": {
+            borderColor: (theme) =>
+              theme.palette.mode === "dark" ? "grey.800" : "grey.300",
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: (theme) =>
+              theme.palette.mode === "dark" ? "grey.800" : "grey.300",
+          },
+        },
+        ...sx,
+      }}
+      {...other}
+    />
+  );
+}
+
 function StyledPaper(props) {
   const { sx, ...other } = props;
   return (
@@ -144,9 +169,10 @@ export default function Search() {
       category: "",
     },
   ]);
-  const [currentDevice, setCurrentDevice] = useState("");
-  const [currentPackage, setCurrentPackage] = useState("");
-  const [currentIndustry, setCurrentIndustry] = useState("");
+  const [selectedDevices, setSelectedDevices] = useState([]);
+  const [inputDevice, setInputDevice] = useState("");
+  const [selectedPackages, setSelectedPackages] = useState([]);
+  const [selectedIndustries, setSelectedIndustries] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // useEffect(() => {
@@ -273,18 +299,37 @@ export default function Search() {
     fetchData();
   }, []);
 
-  const handleInputDevice = () => {
-    setMatchedDevices(
-      devices.find((element) => element.value === currentDevice.toLowerCase())
+  // const handleInputDevice = () => {
+  //   setMatchedDevices(
+  //     devices.find((element) => element.value === currentDevices.toLowerCase())
+  //   );
+  //   // Perform other actions with inputValue if needed
+  // };
+
+  const handleDeviceChange = (event, newValue) => {
+    setSelectedDevices(newValue);
+    handleInputs();
+  };
+
+  const handleInputChange = (event, newInputValue) => {
+    setInputDevice(newInputValue);
+    const selectedDevice = devices.find(
+      (device) => device.label === inputDevice
     );
-    // Perform other actions with inputValue if needed
+    console.log("selectedDevices ::: ", selectedDevices);
+
+    if (selectedDevice) {
+      // Append the selected device object to the selectedDevices array
+      setSelectedDevices([...selectedDevices, selectedDevice]);
+    }
+    // setSelectedDevices([...selectedDevices, newInputValue]);
   };
 
   const handleInputs = () => {
     if (
-      currentDevice === "" &&
-      currentPackage === "" &&
-      currentIndustry === ""
+      selectedDevices.length === 0 &&
+      selectedPackages.length === 0 &&
+      selectedIndustries.length === 0
     ) {
       // No filters are applied, show all devices
       setMatchedDevices(devices);
@@ -292,23 +337,25 @@ export default function Search() {
       // Apply filters based on user selections
       const filteredDevices = devices.filter((element) => {
         return (
-          (currentDevice === "" ||
-            element.value === currentDevice.toLowerCase()) &&
-          (currentPackage === "" || element.package === currentPackage) &&
-          (currentIndustry === "" || element.industry === currentIndustry)
+          (selectedDevices.length === 0 ||
+            selectedDevices.includes(element.label)) &&
+          (selectedPackages.length === 0 ||
+            selectedPackages.includes(element.package)) &&
+          (selectedIndustries.length === 0 ||
+            selectedIndustries.includes(element.industry))
         );
       });
       setMatchedDevices(filteredDevices);
       console.log("filteredDevices: ", filteredDevices);
-      setLoading(false);
     }
+    setLoading(false);
   };
 
-  const SearchButton = () => (
-    <IconButton>
-      <SearchIcon onClick={handleInputs} />
-    </IconButton>
-  );
+  // const SearchButton = () => (
+  //   <IconButton onClick={handleInputs}>
+  //     <SearchIcon />
+  //   </IconButton>
+  // );
 
   return (
     <Box
@@ -320,7 +367,7 @@ export default function Search() {
       noValidate
       autoComplete="off"
     >
-      {console.log("packages: ", packages)}
+      {/* {console.log("packages: ", packages)} */}
       <Typography variant="h3" component="h2">
         Search Your Product Here
       </Typography>
@@ -334,37 +381,55 @@ export default function Search() {
         >
           {/* <Item> */}
           <FormGroup>
-            <TextField
+            {/* <TextField
               sx={{ width: "100%" }}
               id="outlined-basic"
               label="Device"
               variant="outlined"
-              value={currentDevice}
-              onChange={(e) => {
+              value = {currentDevice}
+              onChange={(event, newDevice) => {
                 setLoading(true);
-                setCurrentDevice(e.target.value);
+                setCurrentDevice(event.target.value || newDevice);
                 handleInputs();
               }}
               InputProps={{
                 endAdornment: <SearchButton />,
               }}
+            /> */}
+            <StyledAutocomplete
+              multiple
+              id="controllable-states-demo"
+              options={devices}
+              value={selectedDevices}
+              onChange={handleDeviceChange}
+              inputValue={inputDevice}
+              onInputChange={handleInputChange}
+              renderInput={(params) => <TextField {...params} label="Device" />}
             />
           </FormGroup>
           {/* <TextField id="filled-basic" label="Filled" variant="filled" />
       <TextField id="standard-basic" label="Standard" variant="standard" /> */}
+          <div>{`value: ${
+            selectedDevices.length !== 0
+              ? `'${selectedDevices.map((d) => d.label)}'`
+              : "null"
+          }`}</div>
+          <div>{`inputValue: '${inputDevice}'`}</div>
           <FormGroup>
-            <Autocomplete
-              sx={{ width: "100%" }}
+            <StyledAutocomplete
               multiple
               id="tags-outlined"
               options={packages}
               // getOptionLabel={(option) => option.label}
               defaultValue={[]}
               filterSelectedOptions
-              onChange={(e) => {
-                setCurrentPackage(e.target.value);
+              inputValue={selectedPackages}
+              onInputChange={(event, newInputValue) => {
+                console.log("newIpValue:   ", newInputValue);
+                setSelectedPackages(newInputValue);
                 handleInputs();
               }}
+              // onChange={(event, newValue) => setSelectedPackages(newValue)}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -398,8 +463,7 @@ export default function Search() {
             </TextField>
           </FormGroup> */}
           <FormGroup>
-            <Autocomplete
-              sx={{ width: "100%" }}
+            <StyledAutocomplete
               multiple
               id="tags-outlined"
               options={industry}
@@ -407,7 +471,7 @@ export default function Search() {
               defaultValue={[]}
               filterSelectedOptions
               onChange={(e) => {
-                setCurrentIndustry(e.target.value);
+                setSelectedIndustries(e.target.value);
                 handleInputs();
               }}
               renderInput={(params) => (
@@ -432,7 +496,7 @@ export default function Search() {
           }}
         >
           {loading ? (
-            <Box sx={{ width: "100%" }} >
+            <Box sx={{ width: "100%" }}>
               <LinearProgress />
             </Box>
           ) : (
@@ -441,97 +505,101 @@ export default function Search() {
                 p: 1,
                 alignItems: "center",
                 bgcolor: "background.paper",
-                overflowY: "scroll", maxHeight: "80vh"
+                overflowY: "scroll",
+                maxHeight: "80vh",
               }}
             >
-                {matchedDevices.length === 0 ? (
+              {matchedDevices.length === 0 ? (
+                <Item
+                  sx={{
+                    width: "80%",
+                    height: 260,
+                    display: "flex",
+                    alignItems: "flex-start",
+                    border: "1px solid",
+                    borderColor: (theme) =>
+                      theme.palette.mode === "dark" ? "grey.800" : "grey.300",
+                  }}
+                >
+                  <StyledPaper className="h-100 text-center">
+                    <Card className="h-100 text-center">
+                      <CardMedia component="img" title="Device Package" />
+                      <CardContent>
+                        <Typography gutterBottom variant="h5" component="div">
+                          No Device with applied filters found...
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </StyledPaper>
+                </Item>
+              ) : (
+                matchedDevices.map((md, index) => (
                   <Item
+                    key={md.label + index}
                     sx={{
                       width: "80%",
                       height: 260,
                       display: "flex",
                       alignItems: "flex-start",
                       border: "1px solid",
+                      borderRadius: 1.5,
+                      m: 1,
                       borderColor: (theme) =>
                         theme.palette.mode === "dark" ? "grey.800" : "grey.300",
                     }}
                   >
-                    <StyledPaper className="h-100 text-center">
-                      <Card className="h-100 text-center">
-                        <CardMedia title="Device Package" />
-                        <CardContent>
-                          <Typography gutterBottom variant="h5" component="div">
-                            No Device with applied filters found...
-                          </Typography>
-                        </CardContent>
-                      </Card>
+                    <StyledPaper className="h-100 w-50 text-center">
+                      {md ? (
+                        <Card className="h-100 text-center">
+                          <CardMedia
+                            sx={{ height: 180 }}
+                            component="img"
+                            image={md.image}
+                            title="Device Package"
+                          />
+                          <CardContent>
+                            <Typography
+                              gutterBottom
+                              variant="body1"
+                              component="div"
+                              fontWeight={700}
+                              fontSize={20}
+                            >
+                              {md.category}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      ) : (
+                        <Card className="h-100 text-center">
+                          <CardMedia
+                            sx={{ height: 90 }}
+                            component="img"
+                            title="No Device Selected"
+                          />
+                          <CardContent>
+                            <Typography
+                              gutterBottom
+                              variant="body1"
+                              component="div"
+                            >
+                              No Device Selected
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      )}
                     </StyledPaper>
+                    <Box sx={{ alignItems: "center", height: "100%", m: 1 }}>
+                      <Item>Device: {md.label}</Item>
+                      <Item>Package: {md.package}</Item>
+                      <Item>Industry: {md.industry}</Item>
+                      <Item>Status: {md.status}</Item>
+                      <Item>Subcateorgy: {md.subcategory}</Item>
+                      <Button href={`${md.pdf_link}`}>See Data Sheet</Button>
+                    </Box>
                   </Item>
-                ) : (
-                  matchedDevices.map((md) => (
-                    <Item
-                      sx={{
-                        width: "80%",
-                        height: 260,
-                        display: "flex",
-                        alignItems: "flex-start",
-                        border: "1px solid",
-                        borderRadius: 2,
-                        m: 1,
-                        borderColor: (theme) =>
-                          theme.palette.mode === "dark"
-                            ? "grey.800"
-                            : "grey.300",
-                      }}
-                    >
-                      <StyledPaper className="h-100 w-50 text-center">
-                        {md ? (
-                          <Card className="h-100 text-center">
-                            <CardMedia
-                              sx={{ height: 180 }}
-                              image={md.image}
-                              title="Device Package"
-                            />
-                            <CardContent>
-                              <Typography
-                                gutterBottom
-                                variant="h5"
-                                component="div"
-                              >
-                                {md.category}
-                              </Typography>
-                            </CardContent>
-                          </Card>
-                        ) : (
-                          <Card className="h-100 text-center">
-                            <CardMedia
-                              sx={{ height: 90 }}
-                              title="No Device Selected"
-                            />
-                            <CardContent>
-                              <Typography
-                                gutterBottom
-                                variant="h5"
-                                component="div"
-                              >
-                                No Device Selected
-                              </Typography>
-                            </CardContent>
-                          </Card>
-                        )}
-                      </StyledPaper>
-                      <Box sx={{ alignItems: "center", height: "100%", m: 1 }}>
-                        <Item>Device: {md.label}</Item>
-                        <Item>Package: {md.package}</Item>
-                        <Item>Industry: {md.industry}</Item>
-                        <Item>Status: {md.status}</Item>
-                        <Item>PDF Link: {md.pdf_link}</Item>
-                        <Item>Subcateorgy: {md.subcategory}</Item>
-                      </Box>
-                    </Item>
-                  ))
-                )}
-                {/* <DataGrid
+                ))
+              )}
+              {/* <DataGrid
                 rows={matchedDeviceRows}
                 columns={inputDeviceColumns}
                 initialState={{
