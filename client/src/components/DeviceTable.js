@@ -21,11 +21,11 @@ import {
   FormControlLabel,
   Switch,
   CircularProgress,
-  Link,
+  Button,
   Grid,
 } from "@mui/material";
 // import DeleteIcon from "@mui/icons-material/Delete";
-import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
+import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import ViewListRoundedIcon from "@mui/icons-material/ViewListRounded";
 import { visuallyHidden } from "@mui/utils";
 import axios from "axios";
@@ -107,15 +107,15 @@ EnhancedTableHead.propTypes = {
 };
 
 function EnhancedTableToolbar(props) {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const { numSelected, subCat, rowCount, onSelectAllClick, selectedDevices } =
     props;
 
   const handleDisplayClick = () => {
-    const devices = selectedDevices
-    console.log("selected Devices: ", selectedDevices)
-    navigate("/display", {state: {devices}})
-  }
+    const devices = selectedDevices;
+    console.log("selected Devices: ", selectedDevices);
+    navigate("/display", { state: { devices } });
+  };
 
   return (
     <Toolbar
@@ -152,7 +152,7 @@ function EnhancedTableToolbar(props) {
       )}
 
       {numSelected > 0 ? (
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: "flex" }}>
           <Tooltip title="Display Selected Devices">
             <IconButton onClick={handleDisplayClick}>
               <ViewListRoundedIcon />
@@ -419,21 +419,44 @@ export default function DeviceTable() {
           />
         </Paper>
       )}
-      <FormControlLabel
-        className="rounded-3 border m-3 bottom-0 position-fixed col-1"
-        style={{ backgroundColor: "#eee" }}
-        variant="outlined"
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        // label={dense ? "Dense" : "Normal"}
-      />
-      <Grid container justifyContent="flex-end" className="">
-        <Link
-          className="m-3 btn btn-outline-primary position-fixed"
-          href="/search"
-          underline="none"
-        >
-          {"Go to search"}
-        </Link>
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <FormControlLabel
+            className="rounded-3 border m-3 bottom-0 position-fixed col-1"
+            style={{ backgroundColor: "#eee" }}
+            variant="outlined"
+            control={<Switch checked={dense} onChange={handleChangeDense} />}
+            // label={dense ? "Dense" : "Normal"}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <Box
+            variant="contained"
+            sx={{
+              backgroundColor: "#eee",
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Button
+              color="primary"
+              className="m-3 border m-3 bottom-0 position-fixed"
+              href="/search"
+              underline="none"
+              sx={{
+                backgroundColor: "#eee",
+                color: "#555",
+                fontWeight: "bold",
+                "&:hover": {
+                  bgcolor: "#555",
+                  color: "white",
+                },
+              }}
+            >
+              {"Go to search"}
+            </Button>
+          </Box>
+        </Grid>
       </Grid>
     </Box>
   );

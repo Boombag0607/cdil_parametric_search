@@ -4,7 +4,6 @@ import {
   Typography,
   TextField,
   FormGroup,
-  IconButton,
   Grid,
   Paper,
   Card,
@@ -15,7 +14,6 @@ import {
   Autocomplete,
   LinearProgress,
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
 
 // const Item = styled(Paper)(({ theme }) => ({
@@ -170,10 +168,13 @@ export default function Search() {
     },
   ]);
   const [selectedDevices, setSelectedDevices] = useState([]);
-  const [inputDevice, setInputDevice] = useState("");
   const [selectedPackages, setSelectedPackages] = useState([]);
   const [selectedIndustries, setSelectedIndustries] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // const [inputDevice, setInputDevice] = useState("");
+  // const [inputPackage, setInputPackage] = useState("");
+  // const [inputIndustry, setInputIndustry] = useState("");
 
   // useEffect(() => {
   //   const getPackages = async () => {
@@ -307,55 +308,71 @@ export default function Search() {
   // };
 
   const handleDeviceChange = (event, newValue) => {
+    console.log("inside: handleDeviceChange newValue ::: ", newValue);
     setSelectedDevices(newValue);
     handleInputs();
   };
 
-  const handleInputChange = (event, newInputValue) => {
-    setInputDevice(newInputValue);
-    const selectedDevice = devices.find(
-      (device) => device.label === inputDevice
-    );
-    console.log("selectedDevices ::: ", selectedDevices);
-
-    if (selectedDevice) {
-      // Append the selected device object to the selectedDevices array
-      setSelectedDevices([...selectedDevices, selectedDevice]);
-    }
-    // setSelectedDevices([...selectedDevices, newInputValue]);
+  const handlePackageChange = (event, newValue) => {
+    console.log("inside: handlePackageChange newValue ::: ", newValue);
+    setSelectedPackages(newValue);
+    handleInputs();
   };
+
+  const handleIndustryChange = (event, newValue) => {
+    console.log("inside: handleIndustryChange newValue ::: ", newValue);
+    setSelectedIndustries(newValue);
+    handleInputs();
+  };
+
+  // const handleDeviceInputChange = (event, newInputValue) => {
+  //   setSelectedDevices([]);
+  //   // setSelectedDevices([...selectedDevices, newInputValue]);
+  // };
+
+  // const handlePackageInputChange = (event, newInputValue) => {
+  //   setSelectedPackages([]);
+  // };
+
+  // const handleIndustryInputChange = (event, newInputValue) => {
+  //   setSelectedIndustries([]);
+  // };
 
   const handleInputs = () => {
-    if (
-      selectedDevices.length === 0 &&
-      selectedPackages.length === 0 &&
-      selectedIndustries.length === 0
-    ) {
-      // No filters are applied, show all devices
-      setMatchedDevices(devices);
-    } else {
-      // Apply filters based on user selections
-      const filteredDevices = devices.filter((element) => {
-        return (
-          (selectedDevices.length === 0 ||
-            selectedDevices.includes(element.label)) &&
-          (selectedPackages.length === 0 ||
-            selectedPackages.includes(element.package)) &&
-          (selectedIndustries.length === 0 ||
-            selectedIndustries.includes(element.industry))
-        );
-      });
-      setMatchedDevices(filteredDevices);
-      console.log("filteredDevices: ", filteredDevices);
+    // Create an array to hold the results of filter intersections
+    let filteredDevices = devices;
+
+    // Filter by selectedDevices
+    if (selectedDevices.length > 0) {
+      filteredDevices = filteredDevices.filter((element) =>
+        selectedDevices.includes((device) => device.label === element.label)
+      );
     }
+
+    // Filter by selectedPackages
+    if (selectedPackages.length > 0) {
+      filteredDevices = filteredDevices.filter((element) =>
+        selectedPackages.includes(
+          (device) => device.package === element.package
+        )
+      );
+    }
+
+    // Filter by selectedIndustries
+    if (selectedIndustries.length > 0) {
+      filteredDevices = filteredDevices.filter((element) =>
+        element.industry.some((deviceIndustry) =>
+          selectedIndustries.includes(
+            (industry) => industry.label === deviceIndustry
+          )
+        )
+      );
+    }
+    console.log("inside handleInputs filteredDevices ::: ", filteredDevices);
+    // Set matchedDevices to the result of intersection filtering
+    setMatchedDevices(filteredDevices);
     setLoading(false);
   };
-
-  // const SearchButton = () => (
-  //   <IconButton onClick={handleInputs}>
-  //     <SearchIcon />
-  //   </IconButton>
-  // );
 
   return (
     <Box
@@ -402,19 +419,19 @@ export default function Search() {
               options={devices}
               value={selectedDevices}
               onChange={handleDeviceChange}
-              inputValue={inputDevice}
-              onInputChange={handleInputChange}
+              // inputValue={inputDevice}
+              // onInputChange={handleDeviceInputChange}
               renderInput={(params) => <TextField {...params} label="Device" />}
             />
           </FormGroup>
-          {/* <TextField id="filled-basic" label="Filled" variant="filled" />
-      <TextField id="standard-basic" label="Standard" variant="standard" /> */}
+
           <div>{`value: ${
             selectedDevices.length !== 0
               ? `'${selectedDevices.map((d) => d.label)}'`
               : "null"
           }`}</div>
-          <div>{`inputValue: '${inputDevice}'`}</div>
+          {/* <div>{`inputValue: '${inputDevice}'`}</div> */}
+
           <FormGroup>
             <StyledAutocomplete
               multiple
@@ -423,12 +440,10 @@ export default function Search() {
               // getOptionLabel={(option) => option.label}
               defaultValue={[]}
               filterSelectedOptions
-              inputValue={selectedPackages}
-              onInputChange={(event, newInputValue) => {
-                console.log("newIpValue:   ", newInputValue);
-                setSelectedPackages(newInputValue);
-                handleInputs();
-              }}
+              value={selectedPackages}
+              onChange={handlePackageChange}
+              // inputValue={inputPackage}
+              // onInputChange={handlePackageInputChange}
               // onChange={(event, newValue) => setSelectedPackages(newValue)}
               renderInput={(params) => (
                 <TextField
@@ -439,6 +454,12 @@ export default function Search() {
               )}
             />
           </FormGroup>
+          <div>{`value: ${
+            selectedPackages.length !== 0
+              ? `'${selectedPackages.map((d) => d.label)}'`
+              : "null"
+          }`}</div>
+          {/* <div>{`inputValue: '${inputDevice}'`}</div> */}
           {/* <TextField/> */}
           {/* <FormGroup sx={{ width: "100%" }}>
             <TextField
@@ -470,10 +491,10 @@ export default function Search() {
               // getOptionLabel={(option) => option.label}
               defaultValue={[]}
               filterSelectedOptions
-              onChange={(e) => {
-                setSelectedIndustries(e.target.value);
-                handleInputs();
-              }}
+              // inputValue={inputIndustry}
+              // onInputChange={handleIndustryInputChange}
+              value={selectedIndustries}
+              onChange={handleIndustryChange}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -483,7 +504,13 @@ export default function Search() {
               )}
             />
           </FormGroup>
-          {/* </Item> */}
+          <div>{`value: ${
+            selectedIndustries.length !== 0
+              ? `'${selectedIndustries.map((d) => d.label)}'`
+              : "null"
+          }`}</div>
+          {/* <div>{`inputValue: '${inputDevice}'`}</div> */}
+
           <Tooltip title="Add Filters" enterDelay={500} leaveDelay={200}>
             <Button onClick={handleInputs}>Apply Filters</Button>
           </Tooltip>
