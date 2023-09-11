@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -15,15 +15,6 @@ import {
   LinearProgress,
 } from "@mui/material";
 import axios from "axios";
-
-// const Item = styled(Paper)(({ theme }) => ({
-//   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
-//   ...theme.typography.body2,
-//   padding: theme.spacing(1),
-//   textAlign: "center",
-//   color: theme.palette.text.secondary,
-//   flexGrow: 1,
-// }));
 
 const industryList = [
   {
@@ -51,38 +42,6 @@ const industryList = [
     label: "Sensing",
   },
 ];
-
-// const inputDeviceColumns = [
-//   { field: "id", headerName: "Selected Device", width: 90 },
-//   {
-//     field: "package",
-//     headerName: "Package",
-//     width: 150,
-//     editable: true,
-//   },
-//   {
-//     field: "industry",
-//     headerName: "Industry",
-//     width: 150,
-//     editable: true,
-//   },
-//   {
-//     field: "status",
-//     headerName: "Status",
-//     type: "boolean",
-//     width: 110,
-//     editable: true,
-//   },
-//   {
-//     field: "pdf_link",
-//     headerName: "PDF Link",
-//     description: "This column is of type URL",
-//     sortable: false,
-//     width: 160,
-//     // valueGetter: (params) =>
-//     //   `${params.row.firstName || ""} ${params.row.lastName || ""}`,
-//   },
-// ];
 
 function StyledAutocomplete(props) {
   const { sx, ...other } = props;
@@ -154,89 +113,11 @@ export default function Search() {
   const [packages, setPackages] = useState([]);
   const [industry, setIndustry] = useState([]);
   const [devices, setDevices] = useState([]);
-  const [matchedDevices, setMatchedDevices] = useState([
-    {
-      value: "",
-      label: "",
-      package: "",
-      industry: "",
-      status: "",
-      pdf_link: "",
-      data: [],
-      subcategory: "",
-      category: "",
-    },
-  ]);
+  const [matchedDevices, setMatchedDevices] = useState([]);
   const [selectedDevices, setSelectedDevices] = useState([]);
   const [selectedPackages, setSelectedPackages] = useState([]);
   const [selectedIndustries, setSelectedIndustries] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // const [inputDevice, setInputDevice] = useState("");
-  // const [inputPackage, setInputPackage] = useState("");
-  // const [inputIndustry, setInputIndustry] = useState("");
-
-  // useEffect(() => {
-  //   const getPackages = async () => {
-  //     const res = await axios.get(`http://localhost:3000/packages`);
-  //     console.log("pkgs", res);
-  //     setPackages(
-  //       res.data.map((element) => {
-  //         return {
-  //           value: element.id.toLowerCase(),
-  //           label: element.id,
-  //           desc: element.pkg_desc,
-  //         };
-  //       })
-  //     );
-  //   };
-
-  //   const getDeviceData = async (device) => {
-  //     try {
-  //       const res = await axios.get(
-  //         `http://localhost:3000/data/${encodeURIComponent(device.id)}`
-  //       );
-  //       console.log("data", res.data);
-  //       return res?.data;
-  //     } catch (err) {
-  //       console.error(err);
-  //       return null;
-  //     }
-  //   };
-
-  //   const getDeviceCategory = async(subcat) => {
-  //     const res = await axios.get(`http://localhost:3000/categories`);
-  //     return res?.data?.filter(cat => cat.sub_cat.includes(subcat)).map(cat => cat.name);
-  //   };
-
-  //   const getDevices = async () => {
-  //     const res = await axios.get(`http://localhost:3000/devices`);
-
-  //     // Use Promise.all to fetch data for all devices concurrently
-  //     const allDevicesObj = await Promise.all(
-  //       res.data.map(async (element) => {
-  //         const data = await getDeviceData(element);
-  //         return {
-  //           value: element.id.toLowerCase(),
-  //           label: element.id,
-  //           package: element.package,
-  //           industry: element.industry,
-  //           status: element.status,
-  //           pdf_link: element.pdf_link,
-  //           data: data, // Assign the fetched data
-  //           subcategory: element.subcat_id,
-  //           category: getDeviceCategory(element.subcat_id)
-  //         };
-  //       })
-  //     );
-
-  //     setDevices(allDevicesObj); // Set the devices with data
-  //   };
-
-  //   getDevices();
-  //   getPackages();
-  //   setIndustry(industryList);
-  // }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -287,92 +168,89 @@ export default function Search() {
             };
           })
         );
-
-        // Set your state variables here
+        
         setPackages(packagesData);
         setDevices(allDevicesData);
+        setMatchedDevices(allDevicesData);
         setIndustry(industryList);
       } catch (error) {
         console.error(error);
       }
     };
-
     fetchData();
   }, []);
 
-  // const handleInputDevice = () => {
-  //   setMatchedDevices(
-  //     devices.find((element) => element.value === currentDevices.toLowerCase())
-  //   );
-  //   // Perform other actions with inputValue if needed
-  // };
-
   const handleDeviceChange = (event, newValue) => {
+    setLoading(true);
     console.log("inside: handleDeviceChange newValue ::: ", newValue);
+    // Use the state updater function to update selectedDevices
     setSelectedDevices(newValue);
-    handleInputs();
   };
 
   const handlePackageChange = (event, newValue) => {
-    console.log("inside: handlePackageChange newValue ::: ", newValue);
+    setLoading(true);
     setSelectedPackages(newValue);
+    console.log(
+      "inside: handlePackageChange selected packages ::: ",
+      selectedPackages
+    );
     handleInputs();
   };
 
   const handleIndustryChange = (event, newValue) => {
-    console.log("inside: handleIndustryChange newValue ::: ", newValue);
+    setLoading(true);
     setSelectedIndustries(newValue);
+    console.log(
+      "inside: handleIndustryChange selected industries ::: ",
+      selectedIndustries
+    );
     handleInputs();
   };
 
-  // const handleDeviceInputChange = (event, newInputValue) => {
-  //   setSelectedDevices([]);
-  //   // setSelectedDevices([...selectedDevices, newInputValue]);
-  // };
-
-  // const handlePackageInputChange = (event, newInputValue) => {
-  //   setSelectedPackages([]);
-  // };
-
-  // const handleIndustryInputChange = (event, newInputValue) => {
-  //   setSelectedIndustries([]);
-  // };
-
-  const handleInputs = () => {
-    // Create an array to hold the results of filter intersections
+  const handleInputs = useCallback(() => {
     let filteredDevices = devices;
 
-    // Filter by selectedDevices
     if (selectedDevices.length > 0) {
       filteredDevices = filteredDevices.filter((element) =>
-        selectedDevices.includes((device) => device.label === element.label)
+        selectedDevices.some((device) => device.label === element.label)
       );
+      console.log("filteredDevices after device ::: ", filteredDevices);
     }
 
-    // Filter by selectedPackages
     if (selectedPackages.length > 0) {
+      console.log(
+        "inside handleInputs selectedPackages ::: ",
+        selectedPackages
+      );
       filteredDevices = filteredDevices.filter((element) =>
-        selectedPackages.includes(
-          (device) => device.package === element.package
+        selectedPackages.some(
+          (selectedPackage) => selectedPackage.label === element.package
         )
       );
+      console.log("filteredDevices after package ::: ", filteredDevices);
     }
 
-    // Filter by selectedIndustries
     if (selectedIndustries.length > 0) {
       filteredDevices = filteredDevices.filter((element) =>
-        element.industry.some((deviceIndustry) =>
-          selectedIndustries.includes(
-            (industry) => industry.label === deviceIndustry
-          )
+        selectedIndustries.some(
+          (industry) => industry.label === element.industry
         )
       );
+      console.log("filteredDevices after industry ::: ", filteredDevices);
     }
-    console.log("inside handleInputs filteredDevices ::: ", filteredDevices);
-    // Set matchedDevices to the result of intersection filtering
+    
+    // console.log("inside handleInputs filteredDevices ::: ", filteredDevices);
     setMatchedDevices(filteredDevices);
+  }, [selectedDevices, selectedPackages, selectedIndustries, devices]);
+
+  useEffect(() => {
+    console.log(
+      "inside: handleDeviceChange selected Devices ::: ",
+      selectedDevices
+    );
+    handleInputs();
     setLoading(false);
-  };
+  }, [selectedDevices, selectedPackages, selectedIndustries, handleInputs]);
 
   return (
     <Box
@@ -398,21 +276,6 @@ export default function Search() {
         >
           {/* <Item> */}
           <FormGroup>
-            {/* <TextField
-              sx={{ width: "100%" }}
-              id="outlined-basic"
-              label="Device"
-              variant="outlined"
-              value = {currentDevice}
-              onChange={(event, newDevice) => {
-                setLoading(true);
-                setCurrentDevice(event.target.value || newDevice);
-                handleInputs();
-              }}
-              InputProps={{
-                endAdornment: <SearchButton />,
-              }}
-            /> */}
             <StyledAutocomplete
               multiple
               id="controllable-states-demo"
@@ -424,27 +287,15 @@ export default function Search() {
               renderInput={(params) => <TextField {...params} label="Device" />}
             />
           </FormGroup>
-
-          <div>{`value: ${
-            selectedDevices.length !== 0
-              ? `'${selectedDevices.map((d) => d.label)}'`
-              : "null"
-          }`}</div>
-          {/* <div>{`inputValue: '${inputDevice}'`}</div> */}
-
           <FormGroup>
             <StyledAutocomplete
               multiple
               id="tags-outlined"
               options={packages}
-              // getOptionLabel={(option) => option.label}
               defaultValue={[]}
               filterSelectedOptions
               value={selectedPackages}
               onChange={handlePackageChange}
-              // inputValue={inputPackage}
-              // onInputChange={handlePackageInputChange}
-              // onChange={(event, newValue) => setSelectedPackages(newValue)}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -454,45 +305,13 @@ export default function Search() {
               )}
             />
           </FormGroup>
-          <div>{`value: ${
-            selectedPackages.length !== 0
-              ? `'${selectedPackages.map((d) => d.label)}'`
-              : "null"
-          }`}</div>
-          {/* <div>{`inputValue: '${inputDevice}'`}</div> */}
-          {/* <TextField/> */}
-          {/* <FormGroup sx={{ width: "100%" }}>
-            <TextField
-              id="select-package"
-              select
-              label="Package"
-              helperText="Search devices via package"
-              value={currentPackage} // Make sure to set the value prop
-              onChange={(e) => {
-                setCurrentPackage(e.target.value);
-                handleInputs();
-              }}
-            >
-              <MenuItem key="clear" value="clear">
-                Clear selection
-              </MenuItem>
-              {packages.map((option, index) => (
-                <MenuItem key={option.value + index} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
-          </FormGroup> */}
           <FormGroup>
             <StyledAutocomplete
               multiple
               id="tags-outlined"
               options={industry}
-              // getOptionLabel={(option) => option.label}
               defaultValue={[]}
               filterSelectedOptions
-              // inputValue={inputIndustry}
-              // onInputChange={handleIndustryInputChange}
               value={selectedIndustries}
               onChange={handleIndustryChange}
               renderInput={(params) => (
@@ -504,12 +323,6 @@ export default function Search() {
               )}
             />
           </FormGroup>
-          <div>{`value: ${
-            selectedIndustries.length !== 0
-              ? `'${selectedIndustries.map((d) => d.label)}'`
-              : "null"
-          }`}</div>
-          {/* <div>{`inputValue: '${inputDevice}'`}</div> */}
 
           <Tooltip title="Add Filters" enterDelay={500} leaveDelay={200}>
             <Button onClick={handleInputs}>Apply Filters</Button>
@@ -626,20 +439,6 @@ export default function Search() {
                   </Item>
                 ))
               )}
-              {/* <DataGrid
-                rows={matchedDeviceRows}
-                columns={inputDeviceColumns}
-                initialState={{
-                  pagination: {
-                    paginationModel: {
-                      pageSize: 5,
-                    },
-                  },
-                }}
-                pageSizeOptions={[5]}
-                checkboxSelection
-                disableRowSelectionOnClick
-              /> */}
             </Box>
           )}
         </Grid>
