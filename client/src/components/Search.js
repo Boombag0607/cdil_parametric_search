@@ -168,7 +168,7 @@ export default function Search() {
             };
           })
         );
-        
+
         setPackages(packagesData);
         setDevices(allDevicesData);
         setMatchedDevices(allDevicesData);
@@ -238,7 +238,7 @@ export default function Search() {
       );
       console.log("filteredDevices after industry ::: ", filteredDevices);
     }
-    
+
     // console.log("inside handleInputs filteredDevices ::: ", filteredDevices);
     setMatchedDevices(filteredDevices);
   }, [selectedDevices, selectedPackages, selectedIndustries, devices]);

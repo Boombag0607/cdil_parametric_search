@@ -1,8 +1,13 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
+
 import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Button,
   Box,
   Table,
   TableBody,
@@ -21,14 +26,49 @@ import {
   FormControlLabel,
   Switch,
   CircularProgress,
-  Button,
   Grid,
+  FormGroup,
+  Autocomplete,
+  TextField,
+  Slider,
 } from "@mui/material";
 // import DeleteIcon from "@mui/icons-material/Delete";
 import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import ViewListRoundedIcon from "@mui/icons-material/ViewListRounded";
 import { visuallyHidden } from "@mui/utils";
 import axios from "axios";
+
+const industriesData = [
+  {
+    value: "audio",
+    label: "Audio",
+  },
+  {
+    value: "automotive",
+    label: "Automotive",
+  },
+  {
+    value: "communications",
+    label: "Communications",
+  },
+  {
+    value: "computing",
+    label: "Computing",
+  },
+  {
+    value: "power",
+    label: "Power",
+  },
+  {
+    value: "sensing",
+    label: "Sensing",
+  },
+];
+
+// function StyledAutocomplete(props) {
+//   const { sx, ...others } = props;
+//   return <Autocomplete sx={{ width: "15ch", ...sx }} {...others} />;
+// }
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -63,7 +103,19 @@ function stableSort(array, comparator) {
 }
 
 function EnhancedTableHead(props) {
-  const { order, orderBy, onRequestSort, columns } = props;
+  const { order, orderBy, onRequestSort, columns, columnData } = props;
+  const [expanded, setExpanded] = useState(false);
+
+  const [sliderValue, setSliderValue] = useState([20, 37]);
+
+  const handleSliderChange = (event, newValue) => {
+    setSliderValue(newValue);
+  };
+
+  const handleHeaderExpansionChange = (panel) => (event, newExpanded) => {
+    setExpanded(newExpanded ? panel : false);
+  };
+
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -71,25 +123,74 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
-        {columns.map((headCell) => (
+        {columns.map((headCell, index) => (
           <TableCell
             key={headCell.id}
             align={"center"}
             padding={headCell.disablePadding ? "none" : "normal"}
             sortDirection={orderBy === headCell.id ? order : false}
           >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : "asc"}
-              onClick={createSortHandler(headCell.id)}
+            <Accordion
+              expanded={expanded}
+              onChange={handleHeaderExpansionChange("panel1")}
+              sx={{ width: "100%" }}
             >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
-                  {order === "desc" ? "sorted descending" : "sorted ascending"}
-                </Box>
-              ) : null}
-            </TableSortLabel>
+              <AccordionSummary
+                aria-controls="panel1d-content"
+                id="panel1d-header"
+              >
+                <TableSortLabel
+                  active={orderBy === headCell.id}
+                  direction={orderBy === headCell.id ? order : "asc"}
+                  onClick={createSortHandler(headCell.id)}
+                >
+                  {headCell.label}
+                  {orderBy === headCell.id ? (
+                    <Box component="span" sx={visuallyHidden}>
+                      {order === "desc"
+                        ? "sorted descending"
+                        : "sorted ascending"}
+                    </Box>
+                  ) : null}
+                </TableSortLabel>
+              </AccordionSummary>
+              <AccordionDetails>
+                {headCell.numeric ? (
+                  <Box sx={{ width: "15ch" }}>
+                    <FormGroup>
+                      <Slider
+                        sx={{ width: "15ch" }}
+                        value={sliderValue}
+                        onChange={handleSliderChange}
+                        valueLabelDisplay="auto"
+                        aria-labelledby="range-slider"
+                        getAriaValueText={(value) => `${value}°C`}
+                      />
+                    </FormGroup>
+                  </Box>
+                ) : (
+                  <Box sx={{ width: "15ch" }}>
+                    <FormGroup>
+                      <Autocomplete
+                        sx={{ width: "15ch" }}
+                        multiple
+                        id="tags-outlined"
+                        options={columnData[index] || []} // Make sure index is valid
+                        defaultValue={[]}
+                        filterSelectedOptions
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label={headCell.label}
+                            placeholder="Select industry for filtering"
+                          />
+                        )}
+                      />
+                    </FormGroup>
+                  </Box>
+                )}
+              </AccordionDetails>
+            </Accordion>
           </TableCell>
         ))}
       </TableRow>
@@ -183,7 +284,10 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function DeviceTable(props) {
+export default function SearchWithSubcat() {
+  const { subCat } = useParams();
+  const [columns, setColumns] = useState([]);
+  const [columnData, setColumnData] = useState([]);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("calories");
   const [page, setPage] = useState(0);
@@ -191,36 +295,129 @@ export default function DeviceTable(props) {
   const [dense, setDense] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState([]);
-  const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
-  // const [deviceData, setDeviceData] = useState([]);
-  const { subCat } = props;
+  const [packages, setPackages] = useState([]);
+  const [industry, setIndustry] = useState([]);
+  const [devices, setDevices] = useState([]);
+  const [matchedDevices, setMatchedDevices] = useState([]);
+  // const [selectedDevices, setSelectedDevices] = useState([]);
+  // const [selectedPackages, setSelectedPackages] = useState([]);
+  // const [selectedIndustries, setSelectedIndustries] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch data for subcategory for respective header
+        const headersDataRes = await axios.get(
+          `http://localhost:3000/headers/${subCat}`
+        );
+        const deviceDataRes = await axios.get(
+          `http://localhost:3000/devices/${subCat}`
+        );
+        const headerWithDataRes = await headersDataRes.data.map(
+          (header, index) => {
+            console.log("Inside headerWithDataRes: ", header, index);
+            let headerData = [];
+            for (let i = 0; i < deviceDataRes.data.length; i++) {
+              headerData.push(deviceDataRes.data[i][`d${index + 1}`]);
+            }
+            return headerData.filter((v, i, self) => i === self.indexOf(v));
+          }
+        );
+
+        const packagesResponse = await axios.get(
+          `http://localhost:3000/packages`
+        );
+        const packagesData = packagesResponse.data.map((pkg) => {
+          return {
+            value: pkg.id.toLowerCase(),
+            label: pkg.id,
+            desc: pkg.pkg_desc,
+          };
+        });
+
+        const devicesResponse = await axios.get(
+          `http://localhost:3000/devices`
+        );
+        // const devicesData = devicesResponse.data;
+
+        // Fetch data for all devices concurrently using Promise.all
+        const devicesData = await Promise.all(
+          devicesResponse.data.map(async (deviceObject) => {
+            const dataResponse = await axios.get(
+              `http://localhost:3000/data/${encodeURIComponent(deviceObject.id)}`
+            );
+            const deviceData = dataResponse.data;
+
+            // Fetch category for the subcategory
+            const categoryResponse = await axios.get(
+              `http://localhost:3000/categories`
+            );
+            const subcategory = deviceObject.subcat_id;
+            const categoryData = categoryResponse.data
+              .filter((cat) => cat.sub_cat.includes(subcategory))
+              .map((cat) => cat.name);
+
+            return {
+              value: deviceObject.id.toLowerCase(),
+              label: deviceObject.id,
+              package: deviceObject.package,
+              industry: deviceObject.industry,
+              status: deviceObject.status,
+              pdf_link: deviceObject.pdf_link,
+              data: deviceData,
+              subcategory,
+              category: categoryData,
+            };
+          })
+        );
+
+        setDevices(devicesData);
+        setPackages(packagesData);
+        setIndustry(industriesData);
+        setMatchedDevices(devicesData);
+        setColumnData([
+          devicesData,
+          packagesData,
+          industriesData,
+          ["active", "inactive"],
+          ["pdf_link", "no_pdf_link"],
+          ...headerWithDataRes,
+        ]);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, [subCat]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch columns
-        const columnsResponse = await axios.get(
+        const dataHeaderColumnsResponse = await axios.get(
           `http://localhost:3000/headers/${subCat}`
         );
-        const columnsData = await columnsResponse?.data;
-        const cols = columnsData.map((col) => {
-          return {
-            id: col.toLowerCase(),
-            numeric: false,
-            disablePadding: true,
-            label: col,
-          };
-        });
+        const dataHeaderColumnNames = await dataHeaderColumnsResponse?.data;
+        const dataHeaderColumnObjectArray = dataHeaderColumnNames.map(
+          (dataCol) => {
+            return {
+              id: dataCol.toLowerCase(),
+              numeric: true,
+              label: dataCol,
+            };
+          }
+        );
 
-        // Set columns and rows
+        // Set all columns
         setColumns([
           { id: "device", numeric: false, label: "Device" },
           { id: "package", numeric: false, label: "Package" },
           { id: "industry", numeric: false, label: "Industry" },
           { id: "status", numeric: false, label: "Status" },
           { id: "pdf_link", numeric: false, label: "PDF Link" },
-          ...cols,
+          ...dataHeaderColumnObjectArray,
         ]);
 
         // Fetch devices
@@ -254,8 +451,8 @@ export default function DeviceTable(props) {
             status: device.status,
             pdf_link: device.pdf_link,
           };
-          for (let i = 0; i < cols.length; i++) {
-            rowObj[cols[i].id] = deviceData[index][i];
+          for (let i = 0; i < dataHeaderColumnObjectArray.length; i++) {
+            rowObj[dataHeaderColumnObjectArray[i].id] = deviceData[index][i];
           }
           return rowObj;
         });
@@ -362,6 +559,7 @@ export default function DeviceTable(props) {
                 orderBy={orderBy}
                 onRequestSort={handleRequestSort}
                 columns={columns}
+                columnData={columnData}
               />
               <TableBody>
                 {visibleRows
@@ -393,6 +591,18 @@ export default function DeviceTable(props) {
                             </TableCell>
                           );
                         })}
+                        {/* {dataColumns.map((column, colidx) => {
+                          // console.log("row: ", row);
+                          return (
+                            <TableCell
+                              align="center"
+                              id={labelId}
+                              key={`${index} ${colidx} ${row[column.id]}`}
+                            >
+                              {row[column.id]}
+                            </TableCell>
+                          );
+                        })} */}
                       </TableRow>
                     );
                   })}
