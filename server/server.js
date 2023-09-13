@@ -21,7 +21,7 @@ app.get("/data", async (req, res) => {
   try {
     const allData = await pool.query(`SELECT * FROM devices`);
     const jsonData = allData.rows;
-    
+
     res.json(jsonData);
   } catch (err) {
     console.error(err.message);
@@ -62,6 +62,33 @@ app.get("/headers/:subCat", async (req, res) => {
               subcat_h6, subcat_h7, subcat_h8, subcat_h9, subcat_h10,
               subcat_h11, subcat_h12, subcat_h13, subcat_h14, subcat_h15,
               subcat_h16, subcat_h17, subcat_h18, subcat_h19, subcat_h20
+       FROM subcategories
+       WHERE id = $1`,
+      [subCat]
+    );
+
+    const jsonData = subcategoryData.rows[0];
+
+    // Construct an array with subcategory headers
+    const subcatHeadersArray = Object.values(jsonData).filter(
+      (header) => header !== null
+    );
+
+    res.json(subcatHeadersArray);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/units/:subCat", async (req, res) => {
+  try {
+    const subCat = req.params.subCat.replace(/_/g, " ");
+    const subcategoryData = await pool.query(
+      `SELECT subcat_u1, subcat_u2, subcat_u3, subcat_u4, subcat_u5,
+              subcat_u6, subcat_u7, subcat_u8, subcat_u9, subcat_u10,
+              subcat_u11, subcat_u12, subcat_u13, subcat_u14, subcat_u15,
+              subcat_u16, subcat_u17, subcat_u18, subcat_u19, subcat_u20
        FROM subcategories
        WHERE id = $1`,
       [subCat]
@@ -131,7 +158,16 @@ app.get("/packages", async (req, res) => {
   }
 });
 
-app.post("/admin/subcat_header", async (req, res) => {
+app.get("/industries", async (req, res) => {
+  try {
+    const allData = await pool.query(`SELECT * FROM industries`);
+    res.json(allData.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+app.post("/admin/subcat_ueader", async (req, res) => {
   const { id, packaging, columns, groupName, colSpan } = req.body;
 
   try {

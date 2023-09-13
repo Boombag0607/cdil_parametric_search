@@ -7,8 +7,18 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Button,
+  Autocomplete,
   Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  FormGroup,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  Paper,
+  Slider,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -17,58 +27,16 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
-  Toolbar,
-  Typography,
-  Paper,
-  Checkbox,
-  IconButton,
-  Tooltip,
-  FormControlLabel,
-  Switch,
-  CircularProgress,
-  Grid,
-  FormGroup,
-  Autocomplete,
   TextField,
-  Slider,
+  Toolbar,
+  Tooltip,
+  Typography,
 } from "@mui/material";
-// import DeleteIcon from "@mui/icons-material/Delete";
+
 import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import ViewListRoundedIcon from "@mui/icons-material/ViewListRounded";
 import { visuallyHidden } from "@mui/utils";
 import axios from "axios";
-
-const industriesData = [
-  {
-    value: "audio",
-    label: "Audio",
-  },
-  {
-    value: "automotive",
-    label: "Automotive",
-  },
-  {
-    value: "communications",
-    label: "Communications",
-  },
-  {
-    value: "computing",
-    label: "Computing",
-  },
-  {
-    value: "power",
-    label: "Power",
-  },
-  {
-    value: "sensing",
-    label: "Sensing",
-  },
-];
-
-// function StyledAutocomplete(props) {
-//   const { sx, ...others } = props;
-//   return <Autocomplete sx={{ width: "15ch", ...sx }} {...others} />;
-// }
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -102,18 +70,38 @@ function stableSort(array, comparator) {
   return stabilizedThis.map((el) => el[0]);
 }
 
+function isNumeric(input) {
+  const numericPattern = /^[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?$/;
+  return numericPattern.test(input);
+}
+
 function EnhancedTableHead(props) {
-  const { order, orderBy, onRequestSort, columns, columnData } = props;
-  const [expanded, setExpanded] = useState(false);
+  const {
+    order,
+    orderBy,
+    onRequestSort,
+    columns,
+    columnData = [],
+    columnUnits,
+    handleFilterRows,
+  } = props;
+  const [expanded, setExpanded] = useState(Array(columns.length).fill(false));
 
-  const [sliderValue, setSliderValue] = useState([20, 37]);
+  const handleHeaderExpansionChange =
+    (panel, columnIndex) => (event, newExpanded) => {
+      const newExpandedState = [...expanded];
+      newExpandedState[columnIndex] = newExpanded;
+      setExpanded(newExpandedState);
+    };
 
-  const handleSliderChange = (event, newValue) => {
-    setSliderValue(newValue);
-  };
+  const [sliderValues, setSliderValues] = useState(
+    Array(columns.filter((col) => col.numeric).length).fill([0, 0]) // Initialize with default values
+  );
 
-  const handleHeaderExpansionChange = (panel) => (event, newExpanded) => {
-    setExpanded(newExpanded ? panel : false);
+  const handleSliderChange = (event, newValue, columnIndex) => {
+    const newSliderValues = [...sliderValues];
+    newSliderValues[columnIndex] = newValue;
+    setSliderValues(newSliderValues);
   };
 
   const createSortHandler = (property) => (event) => {
@@ -123,76 +111,101 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
-        {columns.map((headCell, index) => (
-          <TableCell
-            key={headCell.id}
-            align={"center"}
-            padding={headCell.disablePadding ? "none" : "normal"}
-            sortDirection={orderBy === headCell.id ? order : false}
-          >
-            <Accordion
-              expanded={expanded}
-              onChange={handleHeaderExpansionChange("panel1")}
-              sx={{ width: "100%" }}
+        {columns.map((headCell, index) => {
+          const columnDataForIndex = columnData[index] || [];
+          const columnUnitsForIndex = columnUnits[index];
+          if (columnDataForIndex.length === 0) {
+            return null; 
+          }
+          const minColumnValue = Math.min(...columnDataForIndex);
+          const maxColumnValue = Math.max(...columnDataForIndex);
+          return (
+            <TableCell
+              key={headCell.id}
+              align={"center"}
+              padding={headCell.disablePadding ? "none" : "normal"}
+              sortDirection={orderBy === headCell.id ? order : false}
             >
-              <AccordionSummary
-                aria-controls="panel1d-content"
-                id="panel1d-header"
+              <Accordion
+                expanded={expanded[index]}
+                onChange={handleHeaderExpansionChange("panel1", index)}
+                sx={{ width: "100%" }}
               >
-                <TableSortLabel
-                  active={orderBy === headCell.id}
-                  direction={orderBy === headCell.id ? order : "asc"}
-                  onClick={createSortHandler(headCell.id)}
+                <AccordionSummary
+                  aria-controls="panel1d-content"
+                  id="panel1d-header"
                 >
-                  {headCell.label}
-                  {orderBy === headCell.id ? (
-                    <Box component="span" sx={visuallyHidden}>
-                      {order === "desc"
-                        ? "sorted descending"
-                        : "sorted ascending"}
-                    </Box>
-                  ) : null}
-                </TableSortLabel>
-              </AccordionSummary>
-              <AccordionDetails>
-                {headCell.numeric ? (
-                  <Box sx={{ width: "15ch" }}>
-                    <FormGroup>
-                      <Slider
-                        sx={{ width: "15ch" }}
-                        value={sliderValue}
-                        onChange={handleSliderChange}
-                        valueLabelDisplay="auto"
-                        aria-labelledby="range-slider"
-                        getAriaValueText={(value) => `${value}°C`}
-                      />
-                    </FormGroup>
-                  </Box>
-                ) : (
-                  <Box sx={{ width: "15ch" }}>
-                    <FormGroup>
-                      <Autocomplete
-                        sx={{ width: "15ch" }}
-                        multiple
-                        id="tags-outlined"
-                        options={columnData[index] || []} // Make sure index is valid
-                        defaultValue={[]}
-                        filterSelectedOptions
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label={headCell.label}
-                            placeholder="Select industry for filtering"
+                  <TableSortLabel
+                    active={orderBy === headCell.id}
+                    direction={orderBy === headCell.id ? order : "asc"}
+                    onClick={createSortHandler(headCell.id)}
+                  >
+                    {headCell.label}
+                    {orderBy === headCell.id ? (
+                      <Box component="span" sx={visuallyHidden}>
+                        {order === "desc"
+                          ? "sorted descending"
+                          : "sorted ascending"}
+                      </Box>
+                    ) : null}
+                  </TableSortLabel>
+                </AccordionSummary>
+                <AccordionDetails>
+                  {headCell.numeric ? (
+                    <Box sx={{ width: "15ch" }}>
+                      <FormGroup>
+                        {maxColumnValue === minColumnValue ? (
+                          <Slider disabled />
+                        ) : (
+                          <Slider
+                            sx={{ width: "15ch" }}
+                            value={sliderValues[index]}
+                            onChange={(event, newValue) =>
+                              handleSliderChange(event, newValue, index)
+                            } // Pass the column index
+                            valueLabelDisplay="auto"
+                            aria-labelledby="range-slider"
+                            getAriaValueText={(value) =>
+                              `${sliderValues[index]}${columnUnitsForIndex}`
+                            } // Set the step to 1 for discrete values
+                            marks={[
+                              {
+                                value: (maxColumnValue + minColumnValue) / 2,
+                                label: (maxColumnValue + minColumnValue) / 2,
+                              },
+                            ]}
+                            min={minColumnValue}
+                            max={maxColumnValue}
                           />
                         )}
-                      />
-                    </FormGroup>
-                  </Box>
-                )}
-              </AccordionDetails>
-            </Accordion>
-          </TableCell>
-        ))}
+                      </FormGroup>
+                    </Box>
+                  ) : (
+                    <Box sx={{ width: "15ch" }}>
+                      <FormGroup>
+                        <Autocomplete
+                          sx={{ width: "15ch" }}
+                          multiple
+                          id="tags-outlined"
+                          options={columnDataForIndex} // Make sure index is valid
+                          defaultValue={[]}
+                          filterSelectedOptions
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label={headCell.label}
+                              placeholder="Select industry for filtering"
+                            />
+                          )}
+                        />
+                      </FormGroup>
+                    </Box>
+                  )}
+                </AccordionDetails>
+              </Accordion>
+            </TableCell>
+          );
+        })}
       </TableRow>
     </TableHead>
   );
@@ -201,10 +214,8 @@ function EnhancedTableHead(props) {
 EnhancedTableHead.propTypes = {
   numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
-  // onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.oneOf(["asc", "desc"]).isRequired,
   orderBy: PropTypes.string.isRequired,
-  // rowCount: PropTypes.number.isRequired,
 };
 
 function EnhancedTableToolbar(props) {
@@ -288,6 +299,7 @@ export default function SearchWithSubcat() {
   const { subCat } = useParams();
   const [columns, setColumns] = useState([]);
   const [columnData, setColumnData] = useState([]);
+  const [columnUnits, setColumnUnits] = useState([]);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("calories");
   const [page, setPage] = useState(0);
@@ -300,35 +312,69 @@ export default function SearchWithSubcat() {
   const [industry, setIndustry] = useState([]);
   const [devices, setDevices] = useState([]);
   const [matchedDevices, setMatchedDevices] = useState([]);
-  // const [selectedDevices, setSelectedDevices] = useState([]);
-  // const [selectedPackages, setSelectedPackages] = useState([]);
-  // const [selectedIndustries, setSelectedIndustries] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch data for subcategory for respective header
-        const headersDataRes = await axios.get(
+        const dataHeaderNameResponse = await axios.get(
           `http://localhost:3000/headers/${subCat}`
         );
-        const deviceDataRes = await axios.get(
+        const dataHeaderUnitResponse = await axios.get(
+          `http://localhost:3000/units/${subCat}`
+        );
+        const devicesForASubCatResponse = await axios.get(
           `http://localhost:3000/devices/${subCat}`
         );
-        const headerWithDataRes = await headersDataRes.data.map(
+        const packagesResponse = await axios.get(
+          `http://localhost:3000/packages`
+        );
+        const industriesResponse = await axios.get(
+          `http://localhost:3000/industries`
+        );
+
+        const deviceDataArray = await Promise.all(
+          devicesForASubCatResponse.data.map(async (device) => {
+            const response = await axios.get(
+              `http://localhost:3000/data/${encodeURIComponent(device.id)}`
+            );
+            return response?.data;
+          })
+        );
+
+        const headersWithDataArray = await dataHeaderNameResponse?.data.map(
           (header, index) => {
-            console.log("Inside headerWithDataRes: ", header, index);
             let headerData = [];
-            for (let i = 0; i < deviceDataRes.data.length; i++) {
-              headerData.push(deviceDataRes.data[i][`d${index + 1}`]);
+            for (let i = 0; i < devicesForASubCatResponse.data.length; i++) {
+              headerData.push(
+                devicesForASubCatResponse.data[i][`d${index + 1}`]
+              );
             }
             return headerData.filter((v, i, self) => i === self.indexOf(v));
           }
         );
 
-        const packagesResponse = await axios.get(
-          `http://localhost:3000/packages`
+        const dataHeaderNamesArray = await dataHeaderNameResponse?.data.map(
+          (dataCol, index) => {
+            return {
+              id: dataCol.toLowerCase(),
+              numeric: headersWithDataArray[index].every(isNumeric),
+              label: dataCol,
+            };
+          }
         );
-        const packagesData = packagesResponse.data.map((pkg) => {
+
+        const dataHeaderUnitsArray = await dataHeaderUnitResponse?.data.map(
+          (unitCol, index) => {
+            return {
+              id: unitCol.toLowerCase(),
+              numeric: headersWithDataArray[index].every(isNumeric),
+              label: unitCol,
+            };
+          }
+        );
+
+        const packagesArray = await packagesResponse?.data.map((pkg) => {
           return {
             value: pkg.id.toLowerCase(),
             label: pkg.id,
@@ -336,20 +382,15 @@ export default function SearchWithSubcat() {
           };
         });
 
-        const devicesResponse = await axios.get(
-          `http://localhost:3000/devices`
-        );
-        // const devicesData = devicesResponse.data;
+        const industriesArray = await industriesResponse?.data.map((ind) => {
+          return {
+            value: ind.id.toLowerCase(),
+            label: ind.id,
+          };
+        });
 
-        // Fetch data for all devices concurrently using Promise.all
-        const devicesData = await Promise.all(
-          devicesResponse.data.map(async (deviceObject) => {
-            const dataResponse = await axios.get(
-              `http://localhost:3000/data/${encodeURIComponent(deviceObject.id)}`
-            );
-            const deviceData = dataResponse.data;
-
-            // Fetch category for the subcategory
+        const devicesObjectArray = await devicesForASubCatResponse.data.map(
+          async (deviceObject, index) => {
             const categoryResponse = await axios.get(
               `http://localhost:3000/categories`
             );
@@ -365,98 +406,54 @@ export default function SearchWithSubcat() {
               industry: deviceObject.industry,
               status: deviceObject.status,
               pdf_link: deviceObject.pdf_link,
-              data: deviceData,
+              data: deviceDataArray[index],
               subcategory,
               category: categoryData,
-            };
-          })
-        );
-
-        setDevices(devicesData);
-        setPackages(packagesData);
-        setIndustry(industriesData);
-        setMatchedDevices(devicesData);
-        setColumnData([
-          devicesData,
-          packagesData,
-          industriesData,
-          ["active", "inactive"],
-          ["pdf_link", "no_pdf_link"],
-          ...headerWithDataRes,
-        ]);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchData();
-  }, [subCat]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch columns
-        const dataHeaderColumnsResponse = await axios.get(
-          `http://localhost:3000/headers/${subCat}`
-        );
-        const dataHeaderColumnNames = await dataHeaderColumnsResponse?.data;
-        const dataHeaderColumnObjectArray = dataHeaderColumnNames.map(
-          (dataCol) => {
-            return {
-              id: dataCol.toLowerCase(),
-              numeric: true,
-              label: dataCol,
             };
           }
         );
 
-        // Set all columns
+        const rows = await devicesForASubCatResponse.data.map(
+          (deviceObject, index) => {
+            let rowObject = {
+              name: deviceObject.id.toLowerCase(),
+              device: deviceObject.id,
+              package: deviceObject.package,
+              industry: deviceObject.industry,
+              status: deviceObject.status,
+              pdf_link: deviceObject.pdf_link,
+            };
+            for (let i = 0; i < dataHeaderNamesArray.length; i++) {
+              rowObject[dataHeaderNamesArray[i].id] = dataHeaderNamesArray[i]
+                .numeric
+                ? parseFloat(deviceDataArray[index][i], 10)
+                : deviceDataArray[index][i];
+            }
+            return rowObject;
+          }
+        );
+
         setColumns([
           { id: "device", numeric: false, label: "Device" },
           { id: "package", numeric: false, label: "Package" },
           { id: "industry", numeric: false, label: "Industry" },
           { id: "status", numeric: false, label: "Status" },
           { id: "pdf_link", numeric: false, label: "PDF Link" },
-          ...dataHeaderColumnObjectArray,
+          ...dataHeaderNamesArray,
         ]);
 
-        // Fetch devices
-        const devicesResponse = await axios.get(
-          `http://localhost:3000/devices/${subCat}`
-        );
-        const devicesNameData = await devicesResponse.data;
-        // console.log("devicesNameData: ", devicesNameData);
-
-        // Fetch data for each device in parallel
-        const deviceDataPromises = devicesNameData.map(async (device) => {
-          const response = await axios.get(
-            `http://localhost:3000/data/${encodeURIComponent(device.id)}`
-          );
-          // console.log("repsonse", response)
-          return response.data;
-        });
-
-        // Wait for all device data to be fetched
-        const deviceData = await Promise.all(deviceDataPromises);
-        // console.log("deviceData: ", deviceData);
-
-        // Create rows
-        const rows = devicesNameData.map((device, index) => {
-          // return createData(...[device, ...deviceData[index]]);
-          let rowObj = {
-            name: device.id.toLowerCase(),
-            device: device.id,
-            package: device.package,
-            industry: device.industry,
-            status: device.status,
-            pdf_link: device.pdf_link,
-          };
-          for (let i = 0; i < dataHeaderColumnObjectArray.length; i++) {
-            rowObj[dataHeaderColumnObjectArray[i].id] = deviceData[index][i];
-          }
-          return rowObj;
-        });
-
+        setDevices(devicesObjectArray);
+        setPackages(packagesArray);
+        setIndustry(industriesArray);
+        setColumnData([
+          devicesObjectArray,
+          packagesArray,
+          industriesArray,
+          ["active", "inactive"],
+          ["pdf_link", "no_pdf_link"],
+          ...headersWithDataArray,
+        ]);
+        setColumnUnits(dataHeaderUnitsArray);
         setRows(rows);
         setLoading(false);
       } catch (err) {
@@ -464,9 +461,8 @@ export default function SearchWithSubcat() {
       }
     };
 
-    // Call the fetchData function
     fetchData();
-  }, [subCat]); // Empty dependency array means this effect runs once when the component mounts
+  }, [subCat]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -516,6 +512,10 @@ export default function SearchWithSubcat() {
     setDense(event.target.checked);
   };
 
+  const handleFilterRows = (filteredRows) => {
+    setRows(filteredRows);
+  };
+
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
@@ -560,6 +560,8 @@ export default function SearchWithSubcat() {
                 onRequestSort={handleRequestSort}
                 columns={columns}
                 columnData={columnData}
+                columnUnits={columnUnits}
+                handleFilterRows={handleFilterRows}
               />
               <TableBody>
                 {visibleRows
@@ -580,7 +582,6 @@ export default function SearchWithSubcat() {
                         sx={{ cursor: "pointer" }}
                       >
                         {columns.map((column, colidx) => {
-                          // console.log("row: ", row);
                           return (
                             <TableCell
                               align="center"
@@ -591,18 +592,6 @@ export default function SearchWithSubcat() {
                             </TableCell>
                           );
                         })}
-                        {/* {dataColumns.map((column, colidx) => {
-                          // console.log("row: ", row);
-                          return (
-                            <TableCell
-                              align="center"
-                              id={labelId}
-                              key={`${index} ${colidx} ${row[column.id]}`}
-                            >
-                              {row[column.id]}
-                            </TableCell>
-                          );
-                        })} */}
                       </TableRow>
                     );
                   })}
