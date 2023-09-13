@@ -82,7 +82,6 @@ function EnhancedTableHead(props) {
     onRequestSort,
     columns,
     columnData = [],
-    columnUnits,
     handleFilterRows,
   } = props;
   const [expanded, setExpanded] = useState(Array(columns.length).fill(false));
@@ -95,7 +94,7 @@ function EnhancedTableHead(props) {
     };
 
   const [sliderValues, setSliderValues] = useState(
-    Array(columns.filter((col) => col.numeric).length).fill([0, 0]) // Initialize with default values
+    Array(columns.filter((col) => col.numeric).length).fill([0, 0]) 
   );
 
   const handleSliderChange = (event, newValue, columnIndex) => {
@@ -113,7 +112,6 @@ function EnhancedTableHead(props) {
       <TableRow>
         {columns.map((headCell, index) => {
           const columnDataForIndex = columnData[index] || [];
-          const columnUnitsForIndex = columnUnits[index];
           if (columnDataForIndex.length === 0) {
             return null; 
           }
@@ -162,12 +160,12 @@ function EnhancedTableHead(props) {
                             value={sliderValues[index]}
                             onChange={(event, newValue) =>
                               handleSliderChange(event, newValue, index)
-                            } // Pass the column index
+                            } 
                             valueLabelDisplay="auto"
                             aria-labelledby="range-slider"
                             getAriaValueText={(value) =>
-                              `${sliderValues[index]}${columnUnitsForIndex}`
-                            } // Set the step to 1 for discrete values
+                              `${sliderValues[index]}${headCell.unit}`
+                            } 
                             marks={[
                               {
                                 value: (maxColumnValue + minColumnValue) / 2,
@@ -179,6 +177,7 @@ function EnhancedTableHead(props) {
                           />
                         )}
                       </FormGroup>
+                      <Typography>{`${headCell.unit}`}</Typography>
                     </Box>
                   ) : (
                     <Box sx={{ width: "15ch" }}>
@@ -187,7 +186,7 @@ function EnhancedTableHead(props) {
                           sx={{ width: "15ch" }}
                           multiple
                           id="tags-outlined"
-                          options={columnDataForIndex} // Make sure index is valid
+                          options={columnDataForIndex}
                           defaultValue={[]}
                           filterSelectedOptions
                           renderInput={(params) => (
@@ -299,7 +298,6 @@ export default function SearchWithSubcat() {
   const { subCat } = useParams();
   const [columns, setColumns] = useState([]);
   const [columnData, setColumnData] = useState([]);
-  const [columnUnits, setColumnUnits] = useState([]);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("calories");
   const [page, setPage] = useState(0);
@@ -316,7 +314,6 @@ export default function SearchWithSubcat() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch data for subcategory for respective header
         const dataHeaderNameResponse = await axios.get(
           `http://localhost:3000/headers/${subCat}`
         );
@@ -360,16 +357,7 @@ export default function SearchWithSubcat() {
               id: dataCol.toLowerCase(),
               numeric: headersWithDataArray[index].every(isNumeric),
               label: dataCol,
-            };
-          }
-        );
-
-        const dataHeaderUnitsArray = await dataHeaderUnitResponse?.data.map(
-          (unitCol, index) => {
-            return {
-              id: unitCol.toLowerCase(),
-              numeric: headersWithDataArray[index].every(isNumeric),
-              label: unitCol,
+              unit: dataHeaderUnitResponse?.data[index],
             };
           }
         );
@@ -453,7 +441,6 @@ export default function SearchWithSubcat() {
           ["pdf_link", "no_pdf_link"],
           ...headersWithDataArray,
         ]);
-        setColumnUnits(dataHeaderUnitsArray);
         setRows(rows);
         setLoading(false);
       } catch (err) {
@@ -560,7 +547,6 @@ export default function SearchWithSubcat() {
                 onRequestSort={handleRequestSort}
                 columns={columns}
                 columnData={columnData}
-                columnUnits={columnUnits}
                 handleFilterRows={handleFilterRows}
               />
               <TableBody>
