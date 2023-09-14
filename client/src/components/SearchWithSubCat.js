@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
@@ -82,9 +82,85 @@ function EnhancedTableHead(props) {
     onRequestSort,
     columns,
     columnData = [],
+    originalRows,
     handleFilterRows,
   } = props;
   const [expanded, setExpanded] = useState(Array(columns.length).fill(false));
+
+  const [sliderValues, setSliderValues] = useState(
+    Array(columns.length).fill([0, 0])
+  );
+
+  const [autocompleteValues, setAutocompleteValues] = useState(
+    Array(columns.length).fill([])
+  );
+
+  useEffect(() => {
+    let initialSliderValues = [];
+    columns.map((col, index) => {
+      if (col.numeric) {
+        const columnDataForIndex = columnData[index] || [];
+        const minColumnValue = Math.min(...columnDataForIndex);
+        const maxColumnValue = Math.max(...columnDataForIndex);
+        initialSliderValues[index] = [minColumnValue, maxColumnValue];
+      }
+      return col;
+    });
+    console.log(
+      "inside useEffect initialSliderValues :: ",
+      initialSliderValues
+    );
+    setSliderValues(initialSliderValues);
+  }, [columns, columnData]);
+
+  const handleFilters = useCallback((event, columnIndex) => {
+    let filteredRows = originalRows;
+    const newSliderValues = [...sliderValues];
+    newSliderValues[columnIndex] = event.target.value;
+    setSliderValues(newSliderValues);
+
+    console.log(
+      "Inside handleFilter slider :: ",
+      newSliderValues[columnIndex],
+      columnIndex
+    );
+
+    // Collect filter values from Autocomplete components
+    const newAutocompleteValues = [...autocompleteValues];
+    newAutocompleteValues[columnIndex] = event.target.value; // You need to replace this with the actual value from the Autocomplete component
+    setAutocompleteValues(newAutocompleteValues); // Assuming you have a state for Autocomplete values
+
+    console.log(
+      "Inside handleFilter autocomplete:: ",
+      newAutocompleteValues[columnIndex],
+      columnIndex
+    );
+
+    // Apply filters to the rows
+    if (
+      newAutocompleteValues[columnIndex].length > 0 ||
+      newSliderValues[columnIndex][0] !== Math.min(...columnData[columnIndex]) ||
+      newSliderValues[columnIndex][1] !== Math.max(...columnData[columnIndex])
+    ) {
+      filteredRows = originalRows.filter((row) => {
+        // Apply slider value filter
+        const sliderValue = row[columns[columnIndex].id];
+        if (
+          !isNaN(sliderValue) &&
+          sliderValue < newSliderValues[columnIndex][0] &&
+          sliderValue > newSliderValues[columnIndex][1]
+        ) {
+          return false;
+        }
+
+        const autocompleteValue = row[columns[columnIndex].id];
+        return newAutocompleteValues[columnIndex].includes(autocompleteValue);
+      });
+    }
+    console.log("Inside handleFilter filteredRows :: ", filteredRows);
+    // Update the filtered rows using the handleFilterRows function
+    handleFilterRows(filteredRows);
+  }, [sliderValues, autocompleteValues, columnData, columns, originalRows, handleFilterRows]);
 
   const handleHeaderExpansionChange =
     (panel, columnIndex) => (event, newExpanded) => {
@@ -93,15 +169,12 @@ function EnhancedTableHead(props) {
       setExpanded(newExpandedState);
     };
 
-  const [sliderValues, setSliderValues] = useState(
-    Array(columns.filter((col) => col.numeric).length).fill([0, 0]) 
-  );
-
-  const handleSliderChange = (event, newValue, columnIndex) => {
-    const newSliderValues = [...sliderValues];
-    newSliderValues[columnIndex] = newValue;
-    setSliderValues(newSliderValues);
-  };
+  // const handleSliderChange = (event, newValue, columnIndex) => {
+  //   const newSliderValues = [...sliderValues];
+  //   newSliderValues[columnIndex] = newValue;
+  //   setSliderValues(newSliderValues);
+  //   handleFilters(event, columnIndex);
+  // };
 
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -113,10 +186,11 @@ function EnhancedTableHead(props) {
         {columns.map((headCell, index) => {
           const columnDataForIndex = columnData[index] || [];
           if (columnDataForIndex.length === 0) {
-            return null; 
+            return null;
           }
           const minColumnValue = Math.min(...columnDataForIndex);
           const maxColumnValue = Math.max(...columnDataForIndex);
+          const markArray = columnDataForIndex.map((val) => ({ value: val }));
           return (
             <TableCell
               key={headCell.id}
@@ -159,25 +233,24 @@ function EnhancedTableHead(props) {
                             sx={{ width: "15ch" }}
                             value={sliderValues[index]}
                             onChange={(event, newValue) =>
-                              handleSliderChange(event, newValue, index)
-                            } 
+                              handleFilters(
+                                { target: { value: newValue } },
+                                index
+                              )
+                            }
+                            step={null}
                             valueLabelDisplay="auto"
                             aria-labelledby="range-slider"
                             getAriaValueText={(value) =>
                               `${sliderValues[index]}${headCell.unit}`
-                            } 
-                            marks={[
-                              {
-                                value: (maxColumnValue + minColumnValue) / 2,
-                                label: (maxColumnValue + minColumnValue) / 2,
-                              },
-                            ]}
+                            }
+                            marks={markArray}
                             min={minColumnValue}
                             max={maxColumnValue}
                           />
                         )}
+                        <Typography>{`${headCell.unit}`}</Typography>
                       </FormGroup>
-                      <Typography>{`${headCell.unit}`}</Typography>
                     </Box>
                   ) : (
                     <Box sx={{ width: "15ch" }}>
@@ -188,6 +261,13 @@ function EnhancedTableHead(props) {
                           id="tags-outlined"
                           options={columnDataForIndex}
                           defaultValue={[]}
+                          value={autocompleteValues[index]}
+                          onChange={(event, newValue) =>
+                            handleFilters(
+                              { target: { value: newValue } },
+                              index
+                            )
+                          }
                           filterSelectedOptions
                           renderInput={(params) => (
                             <TextField
@@ -306,10 +386,11 @@ export default function SearchWithSubcat() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState([]);
   const [rows, setRows] = useState([]);
-  const [packages, setPackages] = useState([]);
-  const [industry, setIndustry] = useState([]);
-  const [devices, setDevices] = useState([]);
-  const [matchedDevices, setMatchedDevices] = useState([]);
+  const [originalRows, setOriginalRows] = useState([]);
+  // const [packages, setPackages] = useState([]);
+  // const [industry, setIndustry] = useState([]);
+  // const [devices, setDevices] = useState([]);
+  // const [matchedDevices, setMatchedDevices] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -377,28 +458,33 @@ export default function SearchWithSubcat() {
           };
         });
 
-        const devicesObjectArray = await devicesForASubCatResponse.data.map(
-          async (deviceObject, index) => {
-            const categoryResponse = await axios.get(
-              `http://localhost:3000/categories`
-            );
-            const subcategory = deviceObject.subcat_id;
-            const categoryData = categoryResponse.data
-              .filter((cat) => cat.sub_cat.includes(subcategory))
-              .map((cat) => cat.name);
+        const devicesObjectArrayResponse =
+          await devicesForASubCatResponse.data.map(
+            async (deviceObject, index) => {
+              const categoryResponse = await axios.get(
+                `http://localhost:3000/categories`
+              );
+              const subcategory = deviceObject.subcat_id;
+              const categoryData = categoryResponse.data
+                .filter((cat) => cat.sub_cat.includes(subcategory))
+                .map((cat) => cat.name);
 
-            return {
-              value: deviceObject.id.toLowerCase(),
-              label: deviceObject.id,
-              package: deviceObject.package,
-              industry: deviceObject.industry,
-              status: deviceObject.status,
-              pdf_link: deviceObject.pdf_link,
-              data: deviceDataArray[index],
-              subcategory,
-              category: categoryData,
-            };
-          }
+              return {
+                value: deviceObject.id.toLowerCase(),
+                label: deviceObject.id,
+                package: deviceObject.package,
+                industry: deviceObject.industry,
+                status: deviceObject.status,
+                pdf_link: deviceObject.pdf_link,
+                data: deviceDataArray[index],
+                subcategory,
+                category: categoryData,
+              };
+            }
+          );
+
+        const devicesObjectArray = await Promise.all(
+          devicesObjectArrayResponse
         );
 
         const rows = await devicesForASubCatResponse.data.map(
@@ -420,7 +506,7 @@ export default function SearchWithSubcat() {
             return rowObject;
           }
         );
-
+    
         setColumns([
           { id: "device", numeric: false, label: "Device" },
           { id: "package", numeric: false, label: "Package" },
@@ -430,17 +516,18 @@ export default function SearchWithSubcat() {
           ...dataHeaderNamesArray,
         ]);
 
-        setDevices(devicesObjectArray);
-        setPackages(packagesArray);
-        setIndustry(industriesArray);
+        // setDevices(devicesObjectArray);
+        // setPackages(packagesArray);
+        // setIndustry(industriesArray);
         setColumnData([
-          devicesObjectArray,
-          packagesArray,
+          devicesObjectArray.map((device) => device.label),
+          packagesArray.map((pkg) => pkg.label),
           industriesArray,
           ["active", "inactive"],
           ["pdf_link", "no_pdf_link"],
           ...headersWithDataArray,
         ]);
+        setOriginalRows(rows);
         setRows(rows);
         setLoading(false);
       } catch (err) {
@@ -547,6 +634,7 @@ export default function SearchWithSubcat() {
                 onRequestSort={handleRequestSort}
                 columns={columns}
                 columnData={columnData}
+                originalRows={originalRows}
                 handleFilterRows={handleFilterRows}
               />
               <TableBody>

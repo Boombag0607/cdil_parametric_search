@@ -16,32 +16,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
-const industryList = [
-  {
-    value: "audio",
-    label: "Audio",
-  },
-  {
-    value: "automotive",
-    label: "Automotive",
-  },
-  {
-    value: "communications",
-    label: "Communications",
-  },
-  {
-    value: "computing",
-    label: "Computing",
-  },
-  {
-    value: "power",
-    label: "Power",
-  },
-  {
-    value: "sensing",
-    label: "Sensing",
-  },
-];
+
 
 function StyledAutocomplete(props) {
   const { sx, ...other } = props;
@@ -130,6 +105,16 @@ export default function Search() {
             value: element.id.toLowerCase(),
             label: element.id,
             desc: element.pkg_desc,
+          };
+        });
+
+        const industryResponse = await axios.get(
+          `http://localhost:3000/industries`
+        );
+        const industryList = industryResponse.data.map((element) => {
+          return {
+            value: element.id.toLowerCase(),
+            label: element.id,
           };
         });
 
