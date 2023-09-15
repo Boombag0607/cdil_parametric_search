@@ -131,6 +131,33 @@ app.get("/devices/:subCat", async (req, res) => {
   }
 });
 
+app.get("/devicesInCat/:category", async (req, res) => {
+  try {
+    const category = req.params.category.replace(/_/g, " ").trim();
+    console.log(category);
+    const subCatData = await pool.query(
+      `SELECT sub_cat FROM categories WHERE name=$1`,
+      [category]
+    );
+    // console.log("SQL Query:", subCatData.query.text);
+    const subCatArray = subCatData.rows[0].sub_cat;
+    let devices = [];
+
+    for (let i = 0; i < subCatArray.length; i++) {
+      const subCat = subCatArray[i]
+      const deviceData = await pool.query(
+        `SELECT * FROM devices WHERE subcat_id = $1`,
+        [subCat]
+      );
+      devices.push(...deviceData.rows);
+    }
+
+    res.json(devices);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
 app.get("/subcategories", async (req, res) => {
   try {
     const allData = await pool.query(`SELECT * FROM subcategories`);

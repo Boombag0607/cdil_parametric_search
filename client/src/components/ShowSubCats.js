@@ -2,20 +2,21 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import "./Landing.css";
 import {
-  Typography,
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  CircularProgress,
-  Box,
-  Grid,
-  Button,
+  Typography,
 } from "@mui/material";
 import BoltIcon from "@mui/icons-material/Bolt";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import SearchTableWithCat from "./SearchTableWithCat";
 
 function Landing() {
   const [categoryArray, setCategoryArray] = useState([]);
@@ -62,7 +63,7 @@ function Landing() {
 
   return (
     <Box className="landing container m-4">
-      <Typography variant="h3" component="h1">
+      <Typography variant="h4" component="h5">
         {category}
       </Typography>
       {loading ? (
@@ -70,29 +71,34 @@ function Landing() {
           <CircularProgress />
         </Box>
       ) : (
-        <Grid container spacing={2} className="m-1 p-1">
-          {categoryArray.map((categoryObject, categoryIndex) => (
-            <Grid item className="col" key={"col" + categoryIndex}>
-              <Grid container direction="column">
-                <List>
-                  {categoryObject.types.map((type, typeIdx) => (
-                    <ListItem disablePadding key={typeIdx}>
-                      <ListItemButton
-                        component={Link}
-                        to={`/search/${type.split(" ").join("_")}`}
-                      >
-                        <ListItemIcon>
-                          <BoltIcon />
-                          <ListItemText disableTypography primary={type} />
-                        </ListItemIcon>
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
-                </List>
+        <Box sx={{ display: "flex" }}>
+          <Grid container spacing={2} className="m-1 p-1">
+            {categoryArray.map((categoryObject, categoryIndex) => (
+              <Grid item xs={4} className="col" key={"col" + categoryIndex}>
+                <Grid container direction="column">
+                  <List>
+                    {categoryObject.types.map((type, typeIdx) => (
+                      <ListItem disablePadding key={typeIdx}>
+                        <ListItemButton
+                          component={Link}
+                          to={`/search/${type.split(" ").join("_")}`}
+                        >
+                          <ListItemIcon>
+                            <BoltIcon />
+                            <ListItemText disableTypography primary={type} />
+                          </ListItemIcon>
+                        </ListItemButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Grid>
               </Grid>
+            ))}
+            <Grid item xs={8}>
+              <SearchTableWithCat category={category} />
             </Grid>
-          ))}
-        </Grid>
+          </Grid>
+        </Box>
       )}
       <Button href="/search">Go to Main Search</Button>
     </Box>

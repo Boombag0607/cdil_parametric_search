@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
 
@@ -68,11 +68,6 @@ function stableSort(array, comparator) {
     return a[1] - b[1];
   });
   return stabilizedThis.map((el) => el[0]);
-}
-
-function isNumeric(input) {
-  const numericPattern = /^[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?$/;
-  return numericPattern.test(input);
 }
 
 function EnhancedTableHead(props) {
@@ -308,13 +303,23 @@ EnhancedTableHead.propTypes = {
 
 function EnhancedTableToolbar(props) {
   const navigate = useNavigate();
-  const { numSelected, subCat, rowCount, onSelectAllClick, selectedDevices } =
-    props;
+  const {
+    numSelected,
+    rowCount,
+    onSelectAllClick,
+    dense,
+    handleChangeDense,
+    selectedDevices,
+  } = props;
 
   const handleDisplayClick = () => {
     const devices = selectedDevices;
     console.log("selected Devices: ", selectedDevices);
     navigate("/display", { state: { devices } });
+  };
+
+  const handleClickDense = () => {
+    handleChangeDense(!dense);
   };
 
   return (
@@ -341,14 +346,55 @@ function EnhancedTableToolbar(props) {
           {numSelected} selected
         </Typography>
       ) : (
-        <Typography
-          sx={{ flex: "1 1 100%" }}
-          variant="h6"
-          id="tableTitle"
-          component="div"
-        >
-          {subCat.split("_").join(" ")}
-        </Typography>
+        <Grid container spacing={2}>
+          {/* <Grid item xs={4}>
+            <Typography
+              sx={{ flex: "1 1 100%" }}
+              variant="h6"
+              id="tableTitle"
+              component="div"
+            >
+              {category.split("_").join(" ")}
+            </Typography>
+          </Grid> */}
+
+          <Grid item xs={4}>
+            <FormControlLabel
+              style={{ backgroundColor: "#eee" }}
+              variant="outlined"
+              control={<Switch checked={dense} onChange={handleClickDense} />}
+              // label={dense ? "Dense" : "Normal"}
+            />
+          </Grid>
+
+          <Grid item xs={8}>
+            {/* <Box
+              variant="contained"
+              sx={{
+                backgroundColor: "#eee",
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            > */}
+            <Button
+              color="primary"
+              href="/search"
+              underline="none"
+              sx={{
+                backgroundColor: "#eee",
+                color: "#555",
+                fontWeight: "bold",
+                "&:hover": {
+                  bgcolor: "#555",
+                  color: "white",
+                },
+              }}
+            >
+              {"Go to main search"}
+            </Button>
+            {/* </Box> */}
+          </Grid>
+        </Grid>
       )}
 
       {numSelected > 0 ? (
@@ -383,8 +429,9 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function SearchWithSubcat() {
-  const { subCat } = useParams();
+export default function SearchTableWithCat(props) {
+  const { category } = props;
+  //   const { subCat } = useParams();
   const [columns, setColumns] = useState([]);
   const [columnData, setColumnData] = useState([]);
   const [order, setOrder] = useState("asc");
@@ -404,14 +451,8 @@ export default function SearchWithSubcat() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const dataHeaderNameResponse = await axios.get(
-          `http://localhost:3000/headers/${subCat}`
-        );
-        const dataHeaderUnitResponse = await axios.get(
-          `http://localhost:3000/units/${subCat}`
-        );
-        const devicesForASubCatResponse = await axios.get(
-          `http://localhost:3000/devices/${subCat}`
+        const devicesForACatResponse = await axios.get(
+          `http://localhost:3000/devicesInCat/${category}`
         );
         const packagesResponse = await axios.get(
           `http://localhost:3000/packages`
@@ -421,7 +462,7 @@ export default function SearchWithSubcat() {
         );
 
         const deviceDataArray = await Promise.all(
-          devicesForASubCatResponse.data.map(async (device) => {
+          devicesForACatResponse.data.map(async (device) => {
             const response = await axios.get(
               `http://localhost:3000/data/${encodeURIComponent(device.id)}`
             );
@@ -429,28 +470,28 @@ export default function SearchWithSubcat() {
           })
         );
 
-        const headersWithDataArray = await dataHeaderNameResponse?.data.map(
-          (header, index) => {
-            let headerData = [];
-            for (let i = 0; i < devicesForASubCatResponse.data.length; i++) {
-              headerData.push(
-                devicesForASubCatResponse.data[i][`d${index + 1}`]
-              );
-            }
-            return headerData.filter((v, i, self) => i === self.indexOf(v));
-          }
-        );
+        // const headersWithDataArray = await dataHeaderNameResponse?.data.map(
+        //   (header, index) => {
+        //     let headerData = [];
+        //     for (let i = 0; i < devicesForASubCatResponse.data.length; i++) {
+        //       headerData.push(
+        //         devicesForASubCatResponse.data[i][`d${index + 1}`]
+        //       );
+        //     }
+        //     return headerData.filter((v, i, self) => i === self.indexOf(v));
+        //   }
+        // );
 
-        const dataHeaderNamesArray = await dataHeaderNameResponse?.data.map(
-          (dataCol, index) => {
-            return {
-              id: dataCol.toLowerCase(),
-              numeric: headersWithDataArray[index].every(isNumeric),
-              label: dataCol,
-              unit: dataHeaderUnitResponse?.data[index],
-            };
-          }
-        );
+        // const dataHeaderNamesArray = await dataHeaderNameResponse?.data.map(
+        //   (dataCol, index) => {
+        //     return {
+        //       id: dataCol.toLowerCase(),
+        //       numeric: headersWithDataArray[index].every(isNumeric),
+        //       label: dataCol,
+        //       unit: dataHeaderUnitResponse?.data[index],
+        //     };
+        //   }
+        // );
 
         const packagesArray = await packagesResponse?.data.map((pkg) => {
           return {
@@ -468,35 +509,33 @@ export default function SearchWithSubcat() {
         });
 
         const devicesObjectArrayResponse =
-          await devicesForASubCatResponse.data.map(
-            async (deviceObject, index) => {
-              const categoryResponse = await axios.get(
-                `http://localhost:3000/categories`
-              );
-              const subcategory = deviceObject.subcat_id;
-              const categoryData = categoryResponse.data
-                .filter((cat) => cat.sub_cat.includes(subcategory))
-                .map((cat) => cat.name);
+          await devicesForACatResponse.data.map(async (deviceObject, index) => {
+            //   const categoryResponse = await axios.get(
+            //     `http://localhost:3000/categories`
+            //   );
+            //   const subcategory = deviceObject.subcat_id;
+            //   const categoryData = categoryResponse.data
+            //     .filter((cat) => cat.sub_cat.includes(subcategory))
+            //     .map((cat) => cat.name);
 
-              return {
-                value: deviceObject.id.toLowerCase(),
-                label: deviceObject.id,
-                package: deviceObject.package,
-                industry: deviceObject.industry,
-                status: deviceObject.status,
-                pdf_link: deviceObject.pdf_link,
-                data: deviceDataArray[index],
-                subcategory,
-                category: categoryData,
-              };
-            }
-          );
+            return {
+              value: deviceObject.id.toLowerCase(),
+              label: deviceObject.id,
+              package: deviceObject.package,
+              industry: deviceObject.industry,
+              status: deviceObject.status,
+              pdf_link: deviceObject.pdf_link,
+              data: deviceDataArray[index],
+              subcategory: deviceObject.subcat_id,
+              // category: categoryData,
+            };
+          });
 
         const devicesObjectArray = await Promise.all(
           devicesObjectArrayResponse
         );
 
-        const rows = await devicesForASubCatResponse.data.map(
+        const rows = await devicesForACatResponse.data.map(
           (deviceObject, index) => {
             let rowObject = {
               name: deviceObject.id.toLowerCase(),
@@ -506,12 +545,12 @@ export default function SearchWithSubcat() {
               status: deviceObject.status,
               pdf_link: deviceObject.pdf_link,
             };
-            for (let i = 0; i < dataHeaderNamesArray.length; i++) {
-              rowObject[dataHeaderNamesArray[i].id] = dataHeaderNamesArray[i]
-                .numeric
-                ? parseFloat(deviceDataArray[index][i], 10)
-                : deviceDataArray[index][i];
-            }
+            // for (let i = 0; i < dataHeaderNamesArray.length; i++) {
+            //   rowObject[dataHeaderNamesArray[i].id] = dataHeaderNamesArray[i]
+            //     .numeric
+            //     ? parseFloat(deviceDataArray[index][i], 10)
+            //     : deviceDataArray[index][i];
+            // }
             return rowObject;
           }
         );
@@ -522,7 +561,7 @@ export default function SearchWithSubcat() {
           { id: "industry", numeric: false, label: "Industry" },
           { id: "status", numeric: false, label: "Status" },
           { id: "pdf_link", numeric: false, label: "PDF Link" },
-          ...dataHeaderNamesArray,
+          //   ...dataHeaderNamesArray,
         ]);
 
         // setDevices(devicesObjectArray);
@@ -534,7 +573,7 @@ export default function SearchWithSubcat() {
           industriesArray,
           ["active", "inactive"],
           ["pdf_link", "no_pdf_link"],
-          ...headersWithDataArray,
+          //   ...headersWithDataArray,
         ]);
         setOriginalRows(rows);
         setRows(rows);
@@ -545,7 +584,7 @@ export default function SearchWithSubcat() {
     };
 
     fetchData();
-  }, [subCat]);
+  }, [category]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -592,7 +631,7 @@ export default function SearchWithSubcat() {
   };
 
   const handleChangeDense = (event) => {
-    setDense(event.target.checked);
+    setDense(!dense);
   };
 
   const handleFilterRows = (filteredRows) => {
@@ -615,7 +654,7 @@ export default function SearchWithSubcat() {
   );
 
   return (
-    <Box className="p-3" sx={{ width: "100%" }}>
+    <Box sx={{ width: "100%" }}>
       {loading ? ( // Display CircularProgress while loading
         <CircularProgress
           sx={{ position: "absolute", top: "50%", left: "50%" }}
@@ -623,11 +662,13 @@ export default function SearchWithSubcat() {
       ) : (
         <Paper sx={{ width: "100%", mb: 2 }}>
           <EnhancedTableToolbar
-            subCat={subCat}
             numSelected={selected.length}
+            category={category}
             rowCount={rows.length}
             onSelectAllClick={handleSelectAllClick}
             selectedDevices={selected}
+            dense={dense}
+            handleChangeDense={handleChangeDense}
           />
           <TableContainer>
             <Table
@@ -701,45 +742,6 @@ export default function SearchWithSubcat() {
           />
         </Paper>
       )}
-      <Grid container spacing={2}>
-        <Grid item xs={6}>
-          <FormControlLabel
-            className="rounded-3 border m-3 bottom-0 position-fixed col-1"
-            style={{ backgroundColor: "#eee" }}
-            variant="outlined"
-            control={<Switch checked={dense} onChange={handleChangeDense} />}
-            // label={dense ? "Dense" : "Normal"}
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <Box
-            variant="contained"
-            sx={{
-              backgroundColor: "#eee",
-              display: "flex",
-              justifyContent: "flex-end",
-            }}
-          >
-            <Button
-              color="primary"
-              className="m-3 border m-3 bottom-0 position-fixed"
-              href="/search"
-              underline="none"
-              sx={{
-                backgroundColor: "#eee",
-                color: "#555",
-                fontWeight: "bold",
-                "&:hover": {
-                  bgcolor: "#555",
-                  color: "white",
-                },
-              }}
-            >
-              {"Go to main search"}
-            </Button>
-          </Box>
-        </Grid>
-      </Grid>
     </Box>
   );
 }
