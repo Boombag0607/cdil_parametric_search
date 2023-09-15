@@ -372,10 +372,9 @@ function EnhancedTableToolbar(props) {
           </Grid>
           <Grid item xs={3}>
             <FormControlLabel
-              style={{ backgroundColor: "#eee" }}
               variant="outlined"
               control={<Switch checked={dense} onChange={handleClickDense} />}
-              // label={dense ? "Dense" : "Normal"}
+              label={dense ? "Dense" : "Normal"}
             />
           </Grid>
           <Grid item xs={2}>
@@ -383,15 +382,6 @@ function EnhancedTableToolbar(props) {
                 color="primary"
                 href="/search"
                 underline="none"
-                sx={{
-                  backgroundColor: "#eee",
-                  color: "#555",
-                  fontWeight: "bold",
-                  "&:hover": {
-                    bgcolor: "#555",
-                    color: "white",
-                  },
-                }}
               >
                 {"Go to main search"}
               </Button>

@@ -25,8 +25,8 @@ export default function Footer() {
               About Us
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              We are XYZ company, dedicated to providing the best service to our
-              customers.
+              We are a semiconductor manufacturing company, dedicated to providing the best service to our
+              clients.
             </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -34,7 +34,7 @@ export default function Footer() {
               Contact Us
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              123 Main Street, Anytown, USA
+              123 Main Street, Anytown, India
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Email: info@example.com
