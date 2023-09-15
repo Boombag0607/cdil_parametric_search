@@ -95,6 +95,10 @@ function EnhancedTableHead(props) {
     Array(columns.length).fill([])
   );
 
+  const [appliedFilters, setAppliedFilters] = useState([
+    Array(columns.length).fill([]),
+  ]);
+
   useEffect(() => {
     let initialSliderValues = [];
     columns.map((col, index) => {
@@ -113,54 +117,57 @@ function EnhancedTableHead(props) {
     setSliderValues(initialSliderValues);
   }, [columns, columnData]);
 
-  const handleFilters = useCallback((event, columnIndex) => {
-    let filteredRows = originalRows;
-    const newSliderValues = [...sliderValues];
-    newSliderValues[columnIndex] = event.target.value;
-    setSliderValues(newSliderValues);
+  const handleFilters = useCallback(
+    (event, columnIndex, minValue, maxValue) => {
+      let filteredRows = originalRows;
+      const newSliderValues = [...sliderValues];
+      newSliderValues[columnIndex] = event.target.value;
+      setSliderValues(newSliderValues);
 
-    console.log(
-      "Inside handleFilter slider :: ",
-      newSliderValues[columnIndex],
-      columnIndex
-    );
+      console.log(
+        "Inside handleFilter slider :: ",
+        newSliderValues[columnIndex],
+        columnIndex
+      );
 
-    // Collect filter values from Autocomplete components
-    const newAutocompleteValues = [...autocompleteValues];
-    newAutocompleteValues[columnIndex] = event.target.value; // You need to replace this with the actual value from the Autocomplete component
-    setAutocompleteValues(newAutocompleteValues); // Assuming you have a state for Autocomplete values
+      // Collect filter values from Autocomplete components
+      const newAutocompleteValues = [...autocompleteValues];
+      newAutocompleteValues[columnIndex] = event.target.value; // You need to replace this with the actual value from the Autocomplete component
+      setAutocompleteValues(newAutocompleteValues); // Assuming you have a state for Autocomplete values
 
-    console.log(
-      "Inside handleFilter autocomplete:: ",
-      newAutocompleteValues[columnIndex],
-      columnIndex
-    );
+      console.log(
+        "Inside handleFilter autocomplete:: ",
+        newAutocompleteValues[columnIndex],
+        columnIndex
+      );
 
-    // Apply filters to the rows
-    if (
-      newAutocompleteValues[columnIndex].length > 0 ||
-      newSliderValues[columnIndex][0] !== Math.min(...columnData[columnIndex]) ||
-      newSliderValues[columnIndex][1] !== Math.max(...columnData[columnIndex])
-    ) {
-      filteredRows = originalRows.filter((row) => {
-        // Apply slider value filter
-        const sliderValue = row[columns[columnIndex].id];
-        if (
-          !isNaN(sliderValue) &&
-          sliderValue < newSliderValues[columnIndex][0] &&
-          sliderValue > newSliderValues[columnIndex][1]
-        ) {
-          return false;
-        }
+      // Apply filters to the rows
+      if (
+        newAutocompleteValues[columnIndex].length > 0 ||
+        newSliderValues[columnIndex][0] !== minValue ||
+        newSliderValues[columnIndex][1] !== maxValue
+      ) {
+        filteredRows = originalRows.filter((row) => {
+          // Apply slider value filter
+          const sliderValue = row[columns[columnIndex].id];
+          const sliderFilter =
+            !isNaN(sliderValue) &&
+            sliderValue > newSliderValues[columnIndex][0] &&
+            sliderValue < newSliderValues[columnIndex][1];
 
-        const autocompleteValue = row[columns[columnIndex].id];
-        return newAutocompleteValues[columnIndex].includes(autocompleteValue);
-      });
-    }
-    console.log("Inside handleFilter filteredRows :: ", filteredRows);
-    // Update the filtered rows using the handleFilterRows function
-    handleFilterRows(filteredRows);
-  }, [sliderValues, autocompleteValues, columnData, columns, originalRows, handleFilterRows]);
+          const autocompleteValue = row[columns[columnIndex].id];
+          const autcompleteFilter =
+            newAutocompleteValues[columnIndex].includes(autocompleteValue);
+
+          return sliderFilter || autcompleteFilter;
+        });
+      }
+      console.log("Inside handleFilter filteredRows :: ", filteredRows);
+      // Update the filtered rows using the handleFilterRows function
+      handleFilterRows(filteredRows);
+    },
+    [sliderValues, autocompleteValues, columns, originalRows, handleFilterRows]
+  );
 
   const handleHeaderExpansionChange =
     (panel, columnIndex) => (event, newExpanded) => {
@@ -235,7 +242,9 @@ function EnhancedTableHead(props) {
                             onChange={(event, newValue) =>
                               handleFilters(
                                 { target: { value: newValue } },
-                                index
+                                index,
+                                maxColumnValue,
+                                minColumnValue
                               )
                             }
                             step={null}
@@ -506,7 +515,7 @@ export default function SearchWithSubcat() {
             return rowObject;
           }
         );
-    
+
         setColumns([
           { id: "device", numeric: false, label: "Device" },
           { id: "package", numeric: false, label: "Package" },
