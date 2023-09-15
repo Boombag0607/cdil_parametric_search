@@ -2,9 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import "./Landing.css";
 import { styled } from "@mui/material/styles";
 import {
-  //   Accordion,
-  //   AccordionSummary,
-  //   AccordionDetails,
   Typography,
   List,
   ListItem,
@@ -14,13 +11,15 @@ import {
   CircularProgress,
   Box,
   Grid,
+  Button,
 } from "@mui/material";
 import MuiAccordion from "@mui/material/Accordion";
 import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import BoltIcon from "@mui/icons-material/Bolt";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
+import axios from "axios";
 
 const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -58,35 +57,25 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   borderTop: "1px solid rgba(0, 0, 0, .125)",
 }));
 
-const divideArray = async (array, size) => {
-  let result = [];
-  for (let i = 0; i < array.length; i += size) {
-    result.push(array.slice(i, i + size));
-  }
-  console.log(result);
-  return result;
-};
-
 function Landing() {
-  const [displayData, setDisplayData] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [categoryArray, setCategoryArray] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getLandingData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/categories");
-        const responseData = await response.json();
-        const data = responseData.map(dataElement => {
+        const categoriesResponse = await axios.get(
+          "http://localhost:3000/categories"
+        );
+        const categoriesData = categoriesResponse.data.map((dataElement) => {
           return {
             name: dataElement.name,
-            types: dataElement.sub_cat
-          }
+            types: dataElement.sub_cat,
+          };
         });
-        console.log(data);
+        console.log(categoriesData);
+        setCategoryArray(categoriesData);
         setLoading(false);
-
-        const dataAsArray = await divideArray(data, 3);
-        setDisplayData(dataAsArray);
       } catch (err) {
         console.error(err.message);
       }
@@ -96,7 +85,6 @@ function Landing() {
 
   const checkLoading = useCallback(() => {
     if (loading) {
-      // If loading is true, wait and check again
       setTimeout(checkLoading, 100);
     }
   }, [loading]);
@@ -106,58 +94,60 @@ function Landing() {
   }, [checkLoading]);
 
   return (
-    <div className="landing container m-4">
-      <h1>Parametric Search</h1>
-      <p className="lead">
+    <Box className="landing container m-4">
+      <Typography variant="h3" component="h1">
+        Parametric Search
+      </Typography>
+      <Typography className="lead">
         This is a simple web app that allows you to explore data from the{" "}
-        <a href="https://www.cdil.com/" target="_blank" rel="noreferrer">
+        <Link href="https://www.cdil.com/" target="_blank" rel="noreferrer">
           CDIL
-        </a>{" "}
+        </Link>{" "}
         website.
-      </p>
-      <div>
-        {console.log("inside", displayData)}
-        {loading ? (
-          <Box sx={{ display: "flex" }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-            displayData.map((row, rowIndex) => (
-              <div className="row mt-1 mb-3" key={rowIndex}>
-                {row.map((element, colIdx) => (
-                  <div className="col" key={"col" + colIdx}>
-                    <Accordion>
-                      <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls="panel1a-content"
-                        id="panel1a-header"
-                      >
-                        <Typography>{element.name}</Typography>
-                      </AccordionSummary>
-                      <AccordionDetails>
-                        <Grid container direction="column">
-                          <List>
-                            {element.types.map((type, typeIdx) => (
-                              <ListItem disablePadding key={typeIdx}>
-                                <ListItemButton component={Link} to={`/table/${type.split(" ").join("_")}`}>
-                                  <ListItemIcon>
-                                    <BoltIcon />
-                                    <ListItemText disableTypography primary={type} />
-                                  </ListItemIcon>
-                                </ListItemButton>
-                              </ListItem>
-                            ))}
-                          </List>
-                          </Grid>
-                      </AccordionDetails>
-                    </Accordion>
-                  </div>
-                ))}
-              </div>
-            ))
-          )}
-      </div>
-    </div>
+      </Typography>
+      {loading ? (
+        <Box sx={{ display: "flex" }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Grid container spacing={2} className="m-1 p-1">
+          {categoryArray.map((categoryObject, categoryIndex) => (
+            <Grid item className="col" key={"col" + categoryIndex}>
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography>{categoryObject.name}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Grid container direction="column">
+                    <List>
+                      {categoryObject.types.map((type, typeIdx) => (
+                        <ListItem disablePadding key={typeIdx}>
+                          <ListItemButton
+                            component={Link}
+                            to={`/search/${type.split(" ").join("_")}`}
+                          >
+                            <ListItemIcon>
+                              <BoltIcon />
+                              <ListItemText disableTypography primary={type} />
+                            </ListItemIcon>
+                          </ListItemButton>
+                        </ListItem>
+                      ))}
+                    </List>
+                    <Button href={`/${categoryObject.name}`}>Select All</Button>
+                  </Grid>
+                </AccordionDetails>
+              </Accordion>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+      <Button href="/search">Go to Main Search</Button>
+    </Box>
   );
 }
 

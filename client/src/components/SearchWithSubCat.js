@@ -735,7 +735,7 @@ export default function SearchWithSubcat() {
                 },
               }}
             >
-              {"Go to search"}
+              {"Go to main search"}
             </Button>
           </Box>
         </Grid>

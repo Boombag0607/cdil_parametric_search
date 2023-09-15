@@ -1,0 +1,102 @@
+import React, { useState, useEffect, useCallback } from "react";
+import { useParams } from "react-router-dom";
+import "./Landing.css";
+import {
+  Typography,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  CircularProgress,
+  Box,
+  Grid,
+  Button,
+} from "@mui/material";
+import BoltIcon from "@mui/icons-material/Bolt";
+import { Link } from "react-router-dom";
+import axios from "axios";
+
+function Landing() {
+  const [categoryArray, setCategoryArray] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { category } = useParams();
+
+  useEffect(() => {
+    const getLandingData = async () => {
+      try {
+        const categoriesResponse = await axios.get(
+          "http://localhost:3000/categories"
+        );
+        const filteredCategories = categoriesResponse.data.filter(
+          (categoryElement) => categoryElement.name === category
+        );
+        const filteredSubCategoriesArray = filteredCategories.map(
+          (filteredCategoryElement) => {
+            return {
+              name: filteredCategoryElement.name,
+              types: filteredCategoryElement.sub_cat,
+            };
+          }
+        );
+        console.log(filteredSubCategoriesArray);
+        setLoading(false);
+
+        setCategoryArray(filteredSubCategoriesArray);
+      } catch (err) {
+        console.error(err.message);
+      }
+    };
+    getLandingData();
+  }, [category]);
+
+  const checkLoading = useCallback(() => {
+    if (loading) {
+      setTimeout(checkLoading, 100);
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    checkLoading();
+  }, [checkLoading]);
+
+  return (
+    <Box className="landing container m-4">
+      <Typography variant="h3" component="h1">
+        {category}
+      </Typography>
+      {loading ? (
+        <Box sx={{ display: "flex" }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Grid container spacing={2} className="m-1 p-1">
+          {categoryArray.map((categoryObject, categoryIndex) => (
+            <Grid item className="col" key={"col" + categoryIndex}>
+              <Grid container direction="column">
+                <List>
+                  {categoryObject.types.map((type, typeIdx) => (
+                    <ListItem disablePadding key={typeIdx}>
+                      <ListItemButton
+                        component={Link}
+                        to={`/search/${type.split(" ").join("_")}`}
+                      >
+                        <ListItemIcon>
+                          <BoltIcon />
+                          <ListItemText disableTypography primary={type} />
+                        </ListItemIcon>
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Grid>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+      <Button href="/search">Go to Main Search</Button>
+    </Box>
+  );
+}
+
+export default Landing;
