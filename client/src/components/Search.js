@@ -16,8 +16,6 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
-
-
 function StyledAutocomplete(props) {
   const { sx, ...other } = props;
   return (
@@ -135,16 +133,19 @@ export default function Search() {
             const categoryResponse = await axios.get(
               `http://localhost:3000/categories`
             );
-            const subcategory = element.subcat_id;
+            const subcategory = await element.subcat_id;
             const categoryData = categoryResponse.data
               .filter((cat) => cat.sub_cat.includes(subcategory))
               .map((cat) => cat.name);
 
+            const industry = await element.industry!==null ? element.industry.slice(1, -1).split(",") : [];
+
+            // console.log("industry: ", element.industry.slice(1, -1));
             return {
               value: element.id.toLowerCase(),
               label: element.id,
               package: element.package,
-              industry: element.industry,
+              industry: industry,
               status: element.status,
               pdf_link: element.pdf_link,
               data: deviceData,
@@ -217,8 +218,8 @@ export default function Search() {
 
     if (selectedIndustries.length > 0) {
       filteredDevices = filteredDevices.filter((element) =>
-        selectedIndustries.some(
-          (industry) => industry.label === element.industry
+        selectedIndustries.some((industry) =>
+          element.industry.includes(industry.label)
         )
       );
       console.log("filteredDevices after industry ::: ", filteredDevices);
@@ -416,7 +417,7 @@ export default function Search() {
                     <Box sx={{ alignItems: "center", height: "100%", m: 1 }}>
                       <Item>Device: {md.label}</Item>
                       <Item>Package: {md.package}</Item>
-                      <Item>Industry: {md.industry}</Item>
+                      <Item>Industry: {md.industry.join(", ")}</Item>
                       <Item>Status: {md.status}</Item>
                       <Item>Subcateorgy: {md.subcategory}</Item>
                       <Button href={`${md.pdf_link}`}>See Data Sheet</Button>

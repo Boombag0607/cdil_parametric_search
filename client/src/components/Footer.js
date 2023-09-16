@@ -25,8 +25,8 @@ export default function Footer() {
               About Us
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              We are a semiconductor manufacturing company, dedicated to providing the best service to our
-              clients.
+              We are a semiconductor manufacturing company, dedicated to
+              providing the best service to our clients.
             </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -76,4 +76,3 @@ export default function Footer() {
     </Box>
   );
 }
-

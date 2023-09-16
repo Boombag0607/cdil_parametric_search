@@ -375,11 +375,7 @@ function EnhancedTableToolbar(props) {
                 justifyContent: "flex-end",
               }}
             > */}
-            <Button
-              color="primary"
-              href="/search"
-              underline="none"
-            >
+            <Button color="primary" href="/search" underline="none">
               {"Go to main search"}
             </Button>
             {/* </Box> */}
@@ -531,7 +527,7 @@ export default function SearchTableWithCat(props) {
               name: deviceObject.id.toLowerCase(),
               device: deviceObject.id,
               package: deviceObject.package,
-              industry: deviceObject.industry,
+              industry: deviceObject.industry.slice(1, -1).split(","),
               status: deviceObject.status,
               pdf_link: deviceObject.pdf_link,
             };
@@ -561,7 +557,7 @@ export default function SearchTableWithCat(props) {
           devicesObjectArray.map((device) => device.label),
           packagesArray.map((pkg) => pkg.label),
           industriesArray,
-          ["active", "inactive"],
+          ["Active", "Inactive"],
           ["pdf_link", "no_pdf_link"],
           //   ...headersWithDataArray,
         ]);
@@ -631,8 +627,8 @@ export default function SearchTableWithCat(props) {
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
-  // const emptyRows =
-  //   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  const emptyRows =
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   const visibleRows = useMemo(
     () =>
@@ -696,7 +692,20 @@ export default function SearchTableWithCat(props) {
                         sx={{ cursor: "pointer" }}
                       >
                         {columns.map((column, colidx) => {
-                          return (
+                          return column.id === "industry" ? (
+                            <TableCell>
+                              {row[column.id].map(
+                                (ind, indIndex, industryArray) => (
+                                  <span key={ind}>
+                                    {ind}
+                                    {indIndex === industryArray.length - 1
+                                      ? ""
+                                      : ", "}
+                                  </span>
+                                )
+                              )}
+                            </TableCell>
+                          ) : (
                             <TableCell
                               align="center"
                               id={labelId}
@@ -709,15 +718,15 @@ export default function SearchTableWithCat(props) {
                       </TableRow>
                     );
                   })}
-                {/* {emptyRows > 0 && (
+                {emptyRows > 0 && (
                   <TableRow
                     style={{
                       height: (dense ? 33 : 53) * emptyRows,
                     }}
                   >
-                    <TableCell colSpan={6} />
+                    <TableCell colSpan={25} />
                   </TableRow>
-                )} */}
+                )}
               </TableBody>
             </Table>
           </TableContainer>

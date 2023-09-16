@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import {
+  Box,
   Button,
   Grid,
   Paper,
@@ -10,6 +11,15 @@ import {
   CardContent,
 } from "@mui/material";
 import axios from "axios";
+
+const bull = (
+  <Box
+    component="span"
+    sx={{ display: "inline-block", mx: "5px", transform: "scale(1.2)" }}
+  >
+    •
+  </Box>
+);
 
 export default function Display() {
   const location = useLocation();
@@ -74,13 +84,25 @@ export default function Display() {
                       {device.package}
                     </Typography>
                     <Typography variant="body2">
-                      Device Details
+                      {device.industry
+                        .slice(1, -1)
+                        .split(",")
+                        .map((ind, indIndex, industryArray) => (
+                          <span key={ind}>
+                            {ind}
+                            {indIndex === industryArray.length - 1 ? "" : bull}
+                          </span>
+                        ))}
                       <br />
-                      {allPackages?.filter((pkg) => pkg.id === device.package)?.map((p) => p.pkg_desc)}
+                      {allPackages
+                        ?.filter((pkg) => pkg.id === device.package)
+                        ?.map((p) => p.pkg_desc)}
                     </Typography>
                   </CardContent>
                   <CardActions className="p-2">
-                    <Button href={`${device.pdf_link}`} size="small">See Data Sheet</Button>
+                    <Button href={`${device.pdf_link}`} size="small">
+                      See Data Sheet
+                    </Button>
                   </CardActions>
                 </Card>
               </Paper>

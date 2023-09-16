@@ -72,9 +72,9 @@ function Landing() {
         </Box>
       ) : (
         <Box sx={{ display: "flex" }}>
-          <Grid container spacing={2} className="m-1 p-1">
+          <Grid container spacing={2} className="mt-1 p-1">
             {categoryArray.map((categoryObject, categoryIndex) => (
-              <Grid item xs={4} className="col" key={"col" + categoryIndex}>
+              <Grid item xs={3} className="col" key={"col" + categoryIndex}>
                 <Grid container direction="column">
                   <List>
                     {categoryObject.types.map((type, typeIdx) => (
@@ -94,7 +94,7 @@ function Landing() {
                 </Grid>
               </Grid>
             ))}
-            <Grid item xs={8}>
+            <Grid item xs={9}>
               <SearchTableWithCat category={category} />
             </Grid>
           </Grid>

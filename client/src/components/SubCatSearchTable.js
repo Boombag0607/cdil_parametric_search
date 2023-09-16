@@ -149,17 +149,26 @@ function EnhancedTableHead(props) {
       ) {
         filteredRows = originalRows.filter((row) => {
           // Apply slider value filter
-          const sliderValue = row[columns[columnIndex].id];
-          const sliderFilter =
-            !isNaN(sliderValue) &&
-            sliderValue > newSliderValues[columnIndex][0] &&
-            sliderValue < newSliderValues[columnIndex][1];
+          const numericRowValue = row[columns[columnIndex].id];
+          let sliderFilter =
+            !isNaN(numericRowValue) &&
+            numericRowValue > newSliderValues[columnIndex][0] &&
+            numericRowValue < newSliderValues[columnIndex][1];
 
-          const autocompleteValue = row[columns[columnIndex].id];
-          const autcompleteFilter =
-            newAutocompleteValues[columnIndex].includes(autocompleteValue);
-
-          return sliderFilter || autcompleteFilter;
+          let autocompleteFilter = false;
+          if (columns[columnIndex].id === "industry") {
+            console.log("Inside handleFilter industry :: ", row)
+            console.log("Inside handleFilter industry, newAutocompleteValues :: ", newAutocompleteValues[columnIndex])
+            const industryRowValue = row[columns[columnIndex].id];
+            autocompleteFilter = industryRowValue.some((r) =>
+              newAutocompleteValues[columnIndex].map(selectedIndustry=> selectedIndustry.label).includes(r)
+            );
+          } else {
+            const alphaNumericRowValue = row[columns[columnIndex].id];
+            autocompleteFilter =
+              newAutocompleteValues[columnIndex].includes(alphaNumericRowValue);
+          }
+          return sliderFilter || autocompleteFilter;
         });
       }
       console.log("Inside handleFilter filteredRows :: ", filteredRows);
@@ -399,15 +408,17 @@ function EnhancedTableToolbar(props) {
           </Tooltip>
         </Box>
       ) : (
-        <Checkbox
-          color="primary"
-          indeterminate={numSelected > 0 && numSelected < rowCount}
-          checked={rowCount > 0 && numSelected === rowCount}
-          onChange={onSelectAllClick}
-          inputProps={{
-            "aria-label": "select all desserts",
-          }}
-        />
+        <Tooltip title="Select All">
+          <Checkbox
+            color="primary"
+            indeterminate={numSelected > 0 && numSelected < rowCount}
+            checked={rowCount > 0 && numSelected === rowCount}
+            onChange={onSelectAllClick}
+            inputProps={{
+              "aria-label": "select all desserts",
+            }}
+          />
+        </Tooltip>
       )}
     </Toolbar>
   );
@@ -516,7 +527,7 @@ export default function SearchTableWithSubcat() {
                 value: deviceObject.id.toLowerCase(),
                 label: deviceObject.id,
                 package: deviceObject.package,
-                industry: deviceObject.industry,
+                industry: deviceObject.industry.slice(1, -1).split(","),
                 status: deviceObject.status,
                 pdf_link: deviceObject.pdf_link,
                 data: deviceDataArray[index],
@@ -536,7 +547,7 @@ export default function SearchTableWithSubcat() {
               name: deviceObject.id.toLowerCase(),
               device: deviceObject.id,
               package: deviceObject.package,
-              industry: deviceObject.industry,
+              industry: deviceObject.industry.slice(1, -1).split(","),
               status: deviceObject.status,
               pdf_link: deviceObject.pdf_link,
             };
@@ -570,7 +581,7 @@ export default function SearchTableWithSubcat() {
           devicesObjectArray.map((device) => device.label),
           packagesArray.map((pkg) => pkg.label),
           industriesArray,
-          ["active", "inactive"],
+          ["Active", "Inactive"],
           ["pdf_link", "no_pdf_link"],
           ...headersWithDataArray,
         ]);
@@ -616,12 +627,10 @@ export default function SearchTableWithSubcat() {
         selected.slice(selectedIndex + 1)
       );
     }
-    console.log("newSelected: ", newSelected);
     setSelected(newSelected);
   };
 
   const handleChangePage = (event, newPage) => {
-    console.log("inside handleChangePage newPage :: ", newPage);
     setPage(newPage);
   };
 
@@ -630,10 +639,6 @@ export default function SearchTableWithSubcat() {
   };
 
   const handleChangeRowsPerPage = (event) => {
-    console.log(
-      "inside handleChangeRowsPerPage rowsPerPage :: ",
-      event.target.value
-    );
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
@@ -645,8 +650,8 @@ export default function SearchTableWithSubcat() {
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
-  // const emptyRows =
-  //   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  const emptyRows =
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   const visibleRows = useMemo(
     () =>
@@ -692,45 +697,57 @@ export default function SearchTableWithSubcat() {
                 handleFilterRows={handleFilterRows}
               />
               <TableBody>
-                {visibleRows
-                  .map((row, index) => {
-                    const isItemSelected = isSelected(row.name);
-                    const labelId = `enhanced-table-checkbox-${index}`;
+                {visibleRows.map((row, index) => {
+                  const isItemSelected = isSelected(row.name);
+                  const labelId = `enhanced-table-checkbox-${index}`;
 
-                    return (
-                      <TableRow
-                        hover
-                        onClick={(event) => handleClick(event, row.name)}
-                        role="checkbox"
-                        aria-checked={isItemSelected}
-                        tabIndex={-1}
-                        key={row.name}
-                        selected={isItemSelected}
-                        sx={{ cursor: "pointer" }}
-                      >
-                        {columns.map((column, colidx) => {
-                          return (
-                            <TableCell
-                              align="center"
-                              id={labelId}
-                              key={`${index} ${colidx} ${row[column.id]}`}
-                            >
-                              {row[column.id]}
-                            </TableCell>
-                          );
-                        })}
-                      </TableRow>
-                    );
-                  })}
-                {/* {emptyRows > 0 && (
+                  return (
+                    <TableRow
+                      hover
+                      onClick={(event) => handleClick(event, row.name)}
+                      role="checkbox"
+                      aria-checked={isItemSelected}
+                      tabIndex={-1}
+                      key={row.name}
+                      selected={isItemSelected}
+                      sx={{ cursor: "pointer" }}
+                    >
+                      {columns.map((column, colidx) => {
+                        return column.id === "industry" ? (
+                          <TableCell>
+                            {row[column.id].map(
+                              (ind, indIndex, industryArray) => (
+                                <span key={ind}>
+                                  {ind}
+                                  {indIndex === industryArray.length - 1
+                                    ? ""
+                                    : ", "}
+                                </span>
+                              )
+                            )}
+                          </TableCell>
+                        ) : (
+                          <TableCell
+                            align="center"
+                            id={labelId}
+                            key={`${index} ${colidx} ${row[column.id]}`}
+                          >
+                            {row[column.id]}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
+                {emptyRows > 0 && (
                   <TableRow
                     style={{
                       height: (dense ? 33 : 53) * emptyRows,
                     }}
                   >
-                    <TableCell colSpan={6} />
+                    <TableCell colSpan={25} />
                   </TableRow>
-                )} */}
+                )}
               </TableBody>
             </Table>
           </TableContainer>
