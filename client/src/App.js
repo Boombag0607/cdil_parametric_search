@@ -2,7 +2,7 @@ import Landing from "./Components/Landing";
 import DeviceTable from "./Components/DeviceTable";
 import Search from "./Components/Search";
 import Display from "./Components/Display";
-import SearchTableWithSubCat from "./Components/SearchTableWithSubCat";
+import SearchTableWithSubCat from "./Components/SubCatSearchTable";
 import ShowSubCats from "./Components/ShowSubCats";
 import FilterDataGrid from "./Components/FilterDataGrid";
 import Header from "./Components/Header";

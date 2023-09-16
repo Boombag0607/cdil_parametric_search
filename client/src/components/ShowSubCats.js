@@ -16,7 +16,7 @@ import {
 import BoltIcon from "@mui/icons-material/Bolt";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import SearchTableWithCat from "./SearchTableWithCat";
+import SearchTableWithCat from "./CatSearchTable";
 
 function Landing() {
   const [categoryArray, setCategoryArray] = useState([]);

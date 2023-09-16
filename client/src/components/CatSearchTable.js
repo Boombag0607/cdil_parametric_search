@@ -631,8 +631,8 @@ export default function SearchTableWithCat(props) {
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  // const emptyRows =
+  //   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   const visibleRows = useMemo(
     () =>
@@ -679,7 +679,7 @@ export default function SearchTableWithCat(props) {
               />
               <TableBody>
                 {visibleRows
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, index) => {
                     const isItemSelected = isSelected(row.name);
                     const labelId = `enhanced-table-checkbox-${index}`;
@@ -709,7 +709,7 @@ export default function SearchTableWithCat(props) {
                       </TableRow>
                     );
                   })}
-                {emptyRows > 0 && (
+                {/* {emptyRows > 0 && (
                   <TableRow
                     style={{
                       height: (dense ? 33 : 53) * emptyRows,
@@ -717,7 +717,7 @@ export default function SearchTableWithCat(props) {
                   >
                     <TableCell colSpan={6} />
                   </TableRow>
-                )}
+                )} */}
               </TableBody>
             </Table>
           </TableContainer>

@@ -361,14 +361,14 @@ function EnhancedTableToolbar(props) {
           spacing={2}
         >
           <Grid item xs={4}>
-          <Typography
-            sx={{ flex: "1 1 100%" }}
-            variant="h6"
-            id="tableTitle"
-            component="div"
-          >
-            {subCat.split("_").join(" ")}
-          </Typography>
+            <Typography
+              sx={{ flex: "1 1 100%" }}
+              variant="h6"
+              id="tableTitle"
+              component="div"
+            >
+              {subCat.split("_").join(" ")}
+            </Typography>
           </Grid>
           <Grid item xs={3}>
             <FormControlLabel
@@ -378,13 +378,9 @@ function EnhancedTableToolbar(props) {
             />
           </Grid>
           <Grid item xs={2}>
-              <Button
-                color="primary"
-                href="/search"
-                underline="none"
-              >
-                {"Go to main search"}
-              </Button>
+            <Button color="primary" href="/search" underline="none">
+              {"Go to main search"}
+            </Button>
           </Grid>
         </Grid>
       )}
@@ -544,11 +540,15 @@ export default function SearchTableWithSubcat() {
               status: deviceObject.status,
               pdf_link: deviceObject.pdf_link,
             };
-            for (let i = 0; i < dataHeaderNamesArray.length; i++) {
-              rowObject[dataHeaderNamesArray[i].id] = dataHeaderNamesArray[i]
-                .numeric
-                ? parseFloat(deviceDataArray[index][i], 10)
-                : deviceDataArray[index][i];
+            for (
+              let dataHeaderIndex = 0;
+              dataHeaderIndex < dataHeaderNamesArray.length;
+              dataHeaderIndex++
+            ) {
+              rowObject[dataHeaderNamesArray[dataHeaderIndex].id] =
+                dataHeaderNamesArray[dataHeaderIndex].numeric
+                  ? parseFloat(deviceDataArray[index][dataHeaderIndex], 10)
+                  : deviceDataArray[index][dataHeaderIndex];
             }
             return rowObject;
           }
@@ -621,6 +621,7 @@ export default function SearchTableWithSubcat() {
   };
 
   const handleChangePage = (event, newPage) => {
+    console.log("inside handleChangePage newPage :: ", newPage);
     setPage(newPage);
   };
 
@@ -629,6 +630,10 @@ export default function SearchTableWithSubcat() {
   };
 
   const handleChangeRowsPerPage = (event) => {
+    console.log(
+      "inside handleChangeRowsPerPage rowsPerPage :: ",
+      event.target.value
+    );
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
@@ -640,8 +645,8 @@ export default function SearchTableWithSubcat() {
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  // const emptyRows =
+  //   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   const visibleRows = useMemo(
     () =>
@@ -688,7 +693,6 @@ export default function SearchTableWithSubcat() {
               />
               <TableBody>
                 {visibleRows
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, index) => {
                     const isItemSelected = isSelected(row.name);
                     const labelId = `enhanced-table-checkbox-${index}`;
@@ -718,7 +722,7 @@ export default function SearchTableWithSubcat() {
                       </TableRow>
                     );
                   })}
-                {emptyRows > 0 && (
+                {/* {emptyRows > 0 && (
                   <TableRow
                     style={{
                       height: (dense ? 33 : 53) * emptyRows,
@@ -726,7 +730,7 @@ export default function SearchTableWithSubcat() {
                   >
                     <TableCell colSpan={6} />
                   </TableRow>
-                )}
+                )} */}
               </TableBody>
             </Table>
           </TableContainer>
@@ -741,10 +745,6 @@ export default function SearchTableWithSubcat() {
           />
         </Paper>
       )}
-
-      <Typography sx={{ m: 1, p: 2 }} gutterBottom>
-        Also see other Sub-Categories -{" "}
-      </Typography>
     </Box>
   );
 }
