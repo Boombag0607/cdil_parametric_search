@@ -54,10 +54,6 @@ function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-// Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
-// stableSort() brings sort stability to non-modern browsers (notably IE11). If you
-// only support modern browsers you can replace stableSort(exampleArray, exampleComparator)
-// with exampleArray.slice().sort(exampleComparator)
 function stableSort(array, comparator) {
   const stabilizedThis = array.map((el, index) => [el, index]);
   stabilizedThis.sort((a, b) => {
@@ -82,96 +78,82 @@ function EnhancedTableHead(props) {
   } = props;
   const [expanded, setExpanded] = useState(Array(columns.length).fill(false));
 
-  const [sliderValues, setSliderValues] = useState(
-    Array(columns.length).fill([0, 0])
-  );
-
-  const [autocompleteValues, setAutocompleteValues] = useState(
-    Array(columns.length).fill([])
-  );
-
-  const [appliedFilters, setAppliedFilters] = useState(
-    Array(columns.length).fill([]),
+  const [filterValues, setFilterValues] = useState(
+    columns.map((col) => (col.numeric ? [null, null] : []))
   );
 
   useEffect(() => {
-    let initialSliderValues = [];
-    columns.map((col, index) => {
-      if (col.numeric) {
-        const columnDataForIndex = columnData[index] || [];
-        const minColumnValue = Math.min(...columnDataForIndex);
-        const maxColumnValue = Math.max(...columnDataForIndex);
-        initialSliderValues[index] = [minColumnValue, maxColumnValue];
-      }
-      return col;
-    });
-    console.log(
-      "inside useEffect initialSliderValues :: ",
-      initialSliderValues
+    setFilterValues(
+      columns.map((col, index) =>
+        col.numeric
+          ? [Math.min(...columnData[index]), Math.max(...columnData[index])]
+          : []
+      )
     );
-    setSliderValues(initialSliderValues);
   }, [columns, columnData]);
 
   const handleFilters = useCallback(
-    (event, columnIndex, minValue, maxValue) => {
+    (event, columnIndex) => {
       let filteredRows = originalRows;
-      const newSliderValues = [...sliderValues];
-      newSliderValues[columnIndex] = event.target.value;
-      setSliderValues(newSliderValues);
 
-      console.log(
-        "Inside handleFilter slider :: ",
-        newSliderValues[columnIndex],
-        columnIndex
-      );
+      const newFilterValues = [...filterValues];
+      newFilterValues[columnIndex] = event.target.value;
+      setFilterValues(newFilterValues);
 
-      // Collect filter values from Autocomplete components
-      const newAutocompleteValues = [...autocompleteValues];
-      newAutocompleteValues[columnIndex] = event.target.value; // You need to replace this with the actual value from the Autocomplete component
-      setAutocompleteValues(newAutocompleteValues); // Assuming you have a state for Autocomplete values
-
-      console.log(
-        "Inside handleFilter autocomplete:: ",
-        newAutocompleteValues[columnIndex],
-        columnIndex
-      );
-
-      // Apply filters to the rows
-      if (
-        newAutocompleteValues[columnIndex].length > 0 ||
-        newSliderValues[columnIndex][0] !== minValue ||
-        newSliderValues[columnIndex][1] !== maxValue
+      for (
+        let iterativeFilterIndex = 0;
+        iterativeFilterIndex < newFilterValues.length;
+        iterativeFilterIndex++
       ) {
-        filteredRows = originalRows.filter((row) => {
-          // Apply slider value filter
-          const numericRowValue = row[columns[columnIndex].id];
-          let sliderFilter =
-            !isNaN(numericRowValue) &&
-            numericRowValue > newSliderValues[columnIndex][0] &&
-            numericRowValue < newSliderValues[columnIndex][1];
-
-          let autocompleteFilter = false;
-          if (columns[columnIndex].id === "industry") {
-            const industryRowValue = row[columns[columnIndex].id];
-            autocompleteFilter = industryRowValue.some((r) =>
-              newAutocompleteValues[columnIndex]
-                .map((selectedIndustry) => selectedIndustry.label)
-                .includes(r)
-            );
-          } else {
-            const alphaNumericRowValue = row[columns[columnIndex].id];
-            autocompleteFilter =
-              newAutocompleteValues[columnIndex].includes(alphaNumericRowValue);
+        if (columns[iterativeFilterIndex].numeric) {
+          if (
+            newFilterValues[iterativeFilterIndex][0] !==
+            Math.min(
+              ...(columnData[iterativeFilterIndex] ||
+                newFilterValues[iterativeFilterIndex][1] !==
+                  Math.max(...columnData[iterativeFilterIndex]))
+            )
+          ) {
+            filteredRows = filteredRows.filter((row) => {
+              const numericRowValue = row[columns[iterativeFilterIndex].id];
+              return (
+                !isNaN(numericRowValue) &&
+                numericRowValue >= newFilterValues[iterativeFilterIndex][0] &&
+                numericRowValue <= newFilterValues[iterativeFilterIndex][1]
+              );
+            });
           }
-
-          return sliderFilter || autocompleteFilter;
-        });
+        } else {
+          if (
+            newFilterValues[iterativeFilterIndex].length > 0 &&
+            newFilterValues[iterativeFilterIndex][0] !== ""
+          ) {
+            let autocompleteFilter = false;
+            filteredRows = filteredRows.filter((row) => {
+              if (columns[iterativeFilterIndex].id === "industry") {
+                const industryRowValue = row[columns[iterativeFilterIndex].id];
+                autocompleteFilter = industryRowValue.some((r) =>
+                  newFilterValues[iterativeFilterIndex]
+                    .map((selectedIndustry) => selectedIndustry.label)
+                    .includes(r)
+                );
+              } else {
+                const alphaNumericRowValue =
+                  row[columns[iterativeFilterIndex].id];
+                autocompleteFilter =
+                  newFilterValues[iterativeFilterIndex].includes(
+                    alphaNumericRowValue
+                  );
+              }
+              return autocompleteFilter;
+            });
+          }
+        }
       }
-      console.log("Inside handleFilter filteredRows :: ", filteredRows);
-      // Update the filtered rows using the handleFilterRows function
+
       handleFilterRows(filteredRows);
     },
-    [sliderValues, autocompleteValues, columns, originalRows, handleFilterRows]
+    [filterValues, columns, columnData, originalRows, handleFilterRows]
   );
 
   const handleHeaderExpansionChange =
@@ -180,13 +162,6 @@ function EnhancedTableHead(props) {
       newExpandedState[columnIndex] = newExpanded;
       setExpanded(newExpandedState);
     };
-
-  // const handleSliderChange = (event, newValue, columnIndex) => {
-  //   const newSliderValues = [...sliderValues];
-  //   newSliderValues[columnIndex] = newValue;
-  //   setSliderValues(newSliderValues);
-  //   handleFilters(event, columnIndex);
-  // };
 
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -243,7 +218,7 @@ function EnhancedTableHead(props) {
                         ) : (
                           <Slider
                             sx={{ width: "15ch" }}
-                            value={sliderValues[index]}
+                            value={filterValues[index]}
                             onChange={(event, newValue) =>
                               handleFilters(
                                 { target: { value: newValue } },
@@ -256,7 +231,7 @@ function EnhancedTableHead(props) {
                             valueLabelDisplay="auto"
                             aria-labelledby="range-slider"
                             getAriaValueText={(value) =>
-                              `${sliderValues[index]}${headCell.unit}`
+                              `${filterValues[index]}${headCell.unit}`
                             }
                             marks={markArray}
                             min={minColumnValue}
@@ -275,7 +250,7 @@ function EnhancedTableHead(props) {
                           id="tags-outlined"
                           options={columnDataForIndex}
                           defaultValue={[]}
-                          value={autocompleteValues[index]}
+                          value={filterValues[index]}
                           onChange={(event, newValue) =>
                             handleFilters(
                               { target: { value: newValue } },
@@ -324,7 +299,6 @@ function EnhancedTableToolbar(props) {
 
   const handleDisplayClick = () => {
     const devices = selectedDevices;
-    console.log("selected Devices: ", selectedDevices);
     navigate("/display", { state: { devices } });
   };
 
@@ -357,17 +331,6 @@ function EnhancedTableToolbar(props) {
         </Typography>
       ) : (
         <Grid container spacing={2}>
-          {/* <Grid item xs={4}>
-            <Typography
-              sx={{ flex: "1 1 100%" }}
-              variant="h6"
-              id="tableTitle"
-              component="div"
-            >
-              {category.split("_").join(" ")}
-            </Typography>
-          </Grid> */}
-
           <Grid item xs={4}>
             <FormControlLabel
               variant="outlined"
@@ -377,14 +340,6 @@ function EnhancedTableToolbar(props) {
           </Grid>
 
           <Grid item xs={8}>
-            {/* <Box
-              variant="contained"
-              sx={{
-                backgroundColor: "#eee",
-                display: "flex",
-                justifyContent: "flex-end",
-              }}
-            > */}
             <Button color="primary" href="/search" underline="none">
               {"Go to main search"}
             </Button>
@@ -427,7 +382,6 @@ EnhancedTableToolbar.propTypes = {
 
 export default function SearchTableWithCat(props) {
   const { category } = props;
-  //   const { subCat } = useParams();
   const [columns, setColumns] = useState([]);
   const [columnData, setColumnData] = useState([]);
   const [order, setOrder] = useState("asc");
@@ -439,10 +393,6 @@ export default function SearchTableWithCat(props) {
   const [selected, setSelected] = useState([]);
   const [rows, setRows] = useState([]);
   const [originalRows, setOriginalRows] = useState([]);
-  // const [packages, setPackages] = useState([]);
-  // const [industry, setIndustry] = useState([]);
-  // const [devices, setDevices] = useState([]);
-  // const [matchedDevices, setMatchedDevices] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -466,29 +416,6 @@ export default function SearchTableWithCat(props) {
           })
         );
 
-        // const headersWithDataArray = await dataHeaderNameResponse?.data.map(
-        //   (header, index) => {
-        //     let headerData = [];
-        //     for (let i = 0; i < devicesForASubCatResponse.data.length; i++) {
-        //       headerData.push(
-        //         devicesForASubCatResponse.data[i][`d${index + 1}`]
-        //       );
-        //     }
-        //     return headerData.filter((v, i, self) => i === self.indexOf(v));
-        //   }
-        // );
-
-        // const dataHeaderNamesArray = await dataHeaderNameResponse?.data.map(
-        //   (dataCol, index) => {
-        //     return {
-        //       id: dataCol.toLowerCase(),
-        //       numeric: headersWithDataArray[index].every(isNumeric),
-        //       label: dataCol,
-        //       unit: dataHeaderUnitResponse?.data[index],
-        //     };
-        //   }
-        // );
-
         const packagesArray = await packagesResponse?.data.map((pkg) => {
           return {
             value: pkg.id.toLowerCase(),
@@ -506,14 +433,6 @@ export default function SearchTableWithCat(props) {
 
         const devicesObjectArrayResponse =
           await devicesForACatResponse.data.map(async (deviceObject, index) => {
-            //   const categoryResponse = await axios.get(
-            //     `http://localhost:3000/categories`
-            //   );
-            //   const subcategory = deviceObject.subcat_id;
-            //   const categoryData = categoryResponse.data
-            //     .filter((cat) => cat.sub_cat.includes(subcategory))
-            //     .map((cat) => cat.name);
-
             return {
               value: deviceObject.id.toLowerCase(),
               label: deviceObject.id,
@@ -523,7 +442,6 @@ export default function SearchTableWithCat(props) {
               pdf_link: deviceObject.pdf_link,
               data: deviceDataArray[index],
               subcategory: deviceObject.subcat_id,
-              // category: categoryData,
             };
           });
 
@@ -532,7 +450,7 @@ export default function SearchTableWithCat(props) {
         );
 
         const rows = await devicesForACatResponse.data.map(
-          (deviceObject, index) => {
+          (deviceObject) => {
             let rowObject = {
               name: deviceObject.id.toLowerCase(),
               device: deviceObject.id,
@@ -541,12 +459,6 @@ export default function SearchTableWithCat(props) {
               status: deviceObject.status,
               pdf_link: deviceObject.pdf_link,
             };
-            // for (let i = 0; i < dataHeaderNamesArray.length; i++) {
-            //   rowObject[dataHeaderNamesArray[i].id] = dataHeaderNamesArray[i]
-            //     .numeric
-            //     ? parseFloat(deviceDataArray[index][i], 10)
-            //     : deviceDataArray[index][i];
-            // }
             return rowObject;
           }
         );
@@ -557,19 +469,14 @@ export default function SearchTableWithCat(props) {
           { id: "industry", numeric: false, label: "Industry" },
           { id: "status", numeric: false, label: "Status" },
           { id: "pdf_link", numeric: false, label: "PDF Link" },
-          //   ...dataHeaderNamesArray,
         ]);
 
-        // setDevices(devicesObjectArray);
-        // setPackages(packagesArray);
-        // setIndustry(industriesArray);
         setColumnData([
           devicesObjectArray.map((device) => device.label),
           packagesArray.map((pkg) => pkg.label),
           industriesArray,
           ["Active", "Inactive"],
           ["pdf_link", "no_pdf_link"],
-          //   ...headersWithDataArray,
         ]);
         setOriginalRows(rows);
         setRows(rows);
@@ -582,7 +489,7 @@ export default function SearchTableWithCat(props) {
     fetchData();
   }, [category]);
 
-  const handleRequestSort = (event, property) => {
+  const handleRequestSort = (_, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
@@ -597,7 +504,7 @@ export default function SearchTableWithCat(props) {
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
+  const handleClick = (_, name) => {
     const selectedIndex = selected.indexOf(name);
     let newSelected = [];
 
@@ -613,7 +520,6 @@ export default function SearchTableWithCat(props) {
         selected.slice(selectedIndex + 1)
       );
     }
-    console.log("newSelected: ", newSelected);
     setSelected(newSelected);
   };
 
@@ -636,7 +542,6 @@ export default function SearchTableWithCat(props) {
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
-  // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
@@ -651,7 +556,7 @@ export default function SearchTableWithCat(props) {
 
   return (
     <Box sx={{ width: "100%" }}>
-      {loading ? ( // Display CircularProgress while loading
+      {loading ? (
         <CircularProgress
           sx={{ position: "absolute", top: "50%", left: "50%" }}
         />
@@ -684,50 +589,48 @@ export default function SearchTableWithCat(props) {
                 handleFilterRows={handleFilterRows}
               />
               <TableBody>
-                {visibleRows
-                  // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row, index) => {
-                    const isItemSelected = isSelected(row.name);
-                    const labelId = `enhanced-table-checkbox-${index}`;
+                {visibleRows.map((row, index) => {
+                  const isItemSelected = isSelected(row.name);
+                  const labelId = `enhanced-table-checkbox-${index}`;
 
-                    return (
-                      <TableRow
-                        hover
-                        onClick={(event) => handleClick(event, row.name)}
-                        role="checkbox"
-                        aria-checked={isItemSelected}
-                        tabIndex={-1}
-                        key={row.name}
-                        selected={isItemSelected}
-                        sx={{ cursor: "pointer" }}
-                      >
-                        {columns.map((column, colidx) => {
-                          return column.id === "industry" ? (
-                            <TableCell>
-                              {row[column.id].map(
-                                (ind, indIndex, industryArray) => (
-                                  <span key={ind}>
-                                    {ind}
-                                    {indIndex === industryArray.length - 1
-                                      ? ""
-                                      : ", "}
-                                  </span>
-                                )
-                              )}
-                            </TableCell>
-                          ) : (
-                            <TableCell
-                              align="center"
-                              id={labelId}
-                              key={`${index} ${colidx} ${row[column.id]}`}
-                            >
-                              {row[column.id]}
-                            </TableCell>
-                          );
-                        })}
-                      </TableRow>
-                    );
-                  })}
+                  return (
+                    <TableRow
+                      hover
+                      onClick={(event) => handleClick(event, row.name)}
+                      role="checkbox"
+                      aria-checked={isItemSelected}
+                      tabIndex={-1}
+                      key={row.name}
+                      selected={isItemSelected}
+                      sx={{ cursor: "pointer" }}
+                    >
+                      {columns.map((column, colidx) => {
+                        return column.id === "industry" ? (
+                          <TableCell>
+                            {row[column.id].map(
+                              (ind, indIndex, industryArray) => (
+                                <span key={ind}>
+                                  {ind}
+                                  {indIndex === industryArray.length - 1
+                                    ? ""
+                                    : ", "}
+                                </span>
+                              )
+                            )}
+                          </TableCell>
+                        ) : (
+                          <TableCell
+                            align="center"
+                            id={labelId}
+                            key={`${index} ${colidx} ${row[column.id]}`}
+                          >
+                            {row[column.id]}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
                 {emptyRows > 0 && (
                   <TableRow
                     style={{
