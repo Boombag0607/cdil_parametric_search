@@ -13,7 +13,7 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
-import BoltIcon from "@mui/icons-material/Bolt";
+// import BoltIcon from "@mui/icons-material/Bolt";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import SearchTableWithCat from "./CatSearchTable";
@@ -63,7 +63,7 @@ function Landing() {
 
   return (
     <Box className="landing container m-4">
-      <Typography variant="h4" component="h5">
+      <Typography variant="h4" component="h4">
         {category}
       </Typography>
       {loading ? (
@@ -84,8 +84,7 @@ function Landing() {
                           to={`/search/${type.split(" ").join("_")}`}
                         >
                           <ListItemIcon>
-                            <BoltIcon />
-                            <ListItemText disableTypography primary={type} />
+                            <ListItemText sx={{ color: 'text.primary' }} primary={type} />
                           </ListItemIcon>
                         </ListItemButton>
                       </ListItem>

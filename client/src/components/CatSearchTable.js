@@ -90,9 +90,9 @@ function EnhancedTableHead(props) {
     Array(columns.length).fill([])
   );
 
-  const [appliedFilters, setAppliedFilters] = useState([
+  const [appliedFilters, setAppliedFilters] = useState(
     Array(columns.length).fill([]),
-  ]);
+  );
 
   useEffect(() => {
     let initialSliderValues = [];
@@ -144,17 +144,27 @@ function EnhancedTableHead(props) {
       ) {
         filteredRows = originalRows.filter((row) => {
           // Apply slider value filter
-          const sliderValue = row[columns[columnIndex].id];
-          const sliderFilter =
-            !isNaN(sliderValue) &&
-            sliderValue > newSliderValues[columnIndex][0] &&
-            sliderValue < newSliderValues[columnIndex][1];
+          const numericRowValue = row[columns[columnIndex].id];
+          let sliderFilter =
+            !isNaN(numericRowValue) &&
+            numericRowValue > newSliderValues[columnIndex][0] &&
+            numericRowValue < newSliderValues[columnIndex][1];
 
-          const autocompleteValue = row[columns[columnIndex].id];
-          const autcompleteFilter =
-            newAutocompleteValues[columnIndex].includes(autocompleteValue);
+          let autocompleteFilter = false;
+          if (columns[columnIndex].id === "industry") {
+            const industryRowValue = row[columns[columnIndex].id];
+            autocompleteFilter = industryRowValue.some((r) =>
+              newAutocompleteValues[columnIndex]
+                .map((selectedIndustry) => selectedIndustry.label)
+                .includes(r)
+            );
+          } else {
+            const alphaNumericRowValue = row[columns[columnIndex].id];
+            autocompleteFilter =
+              newAutocompleteValues[columnIndex].includes(alphaNumericRowValue);
+          }
 
-          return sliderFilter || autcompleteFilter;
+          return sliderFilter || autocompleteFilter;
         });
       }
       console.log("Inside handleFilter filteredRows :: ", filteredRows);
