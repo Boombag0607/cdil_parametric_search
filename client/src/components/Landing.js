@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./Landing.css";
-import { styled } from "@mui/material/styles";
+// import { styled } from "@mui/material/styles";
 import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
   Typography,
   List,
   ListItem,
@@ -13,49 +16,49 @@ import {
   Grid,
   Button,
 } from "@mui/material";
-import MuiAccordion from "@mui/material/Accordion";
-import MuiAccordionSummary from "@mui/material/AccordionSummary";
-import MuiAccordionDetails from "@mui/material/AccordionDetails";
+// import MuiAccordion from "@mui/material/Accordion";
+// import MuiAccordionSummary from "@mui/material/AccordionSummary";
+// import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import BoltIcon from "@mui/icons-material/Bolt";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
-const Accordion = styled((props) => (
-  <MuiAccordion disableGutters elevation={0} square {...props} />
-))(({ theme }) => ({
-  border: `1px solid ${theme.palette.divider}`,
-  "&:not(:last-child)": {
-    borderBottom: 0,
-  },
-  "&:before": {
-    display: "none",
-  },
-}));
+// const Accordion = styled((props) => (
+//   <MuiAccordion disableGutters elevation={0} square {...props} />
+// ))(({ theme }) => ({
+//   border: `1px solid ${theme.palette.divider}`,
+//   "&:not(:last-child)": {
+//     borderBottom: 0,
+//   },
+//   "&:before": {
+//     display: "none",
+//   },
+// }));
 
-const AccordionSummary = styled((props) => (
-  <MuiAccordionSummary
-    expandIcon={<ExpandMoreIcon sx={{ fontSize: "0.9rem" }} />}
-    {...props}
-  />
-))(({ theme }) => ({
-  backgroundColor:
-    theme.palette.mode === "dark"
-      ? "rgba(255, 255, 255, .05)"
-      : "rgba(0, 0, 0, .03)",
-  flexDirection: "row-reverse",
-  "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
-    transform: "rotate(180deg)",
-  },
-  "& .MuiAccordionSummary-content": {
-    marginLeft: theme.spacing(1),
-  },
-}));
+// const AccordionSummary = styled((props) => (
+//   <MuiAccordionSummary
+//     expandIcon={<ExpandMoreIcon sx={{ fontSize: "0.9rem" }} />}
+//     {...props}
+//   />
+// ))(({ theme }) => ({
+//   backgroundColor:
+//     theme.palette.mode === "dark"
+//       ? "rgba(255, 255, 255, .05)"
+//       : "rgba(0, 0, 0, .03)",
+//   flexDirection: "row-reverse",
+//   "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
+//     transform: "rotate(180deg)",
+//   },
+//   "& .MuiAccordionSummary-content": {
+//     marginLeft: theme.spacing(1),
+//   },
+// }));
 
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderTop: "1px solid rgba(0, 0, 0, .125)",
-}));
+// const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+//   padding: theme.spacing(2),
+//   borderTop: "1px solid rgba(0, 0, 0, .125)",
+// }));
 
 function Landing() {
   const [categoryArray, setCategoryArray] = useState([]);
@@ -113,7 +116,7 @@ function Landing() {
         <Grid container spacing={2} className="m-1 p-1">
           {categoryArray.map((categoryObject, categoryIndex) => (
             <Grid item className="col" key={"col" + categoryIndex}>
-              <Accordion>
+              <Accordion defaultExpanded>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1a-content"

@@ -403,7 +403,7 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function SearchTableWithSubcat() {
+export default function SubCatSearchTable() {
   const { subCat } = useParams();
   const [columns, setColumns] = useState([]);
   const [columnData, setColumnData] = useState([]);
