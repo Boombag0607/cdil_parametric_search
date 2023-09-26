@@ -90,7 +90,6 @@ export default function Search() {
   const [selectedDevices, setSelectedDevices] = useState([]);
   const [selectedPackages, setSelectedPackages] = useState([]);
   const [selectedIndustries, setSelectedIndustries] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState(["Active"]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -139,10 +138,7 @@ export default function Search() {
               .filter((cat) => cat.sub_cat.includes(subcategory))
               .map((cat) => cat.name);
 
-            const industry =
-              (await element.industry) !== null
-                ? element.industry.slice(1, -1).split(",")
-                : [];
+            const industry = await element.industry!==null ? element.industry.slice(1, -1).split(",") : [];
 
             // console.log("industry: ", element.industry.slice(1, -1));
             return {
@@ -197,16 +193,6 @@ export default function Search() {
     handleInputs();
   };
 
-  const handleStatusChange = (event, newValue) => {
-    setLoading(true);
-    setSelectedStatus(newValue);
-    console.log(
-      "inside: handleStatusChange selected status ::: ",
-      selectedStatus
-    );
-    handleInputs();
-  };
-
   const handleInputs = useCallback(() => {
     let filteredDevices = devices;
 
@@ -239,22 +225,9 @@ export default function Search() {
       console.log("filteredDevices after industry ::: ", filteredDevices);
     }
 
-    if (selectedStatus.length > 0) {
-      filteredDevices = filteredDevices.filter((element) =>
-        selectedStatus.some((status) => status === element.status)
-      );
-      console.log("filteredDevices after status ::: ", filteredDevices);
-    }
-
     // console.log("inside handleInputs filteredDevices ::: ", filteredDevices);
     setMatchedDevices(filteredDevices);
-  }, [
-    selectedDevices,
-    selectedPackages,
-    selectedIndustries,
-    selectedStatus,
-    devices,
-  ]);
+  }, [selectedDevices, selectedPackages, selectedIndustries, devices]);
 
   useEffect(() => {
     console.log(
@@ -332,24 +305,6 @@ export default function Search() {
                   {...params}
                   label="Industry"
                   placeholder="Select industry for filtering"
-                />
-              )}
-            />
-          </FormGroup>
-          <FormGroup>
-            <StyledAutocomplete
-              multiple
-              id="tags-outlined"
-              options={["Active", "Inactive"]}
-              defaultValue={[]}
-              filterSelectedOptions
-              value={selectedStatus}
-              onChange={handleStatusChange}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Status"
-                  placeholder="Select device status"
                 />
               )}
             />
