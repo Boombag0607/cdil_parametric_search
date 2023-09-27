@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import "./Landing.css";
 import {
   Box,
   Button,
@@ -84,7 +83,10 @@ function Landing() {
                           to={`/search/${type.split(" ").join("_")}`}
                         >
                           <ListItemIcon>
-                            <ListItemText sx={{ color: 'text.primary' }} primary={type} />
+                            <ListItemText
+                              sx={{ color: "text.primary" }}
+                              primary={type}
+                            />
                           </ListItemIcon>
                         </ListItemButton>
                       </ListItem>

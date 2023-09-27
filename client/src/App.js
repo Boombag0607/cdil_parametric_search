@@ -1,11 +1,12 @@
 import Landing from "./Components/Landing";
 import Search from "./Components/Search";
 import Display from "./Components/Display";
-import SearchTableWithSubCat from "./Components/SubCatSearchTable";
-import ShowSubCats from "./Components/ShowSubCats";
+import SearchTableWithSubCat from "./Components/SearchTables/SubCatSearchTable";
+import ShowSubCats from "./Components/SearchTables/ShowSubCats";
 import Header from "./Components/Header";
 import Footer from "./Components/Footer";
-import Admin from "./Components/Admin/index";
+import Admin from "./Components/Admin";
+import AdminOAuth from "./Components/Admin/AdminOAuth";
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
@@ -19,6 +20,7 @@ const App = () => (
       <Route path="/search/:subCat" element={<SearchTableWithSubCat />} />
       <Route path="/display" element={<Display />} />
       <Route path="/:category" element={<ShowSubCats />} />
+      <Route path="/oauth" element={<AdminOAuth />} />
     </Routes>
     <Footer />
   </Router>

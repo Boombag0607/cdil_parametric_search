@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import ChangeDevice from "./ChangeDevice";
-import AddDevice from "./AddDevice";
-import AddCategory from "./AddCategory";
-import AddPackage from "./AddPackage";
-import AddIndustry from "./AddIndustry";
-import ChangeCategory from "./ChangeCategory";
-import ChangePackage from "./ChangePackage";
-import ChangeIndustry from "./ChangeIndustry";
+import AddDevice from "./Add/Device";
+import AddCategory from "./Add/Category";
+import AddPackage from "./Add/Package";
+import AddIndustry from "./Add/Industry";
+import ChangeDevice from "./Change/Device";
+import ChangeCategory from "./Change/Category";
+import ChangePackage from "./Change/Package";
+import ChangeIndustry from "./Change/Industry";
 import AdminLoginPage from "./AdminOAuth";
 
 import axios from "axios";
