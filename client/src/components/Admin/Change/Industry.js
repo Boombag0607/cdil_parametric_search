@@ -36,7 +36,7 @@ export default function ChangeIndustry() {
 
   return (
     <Box>
-      <Typography variant="h4">Change Device</Typography>
+      <Typography variant="h4">Change Industry</Typography>
       <FormGroup>
         <Autocomplete
           id="combo-box-demo"
@@ -45,10 +45,10 @@ export default function ChangeIndustry() {
           style={{ width: 300 }}
           onChange={handleChange}
           renderInput={(params) => (
-            <TextField {...params} label="Device Name" variant="outlined" />
+            <TextField {...params} label="Industry Name" variant="outlined" />
           )}
         />
-        <TextField label="Device Description" />
+        <TextField label="Industry Description" />
         <Button variant="contained" onClick={handleSubmit}>
           Change Device
         </Button>

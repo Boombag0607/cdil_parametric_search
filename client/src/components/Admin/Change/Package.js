@@ -40,7 +40,7 @@ export default function ChangePackage() {
 
   return (
     <Box>
-      <Typography variant="h4">Change Device</Typography>
+      <Typography variant="h4">Change Package</Typography>
       <FormGroup>
         <Autocomplete
           id="combo-box-demo"
@@ -50,10 +50,10 @@ export default function ChangePackage() {
           style={{ width: 300 }}
           onChange={handleChange}
           renderInput={(params) => (
-            <TextField {...params} label="Device Name" variant="outlined" />
+            <TextField {...params} label="Package Name" variant="outlined" />
           )}
         />
-        <TextField label="Device Description" />
+        <TextField label="Package Description" />
         <Button variant="contained" onClick={handleSubmit}>
           Change Device
         </Button>

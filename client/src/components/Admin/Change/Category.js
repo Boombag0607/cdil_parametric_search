@@ -49,10 +49,10 @@ export default function ChangeCategory() {
           style={{ width: 300 }}
           onChange={handleChange}
           renderInput={(params) => (
-            <TextField {...params} label="Device Name" variant="outlined" />
+            <TextField {...params} label="Device Category" variant="outlined" />
           )}
         />
-        <TextField label="Device Description" />
+        <TextField label="Category Description" />
         <Button variant="contained" onClick={handleSubmit}>
           Change Category
         </Button>

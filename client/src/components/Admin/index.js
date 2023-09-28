@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import AddDevice from "./Add/Device";
 import AddCategory from "./Add/Category";
 import AddPackage from "./Add/Package";
@@ -8,17 +8,31 @@ import ChangeCategory from "./Change/Category";
 import ChangePackage from "./Change/Package";
 import ChangeIndustry from "./Change/Industry";
 import AdminLoginPage from "./AdminOAuth";
-
-import axios from "axios";
+import MailIcon from "@mui/icons-material/Mail";
+import { styled } from "@mui/material/styles";
+import InboxIcon from "@mui/icons-material/MoveToInbox";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import {
   Autocomplete,
   Box,
+  Button,
+  CssBaseline,
   FormGroup,
+  Grid,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  ListItemIcon,
   Typography,
   TextField,
-  Button,
-  Grid,
 } from "@mui/material";
+import MuiDrawer from "@mui/material/Drawer";
+import AdminProfile from "./Profile";
+import axios from "axios";
 
 const OPTIONS = [
   {
@@ -39,21 +53,32 @@ const OPTIONS = [
   },
 ];
 
+const DRAWERWIDTH = 280;
+
 function AddOrChange(props) {
-  const { type } = props;
+  const { type, signal, handleSignalChange } = props;
   const [add, setAdd] = useState(false);
   const [change, setChange] = useState(false);
+
+  useEffect(() => {
+    if (!signal) {
+      setAdd(false);
+      setChange(false);
+    }
+  }, [signal]);
 
   const handleClickAdd = (event) => {
     console.log("Add");
     setAdd(true);
     setChange(false);
+    handleSignalChange();
   };
 
   const handleClickChange = (event) => {
     console.log("Change");
     setChange(true);
     setAdd(false);
+    handleSignalChange();
   };
 
   return (
@@ -95,17 +120,69 @@ function AddOrChange(props) {
           <Button variant="contained" onClick={handleClickChange}>
             Change
           </Button>
-          <Button disabled>?</Button>
         </Box>
       )}
     </Grid>
   );
 }
 
+const openedMixin = (theme) => ({
+  width: DRAWERWIDTH,
+  transition: theme.transitions.create("width", {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: "hidden",
+});
+
+const closedMixin = (theme) => ({
+  transition: theme.transitions.create("width", {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: "hidden",
+  width: `calc(${theme.spacing(7)} + 1px)`,
+  [theme.breakpoints.up("sm")]: {
+    width: `calc(${theme.spacing(8)} + 1px)`,
+  },
+});
+
+const Drawer = styled(MuiDrawer, {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  width: DRAWERWIDTH,
+  flexShrink: 0,
+  whiteSpace: "nowrap",
+  boxSizing: "border-box",
+  ...(open && {
+    ...openedMixin(theme),
+    "& .MuiDrawer-paper": openedMixin(theme),
+  }),
+  ...(!open && {
+    ...closedMixin(theme),
+    "& .MuiDrawer-paper": closedMixin(theme),
+  }),
+}));
+
+const DrawerHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-end",
+  padding: theme.spacing(0, 1),
+  // necessary for content to be below app bar
+  ...theme.mixins.toolbar,
+}));
+
 function AdminComponent() {
   const [isAdminAuthorised, setIsAdminAuthorised] = useState(true);
-
+  const [signalAddOrChange, setSignalAddOrChange] = useState(false);
   const [selectedType, setSelectedType] = useState();
+
+  const [profileDrawerOpen, setProfileDrawerOpen] = useState(false);
+
+  const handleDrawerToggle = () => {
+    setProfileDrawerOpen(!profileDrawerOpen);
+  };
 
   const checkAdminAuthorization = async () => {
     try {
@@ -123,43 +200,116 @@ function AdminComponent() {
   const handleChange = (event, newValue) => {
     console.log(newValue);
     setSelectedType(newValue);
+    setSignalAddOrChange(false);
+  };
+
+  const handleSignalChange = () => {
+    console.log("Change the signal");
+    setSignalAddOrChange(true);
   };
 
   return (
-    <Box sx={{ m: 4, p: 1 }}>
-      <Typography variant="h2" component="h2">
-        Admin DashBoard
-      </Typography>
-      <Grid container spacing={2}>
-        {isAdminAuthorised ? (
-          <Box sx={{ m: 4 }}>
-            <Grid item>
-              <FormGroup>
-                <Autocomplete
-                  id="admin-choices"
-                  options={OPTIONS}
-                  value={selectedType}
-                  onChange={handleChange}
-                  sx={{ width: 300 }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Select a type to add or change"
-                    />
-                  )}
-                />
-              </FormGroup>
-            </Grid>
-            <Grid item>
-              {selectedType !== undefined || null ? (
-                <AddOrChange type={selectedType?.value} />
-              ) : null}
-            </Grid>
-          </Box>
-        ) : (
-          <AdminLoginPage />
-        )}
-      </Grid>
+    <Box sx={{ display: "flex" }}>
+      <CssBaseline />
+      <Drawer
+        variant="permanent"
+        open={profileDrawerOpen}
+        sx={{ zIndex: (theme) => theme.zIndex - 1 }}
+      >
+        <DrawerHeader>
+          <IconButton onClick={handleDrawerToggle}>
+            {profileDrawerOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          </IconButton>
+        </DrawerHeader>
+        <List>
+          <ListItem disablePadding>
+            {profileDrawerOpen ? (
+              <AdminProfile />
+            ) : (
+              <ListItemButton
+                sx={{
+                  minHeight: 48,
+                  justifyContent: profileDrawerOpen ? "initial" : "center",
+                  px: 2.5,
+                }}
+                onClick={handleDrawerToggle}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: "auto",
+                    justifyContent: "center",
+                  }}
+                >
+                  <AccountCircleIcon />
+                </ListItemIcon>
+              </ListItemButton>
+            )}
+          </ListItem>
+          {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
+            <ListItem key={text} disablePadding>
+              <ListItemButton
+                sx={{
+                  minHeight: 48,
+                  justifyContent: profileDrawerOpen ? "initial" : "center",
+                  px: 2.5,
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: profileDrawerOpen ? 3 : "auto",
+                    justifyContent: "center",
+                  }}
+                >
+                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                </ListItemIcon>
+                <ListItemText primary={text} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }} open={profileDrawerOpen}>
+        <DrawerHeader />
+        <Typography variant="h2" component="h2">
+          Admin DashBoard
+        </Typography>
+        <Grid container spacing={2} sx={{ height: "50vh" }}>
+          {isAdminAuthorised ? (
+            <Box sx={{ m: 4 }}>
+              <Grid item>
+                <FormGroup>
+                  <Autocomplete
+                    id="admin-choices"
+                    options={OPTIONS}
+                    value={selectedType}
+                    onChange={handleChange}
+                    sx={{ width: 300 }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select a type to add or change"
+                      />
+                    )}
+                  />
+                </FormGroup>
+              </Grid>
+              <Grid item>
+                {selectedType !== undefined || null ? (
+                  <AddOrChange
+                    type={selectedType?.value}
+                    signal={signalAddOrChange}
+                    handleSignalChange={handleSignalChange}
+                  />
+                ) : null}
+              </Grid>
+            </Box>
+          ) : (
+            <AdminLoginPage />
+          )}
+        </Grid>
+      </Box>
     </Box>
   );
 }
