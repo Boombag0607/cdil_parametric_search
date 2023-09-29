@@ -1,25 +1,26 @@
 import Header from "../Components/Header";
 import Footer from "../Components/Footer";
-import { Container } from "@mui/material";
+import { Box } from "@mui/material";
+import React from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 
 // Define your custom theme with the specified styles
 const theme = createTheme({
   typography: {
-    fontFamily: "'Raleway', sans-serif",
+    fontFamily: {
+      // Set a specific font family for headings
+      heading: "'Raleway', sans-serif",
+      // Set a different font family for paragraph text
+      body: "'Georgia', serif",
+    },
     // fontSize: "30px",
     // fontWeight: 300,
-    // h1: {
-    //   fontSize: "2em", // Heading font size
-    //   color: "#000",  // Heading color
-    //   fontWeight: 300, // Heading font weight
-    // },
-    // body1: {
-    //   fontSize: "15px", // Body font size
-    //   color: "#666",   // Body color
-    //   fontWeight: 400, // Body font weight
-    // },
+    h1: {
+      fontSize: "3.5em", // Heading font size
+      color: "#000", // Heading color
+      fontWeight: 300, // Heading font weight
+    },
   },
   // components: {
   //   MuiTypography: {
@@ -76,15 +77,15 @@ const theme = createTheme({
     },
   },
 });
-    
+
 export default function PublicLayout({ children }) {
   return (
     <>
-     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Header />
-      <Container sx={{ width:"90%",  mt: 12 }}>{children}</Container>
-      <Footer />
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Header />
+        <Box sx={{ width: "100%", mt: 10 }}>{children}</Box>
+        <Footer />
       </ThemeProvider>
     </>
   );

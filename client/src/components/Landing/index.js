@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./Landing.css";
-// import { styled } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import {
   Accordion,
   AccordionSummary,
@@ -11,18 +11,15 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  CircularProgress,
+  LinearProgress,
   Box,
   Grid,
   Button,
 } from "@mui/material";
-// import MuiAccordion from "@mui/material/Accordion";
-// import MuiAccordionSummary from "@mui/material/AccordionSummary";
-// import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-// import BoltIcon from "@mui/icons-material/Bolt";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import YoutubeEmbed from "./YoutubeEmbed";
 
 // const Accordion = styled((props) => (
 //   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -59,6 +56,19 @@ import axios from "axios";
 //   padding: theme.spacing(2),
 //   borderTop: "1px solid rgba(0, 0, 0, .125)",
 // }));
+
+const StyledTypography = styled(Typography)({
+  marginLeft: "5%",
+  marginRight: "5%",
+});
+
+const ActionBox = styled(Box)({
+  width: "100%",
+  minHeight: "50px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+});
 
 function Landing() {
   const [categoryArray, setCategoryArray] = useState([]);
@@ -97,54 +107,64 @@ function Landing() {
   }, [checkLoading]);
 
   return (
-    <Box className="landing container">
-      <Typography variant="h3" component="h1">
+    <Box className="Landing">
+      <StyledTypography variant="h1" component="h1">
         Our Products
-      </Typography>
+      </StyledTypography>
       <Box
         sx={{
-          height: "50vh",
+          display: "flex",
+          flexDirection: "row",
+          height: "35vh",
           backgroundColor: "#eee",
-          right: 0,
-          left: 0,
-          width: "100%",
+          my: 2,
         }}
       >
-        <Grid container>
-          <Grid item>
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-            Repellendus distinctio corrupti nam nostrum! Recusandae
-            reprehenderit magnam asperiores possimus maiores delectus? Quae,
-            reprehenderit voluptates. Alias tempora corporis fugiat quasi
-            nesciunt distinctio.<br></br>
-          </Grid>
-          <Grid item>
-            <Button href="/search">Go to Main Search</Button>
-          </Grid>
-        </Grid>
-      </Box>
-      <Typography>
-        This is a simple web app that allows you to explore data from the{" "}
-        <Link href="https://www.cdil.com/" target="_blank" rel="noreferrer">
-          CDIL
-        </Link>{" "}
-        website.
-      </Typography>
-      <Box>
-        <Typography component="" variant="h4">
-          Browse By Category
-        </Typography>
-        {loading ? (
-          <Box sx={{ display: "flex" }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Grid
-            container
-            spacing={2}
-            className="m-1 p-1"
-            // columns={{ xs: 1, sm: 2, md: 2, lg: 3 }}
+        <ActionBox sx={{ ml: 10 }}>
+          <Typography>
+            This is a simple web app that allows you to explore data from the{" "}
+            <Link href="https://www.cdil.com/" target="_blank" rel="noreferrer">
+              CDIL
+            </Link>{" "}
+            website.
+          </Typography>
+          <ActionBox
+            sx={{
+              width: "100%",
+              height: "10vh",
+            }}
           >
+            <Button
+              variant="contained"
+              href="/search"
+              sx={{ height: "3em", width: "15em" }}
+            >
+              Go to Main Search
+            </Button>
+          </ActionBox>
+        </ActionBox>
+        <Box
+          className="video-responsive"
+          sx={{
+            width: "100%",
+            height: "0",
+            position: "relative",
+            marginRight: "auto",
+          }}
+        >
+          <YoutubeEmbed embedId="fIYW7OOeovk" />
+        </Box>
+      </Box>
+      <Box>
+        <StyledTypography variant="h4" component="div">
+          Browse By Category
+        </StyledTypography>
+        {loading ? (
+          <ActionBox>
+            <LinearProgress />
+          </ActionBox>
+        ) : (
+          <Grid container spacing={2}>
             {categoryArray.map((categoryObject, categoryIndex) => (
               <Grid item className="col" key={"col" + categoryIndex}>
                 <Accordion>
@@ -153,7 +173,7 @@ function Landing() {
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                   >
-                    <Typography>{categoryObject.name}</Typography>
+                    <StyledTypography>{categoryObject.name}</StyledTypography>
                   </AccordionSummary>
                   <AccordionDetails>
                     <Grid container direction="column">

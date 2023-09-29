@@ -35,12 +35,12 @@ const StyledAutocomplete = styled(Autocomplete)({
   },
 });
 
-const StyledPaper = styled(Paper)({
+const StyledPaper = styled(Paper)(({ theme }) => ({
   height: "100%",
   bgcolor: (theme) => (theme.palette.mode === "dark" ? "#101010" : "grey.100"),
   color: (theme) => (theme.palette.mode === "dark" ? "grey.300" : "grey.800"),
   alignItems: "center",
-});
+}));
 
 const Item = styled(Box)(({ theme }) => ({
   bgcolor: (theme) => (theme.palette.mode === "dark" ? "#101010" : "grey.100"),
@@ -216,7 +216,7 @@ export default function Search() {
       component="form"
       sx={{
         width: "100%",
-        height: "75vh",
+        height: "65vh",
       }}
       noValidate
       autoComplete="off"
@@ -310,6 +310,8 @@ export default function Search() {
             <Box
               sx={{
                 p: 1,
+                display: "flex",
+                justifyContent: "flex-end",
                 alignItems: "center",
                 bgcolor: "background.paper",
                 overflowY: "scroll",

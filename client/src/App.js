@@ -7,6 +7,7 @@ import SearchTableWithSubCat from "./Components/SearchTables/SubCatSearchTable";
 import ShowSubCats from "./Components/SearchTables/ShowSubCats";
 import AdminLayout from "./Layouts/AdminLayout";
 import PublicLayout from "./Layouts/PublicLayout";
+import LandingLayout from "./Layouts/LandingLayout";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 const App = () => (
@@ -24,11 +25,19 @@ const App = () => (
         }
       />
       <Route
+        exact
+        path="/"
+        element={
+          <LandingLayout>
+            <Landing />
+          </LandingLayout>
+        }
+      />
+      <Route
         path="/*"
         element={
           <PublicLayout>
             <Routes>
-              <Route exact path="/" element={<Landing />} />
               <Route path="search" element={<Search />} />
               <Route
                 path="search/:subCat"
