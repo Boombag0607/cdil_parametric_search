@@ -8,9 +8,8 @@ import ChangeCategory from "./Change/Category";
 import ChangePackage from "./Change/Package";
 import ChangeIndustry from "./Change/Industry";
 import AdminLoginPage from "./AdminOAuth";
-import MailIcon from "@mui/icons-material/Mail";
 import { styled } from "@mui/material/styles";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -176,9 +175,8 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 function AdminComponent() {
   const [isAdminAuthorised, setIsAdminAuthorised] = useState(true);
   const [signalAddOrChange, setSignalAddOrChange] = useState(false);
-  const [selectedType, setSelectedType] = useState();
-
   const [profileDrawerOpen, setProfileDrawerOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState();
 
   const handleDrawerToggle = () => {
     setProfileDrawerOpen(!profileDrawerOpen);
@@ -196,6 +194,7 @@ function AdminComponent() {
   };
 
   //   useEffect(() => checkAdminAuthorization(), []);
+
 
   const handleChange = (event, newValue) => {
     console.log(newValue);
@@ -246,7 +245,28 @@ function AdminComponent() {
               </ListItemButton>
             )}
           </ListItem>
-          {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
+          <ListItem disablePadding key={`Add Another Admin`}>
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                justifyContent: profileDrawerOpen ? "initial" : "center",
+                px: 2.5,
+              }}
+              onClick={handleDrawerToggle}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: profileDrawerOpen ? 3 : "auto",
+                  justifyContent: "center",
+                }}
+              >
+                <PersonAddIcon />
+              </ListItemIcon>
+              <ListItemText primary="Add Another Admin" />
+            </ListItemButton>
+          </ListItem>
+          {/* {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
             <ListItem key={text} disablePadding>
               <ListItemButton
                 sx={{
@@ -267,7 +287,7 @@ function AdminComponent() {
                 <ListItemText primary={text} />
               </ListItemButton>
             </ListItem>
-          ))}
+          ))} */}
         </List>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }} open={profileDrawerOpen}>

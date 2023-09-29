@@ -9,78 +9,46 @@ import {
   Card,
   CardMedia,
   CardContent,
-  Tooltip,
   Button,
   Autocomplete,
   LinearProgress,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import TuneIcon from "@mui/icons-material/Tune";
 import axios from "axios";
 
-function StyledAutocomplete(props) {
-  const { sx, ...other } = props;
-  return (
-    <Autocomplete
-      sx={{
-        width: "100%",
-        "& .MuiOutlinedInput-root": {
-          "& fieldset": {
-            borderColor: (theme) =>
-              theme.palette.mode === "dark" ? "grey.800" : "grey.300",
-          },
-          "&:hover fieldset": {
-            borderColor: (theme) =>
-              theme.palette.mode === "dark" ? "grey.800" : "grey.300",
-          },
-          "&.Mui-focused fieldset": {
-            borderColor: (theme) =>
-              theme.palette.mode === "dark" ? "grey.800" : "grey.300",
-          },
-        },
-        ...sx,
-      }}
-      {...other}
-    />
-  );
-}
+const StyledAutocomplete = styled(Autocomplete)({
+  width: "100%",
+  "& .MuiOutlinedInput-root": {
+    "& fieldset": {
+      borderColor: (theme) =>
+        theme.palette.mode === "dark" ? "grey.800" : "grey.300",
+    },
+    "&:hover fieldset": {
+      borderColor: (theme) =>
+        theme.palette.mode === "dark" ? "grey.800" : "grey.300",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: (theme) =>
+        theme.palette.mode === "dark" ? "grey.800" : "grey.300",
+    },
+  },
+});
 
-function StyledPaper(props) {
-  const { sx, ...other } = props;
-  return (
-    <Paper
-      sx={{
-        bgcolor: (theme) =>
-          theme.palette.mode === "dark" ? "#101010" : "grey.100",
-        color: (theme) =>
-          theme.palette.mode === "dark" ? "grey.300" : "grey.800",
-        border: "1px solid",
-        borderColor: (theme) =>
-          theme.palette.mode === "dark" ? "grey.800" : "grey.300",
-        alignItems: "center",
-        ...sx,
-      }}
-      {...other}
-    />
-  );
-}
+const StyledPaper = styled(Paper)({
+  height: "100%",
+  bgcolor: (theme) => (theme.palette.mode === "dark" ? "#101010" : "grey.100"),
+  color: (theme) => (theme.palette.mode === "dark" ? "grey.300" : "grey.800"),
+  alignItems: "center",
+});
 
-function Item(props) {
-  const { sx, ...other } = props;
-  return (
-    <Box
-      sx={{
-        p: 0.5,
-        bgcolor: (theme) =>
-          theme.palette.mode === "dark" ? "#101010" : "grey.100",
-        color: (theme) =>
-          theme.palette.mode === "dark" ? "grey.300" : "grey.800",
-        fontSize: "0.875rem",
-        fontWeight: "600",
-        ...sx,
-      }}
-      {...other}
-    />
-  );
-}
+const Item = styled(Box)(({ theme }) => ({
+  bgcolor: (theme) => (theme.palette.mode === "dark" ? "#101010" : "grey.100"),
+  color: (theme) => (theme.palette.mode === "dark" ? "grey.300" : "grey.800"),
+  fontSize: "0.875rem",
+  width: "80%",
+  height: 260,
+}));
 
 export default function Search() {
   const [packages, setPackages] = useState([]);
@@ -122,15 +90,12 @@ export default function Search() {
         );
         const devicesData = devicesResponse.data;
 
-        // Fetch data for all devices concurrently using Promise.all
         const allDevicesData = await Promise.all(
           devicesData.map(async (element) => {
             const dataResponse = await axios.get(
               `http://localhost:3000/data/${encodeURIComponent(element.id)}`
             );
             const deviceData = dataResponse.data;
-
-            // Fetch category for the subcategory
             const categoryResponse = await axios.get(
               `http://localhost:3000/categories`
             );
@@ -144,7 +109,6 @@ export default function Search() {
                 ? element.industry.slice(1, -1).split(",")
                 : [];
 
-            // console.log("industry: ", element.industry.slice(1, -1));
             return {
               value: element.id.toLowerCase(),
               label: element.id,
@@ -173,37 +137,24 @@ export default function Search() {
   const handleDeviceChange = (event, newValue) => {
     setLoading(true);
     console.log("inside: handleDeviceChange newValue ::: ", newValue);
-    // Use the state updater function to update selectedDevices
     setSelectedDevices(newValue);
   };
 
   const handlePackageChange = (event, newValue) => {
     setLoading(true);
     setSelectedPackages(newValue);
-    console.log(
-      "inside: handlePackageChange selected packages ::: ",
-      selectedPackages
-    );
     handleInputs();
   };
 
   const handleIndustryChange = (event, newValue) => {
     setLoading(true);
     setSelectedIndustries(newValue);
-    console.log(
-      "inside: handleIndustryChange selected industries ::: ",
-      selectedIndustries
-    );
     handleInputs();
   };
 
   const handleStatusChange = (event, newValue) => {
     setLoading(true);
     setSelectedStatus(newValue);
-    console.log(
-      "inside: handleStatusChange selected status ::: ",
-      selectedStatus
-    );
     handleInputs();
   };
 
@@ -214,7 +165,6 @@ export default function Search() {
       filteredDevices = filteredDevices.filter((element) =>
         selectedDevices.some((device) => device.label === element.label)
       );
-      console.log("filteredDevices after device ::: ", filteredDevices);
     }
 
     if (selectedPackages.length > 0) {
@@ -227,7 +177,6 @@ export default function Search() {
           (selectedPackage) => selectedPackage.label === element.package
         )
       );
-      console.log("filteredDevices after package ::: ", filteredDevices);
     }
 
     if (selectedIndustries.length > 0) {
@@ -236,17 +185,14 @@ export default function Search() {
           element.industry.includes(industry.label)
         )
       );
-      console.log("filteredDevices after industry ::: ", filteredDevices);
     }
 
     if (selectedStatus.length > 0) {
       filteredDevices = filteredDevices.filter((element) =>
         selectedStatus.some((status) => status === element.status)
       );
-      console.log("filteredDevices after status ::: ", filteredDevices);
     }
 
-    // console.log("inside handleInputs filteredDevices ::: ", filteredDevices);
     setMatchedDevices(filteredDevices);
   }, [
     selectedDevices,
@@ -269,25 +215,27 @@ export default function Search() {
     <Box
       component="form"
       sx={{
-        "& > :not(style)": { m: 3 },
         width: "100%",
+        height: "75vh",
       }}
       noValidate
       autoComplete="off"
     >
-      {/* {console.log("packages: ", packages)} */}
-      <Typography variant="h3" component="h2">
-        Search Your Product Here
-      </Typography>
+      <Box sx={{ display: "flex", mb: 4, alignItems: "center" }}>
+        <TuneIcon fontSize="large" />
+
+        <Typography variant="h4" sx={{ px: 1 }}>
+          Search Your Product Here
+        </Typography>
+      </Box>
       <Grid container spacing={2}>
         <Grid
           item
           xs={6}
           sx={{
-            "& > :not(style)": { m: 2 },
+            "& > :not(style)": { mb: 2 },
           }}
         >
-          {/* <Item> */}
           <FormGroup>
             <StyledAutocomplete
               multiple
@@ -295,8 +243,6 @@ export default function Search() {
               options={devices}
               value={selectedDevices}
               onChange={handleDeviceChange}
-              // inputValue={inputDevice}
-              // onInputChange={handleDeviceInputChange}
               renderInput={(params) => <TextField {...params} label="Device" />}
             />
           </FormGroup>
@@ -354,18 +300,8 @@ export default function Search() {
               )}
             />
           </FormGroup>
-
-          <Tooltip title="Add Filters" enterDelay={500} leaveDelay={200}>
-            <Button onClick={handleInputs}>Apply Filters</Button>
-          </Tooltip>
         </Grid>
-        <Grid
-          item
-          xs={6}
-          sx={{
-            "& > :not(style)": {},
-          }}
-        >
+        <Grid item xs={6}>
           {loading ? (
             <Box sx={{ width: "100%" }}>
               <LinearProgress />
@@ -377,49 +313,34 @@ export default function Search() {
                 alignItems: "center",
                 bgcolor: "background.paper",
                 overflowY: "scroll",
-                maxHeight: "80vh",
+                maxHeight: "90vh",
               }}
             >
               {matchedDevices.length === 0 ? (
-                <Item
-                  sx={{
-                    width: "80%",
-                    height: 260,
-                    display: "flex",
-                    alignItems: "flex-start",
-                    border: "1px solid",
-                    borderColor: (theme) =>
-                      theme.palette.mode === "dark" ? "grey.800" : "grey.300",
-                  }}
-                >
-                  <StyledPaper className="h-100 text-center">
-                    <Card className="h-100 text-center">
-                      <CardMedia component="img" title="Device Package" />
-                      <CardContent>
-                        <Typography gutterBottom variant="h5" component="div">
-                          No Device with applied filters found...
-                        </Typography>
-                      </CardContent>
-                    </Card>
+                <Item>
+                  <StyledPaper>
+                    <Box
+                      sx={{
+                        height: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography
+                        variant="body1"
+                        fontSize="1rem"
+                        component="div"
+                      >
+                        No Device with applied filters found
+                      </Typography>
+                    </Box>
                   </StyledPaper>
                 </Item>
               ) : (
                 matchedDevices.map((md, index) => (
-                  <Item
-                    key={md.label + index}
-                    sx={{
-                      width: "80%",
-                      height: 260,
-                      display: "flex",
-                      alignItems: "flex-start",
-                      border: "1px solid",
-                      borderRadius: 1.5,
-                      m: 1,
-                      borderColor: (theme) =>
-                        theme.palette.mode === "dark" ? "grey.800" : "grey.300",
-                    }}
-                  >
-                    <StyledPaper className="h-100 w-50 text-center">
+                  <Item key={md.label + index}>
+                    <StyledPaper className="w-50 text-center">
                       {md ? (
                         <Card className="h-100 text-center">
                           <CardMedia
@@ -459,7 +380,7 @@ export default function Search() {
                         </Card>
                       )}
                     </StyledPaper>
-                    <Box sx={{ alignItems: "center", height: "100%", m: 1 }}>
+                    <Box sx={{ alignItems: "center", height: "100%" }}>
                       <Item>Device: {md.label}</Item>
                       <Item>Package: {md.package}</Item>
                       <Item>Industry: {md.industry.join(", ")}</Item>

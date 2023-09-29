@@ -97,12 +97,20 @@ function Landing() {
   }, [checkLoading]);
 
   return (
-    <Box className="landing container m-4">
-      <Typography variant="h3" component="h1" sx={{ mb: 4 }}>
+    <Box className="landing container">
+      <Typography variant="h3" component="h1">
         Our Products
       </Typography>
-      <Box sx={{ height: "50vh", backgroundColor: "#eee", right: 0, left: 0 }}>
-        <Grid container sx={{ m: 1, p: 1 }}>
+      <Box
+        sx={{
+          height: "50vh",
+          backgroundColor: "#eee",
+          right: 0,
+          left: 0,
+          width: "100%",
+        }}
+      >
+        <Grid container>
           <Grid item>
             Lorem ipsum dolor sit, amet consectetur adipisicing elit.
             Repellendus distinctio corrupti nam nostrum! Recusandae
@@ -115,7 +123,7 @@ function Landing() {
           </Grid>
         </Grid>
       </Box>
-      <Typography sx={{ m: 4 }}>
+      <Typography>
         This is a simple web app that allows you to explore data from the{" "}
         <Link href="https://www.cdil.com/" target="_blank" rel="noreferrer">
           CDIL
@@ -123,7 +131,7 @@ function Landing() {
         website.
       </Typography>
       <Box>
-        <Typography component="" variant="h4" sx={{ m: 4 }}>
+        <Typography component="" variant="h4">
           Browse By Category
         </Typography>
         {loading ? (
@@ -157,7 +165,6 @@ function Landing() {
                               to={`/search/${type.split(" ").join("_")}`}
                             >
                               <ListItemIcon>
-                                {/* <BoltIcon /> */}
                                 <ListItemText
                                   disableTypography
                                   primary={type}
