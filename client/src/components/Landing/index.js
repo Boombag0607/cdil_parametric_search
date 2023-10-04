@@ -107,13 +107,21 @@ function Landing() {
         className="heading"
         sx={{ display: "flex", justifyContent: "flex-start" }}
       >
-        <Typography variant="h1" component="h1">
+        <Typography
+          variant="h1"
+          component="h1"
+          sx={{ fontSize: { xs: "2rem", sm: "3rem", md: "4.5rem" } }}
+        >
           Our Products
         </Typography>
       </Box>
 
-      <Grid container spacing={2} sx={{ my: 2 }}>
-        <Grid item xs={12} sm={3} md={4}>
+      <Grid
+        container
+        spacing={4}
+        sx={{ my: 2, minHeight: "35vh"}}
+      >
+        <Grid item xs={12} sm={4} md={6}>
           <Box
             sx={{
               width: "100%",
@@ -141,16 +149,14 @@ function Landing() {
             </Box>
           </Box>
         </Grid>
-        <Grid item xs={12} sm={9} md={8}>
+        <Grid item xs={12} sm={8} md={6}>
           <Box
-            className="video-responsive"
+            className="video"
             sx={{
               display: "flex",
               justifyContent: "center",
               width: "100%",
-              height: "0",
-              position: "relative",
-              marginRight: "auto",
+              height: { md: "100%" },
             }}
           >
             <YoutubeEmbed embedId="fIYW7OOeovk" />
@@ -159,7 +165,7 @@ function Landing() {
       </Grid>
 
       <Box sx={{ mt: 8 }}>
-        <Typography variant="h4" component="div">
+        <Typography variant="h4" component="div" sx={{fontSize: { xs: "2rem", sm: "2rem", md: "2.5rem" }}}>
           Browse By Category
         </Typography>
         {loading ? (

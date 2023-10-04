@@ -17,7 +17,7 @@ export default function LandingLayout({ children }) {
           sx={{
             mt: 13,
             width: "100%",
-            height: "100vh",
+            minHeight: "100vh",
           }}
         >
           {children}
