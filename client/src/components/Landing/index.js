@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./Landing.css";
-import { styled } from "@mui/material/styles";
 import {
   Accordion,
   AccordionSummary,
@@ -15,6 +14,7 @@ import {
   Box,
   Grid,
   Button,
+  Container,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Link } from "react-router-dom";
@@ -57,18 +57,13 @@ import YoutubeEmbed from "./YoutubeEmbed";
 //   borderTop: "1px solid rgba(0, 0, 0, .125)",
 // }));
 
-const StyledTypography = styled(Typography)({
-  marginLeft: "5%",
-  marginRight: "5%",
-});
-
-const ActionBox = styled(Box)({
-  width: "100%",
-  minHeight: "50px",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-});
+// const ActionBox = styled(Box)({
+//   width: "100%",
+//   minHeight: "50px",
+//   display: "flex",
+//   flexDirection: "column",
+//   justifyContent: "center",
+// });
 
 function Landing() {
   const [categoryArray, setCategoryArray] = useState([]);
@@ -107,62 +102,70 @@ function Landing() {
   }, [checkLoading]);
 
   return (
-    <Box className="Landing">
-      <StyledTypography variant="h1" component="h1">
-        Our Products
-      </StyledTypography>
+    <Container className="Landing" sx={{ width: "90%" }}>
       <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          height: "35vh",
-          backgroundColor: "#eee",
-          my: 2,
-        }}
+        className="heading"
+        sx={{ display: "flex", justifyContent: "flex-start" }}
       >
-        <ActionBox sx={{ ml: 10 }}>
-          <Typography>
-            This is a simple web app that allows you to explore data from the{" "}
-            <Link href="https://www.cdil.com/" target="_blank" rel="noreferrer">
-              CDIL
-            </Link>{" "}
-            website.
-          </Typography>
-          <ActionBox
+        <Typography variant="h1" component="h1">
+          Our Products
+        </Typography>
+      </Box>
+
+      <Grid container spacing={2} sx={{ my: 2 }}>
+        <Grid item xs={12} sm={3} md={4}>
+          <Box
             sx={{
               width: "100%",
-              height: "10vh",
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
             }}
           >
-            <Button
-              variant="contained"
-              href="/search"
-              sx={{ height: "3em", width: "15em" }}
-            >
-              Go to Main Search
-            </Button>
-          </ActionBox>
-        </ActionBox>
-        <Box
-          className="video-responsive"
-          sx={{
-            width: "100%",
-            height: "0",
-            position: "relative",
-            marginRight: "auto",
-          }}
-        >
-          <YoutubeEmbed embedId="fIYW7OOeovk" />
-        </Box>
-      </Box>
-      <Box>
-        <StyledTypography variant="h4" component="div">
+            <Typography>
+              This is a simple web app that allows you to explore data from the{" "}
+              <Link
+                href="https://www.cdil.com/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                CDIL
+              </Link>{" "}
+              website.
+            </Typography>
+            <Box sx={{ my: 5 }}>
+              <Button variant="contained" href="/search">
+                Go to Main Search
+              </Button>
+            </Box>
+          </Box>
+        </Grid>
+        <Grid item xs={12} sm={9} md={8}>
+          <Box
+            className="video-responsive"
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              width: "100%",
+              height: "0",
+              position: "relative",
+              marginRight: "auto",
+            }}
+          >
+            <YoutubeEmbed embedId="fIYW7OOeovk" />
+          </Box>
+        </Grid>
+      </Grid>
+
+      <Box sx={{ mt: 8 }}>
+        <Typography variant="h4" component="div">
           Browse By Category
-        </StyledTypography>
+        </Typography>
         {loading ? (
-          <ActionBox>
+          <Box sx={{ my: 5 }}>
             <LinearProgress />
-          </ActionBox>
+          </Box>
         ) : (
           <Grid container spacing={2}>
             {categoryArray.map((categoryObject, categoryIndex) => (
@@ -173,7 +176,7 @@ function Landing() {
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                   >
-                    <StyledTypography>{categoryObject.name}</StyledTypography>
+                    <Typography>{categoryObject.name}</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
                     <Grid container direction="column">
@@ -205,7 +208,7 @@ function Landing() {
           </Grid>
         )}
       </Box>
-    </Box>
+    </Container>
   );
 }
 

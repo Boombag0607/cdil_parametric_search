@@ -1,10 +1,5 @@
-import * as React from "react";
-import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
 import { Facebook, Instagram, Twitter } from "@mui/icons-material";
-import { Box } from "@mui/material";
+import { Box, Container, Grid, Link, Typography } from "@mui/material";
 
 export default function Footer() {
   return (
@@ -16,11 +11,12 @@ export default function Footer() {
             ? theme.palette.grey[200]
             : theme.palette.grey[800],
         p: 6,
+        width: "100%",
       }}
     >
       <Container maxWidth="lg">
-        <Grid container spacing={5}>
-          <Grid item xs={12} sm={4}>
+        <Grid container spacing={3}> {/* Adjust the spacing for different screen sizes */}
+          <Grid item xs={12} sm={6} md={4}> {/* Use different column widths for different screen sizes */}
             <Typography variant="h6" color="text.primary" gutterBottom>
               About Us
             </Typography>
@@ -29,7 +25,7 @@ export default function Footer() {
               providing the best service to our clients.
             </Typography>
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6} md={4}> {/* Use different column widths for different screen sizes */}
             <Typography variant="h6" color="text.primary" gutterBottom>
               Contact Us
             </Typography>
@@ -43,7 +39,7 @@ export default function Footer() {
               Phone: +1 234 567 8901
             </Typography>
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={12} md={4}> {/* Use different column widths for different screen sizes */}
             <Typography variant="h6" color="text.primary" gutterBottom>
               Follow Us
             </Typography>
@@ -62,8 +58,8 @@ export default function Footer() {
             </Link>
           </Grid>
         </Grid>
-        <Box mt={5}>
-          <Typography variant="body2" color="text.secondary" align="center">
+        <Box mt={3} textAlign="center"> {/* Adjust margin and alignment for different screen sizes */}
+          <Typography variant="body2" color="text.secondary">
             {"Copyright © "}
             <Link color="inherit" href="https://cdil.com/">
               CDIL

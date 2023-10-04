@@ -223,7 +223,6 @@ export default function Search() {
     >
       <Box sx={{ display: "flex", mb: 4, alignItems: "center" }}>
         <TuneIcon fontSize="large" />
-
         <Typography variant="h4" sx={{ px: 1 }}>
           Search Your Product Here
         </Typography>
@@ -311,7 +310,7 @@ export default function Search() {
               sx={{
                 p: 1,
                 display: "flex",
-                justifyContent: "flex-end",
+                justifyContent: "center",
                 alignItems: "center",
                 bgcolor: "background.paper",
                 overflowY: "scroll",
