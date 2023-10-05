@@ -3,7 +3,7 @@ import Footer from "../Components/Footer";
 import { Container, Breadcrumbs, Link, Typography, Box } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import { useLocation } from "react-router-dom";
-import theme from "../utils/theme"
+import theme from "../utils/theme";
 
 export default function PublicLayout({ children }) {
   return (
@@ -20,19 +20,26 @@ export default function PublicLayout({ children }) {
               <Link underline="hover" color="inherit" href="/">
                 Home
               </Link>
-              <Typography underline="hover" color="inherit">
-                {useLocation()
-                  .pathname.split("/")
-                  .filter((path) => path !== "")
-                  .map((path) => {
-                    if (path === "search") {
-                      return "Search";
-                    } else {
-                      return path.split("_").join(" ");
-                    }
-                  })
-                  .join(" / ")}
-              </Typography>
+              {useLocation()
+                .pathname.split("/")
+                .filter((path) => path !== "")
+                .map((path) => {
+                  if (path === "search") {
+                    return (
+                      <Link underline="hover" color="inherit" href="/search">
+                        <Typography underline="hover" color="inherit">
+                          Search
+                        </Typography>
+                      </Link>
+                    );
+                  } else {
+                    return (
+                      <Typography underline="hover" color="inherit">
+                        {path.split("_").join(" ")}
+                      </Typography>
+                    );
+                  }
+                })}
             </Breadcrumbs>
           </Box>
           {children}
