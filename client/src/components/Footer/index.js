@@ -1,5 +1,5 @@
-import { Facebook, Instagram, Twitter } from "@mui/icons-material";
 import { Box, Container, Grid, Link, Typography } from "@mui/material";
+
 
 export default function Footer() {
   return (
@@ -14,51 +14,67 @@ export default function Footer() {
         width: "100%",
       }}
     >
-      <Container maxWidth="lg">
-        <Grid container spacing={3}> {/* Adjust the spacing for different screen sizes */}
-          <Grid item xs={12} sm={6} md={4}> {/* Use different column widths for different screen sizes */}
+      <Container>
+        <Grid sx={{ width: "100%" }} container spacing={6}>
+          {" "}
+          {/* Adjust the spacing for different screen sizes */}
+          <Grid item xs={12} sm={6} md={4}>
+            {" "}
+            {/* Use different column widths for different screen sizes */}
             <Typography variant="h6" color="text.primary" gutterBottom>
               About Us
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              We are a semiconductor manufacturing company, dedicated to
-              providing the best service to our clients.
+              Continental Device India Pvt. Ltd., (CDIL) is a pioneer and a
+              world class Semiconductor Manufacturer of silicon chips and
+              devices since 1964.
+              <br></br>
+              With 50 years of semiconductor manufacturing experience, strict
+              standards of quality, constant improvements in R&D, technology,
+              and processes, and the hard work of a team of dedicated
+              professionals, CDIL today is an Indian brand that is recognized
+              globally.
             </Typography>
           </Grid>
-          <Grid item xs={12} sm={6} md={4}> {/* Use different column widths for different screen sizes */}
+          <Grid item xs={12} sm={6} md={4}>
+            {" "}
+            {/* Use different column widths for different screen sizes */}
             <Typography variant="h6" color="text.primary" gutterBottom>
               Contact Us
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              123 Main Street, Anytown, India
+              C-120 Naraina Industrial Area -I, New Delhi - 110028
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Email: info@example.com
+              Email: email@cdil.com
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Phone: +1 234 567 8901
+              Phone: (+91) 11 4141 1112, (+91) 11 2579 6150
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Contact the{" "}
+              <Link
+                href="https://www.linkedin.com/in/ananya-gautam-7342b4201/"
+                color="inherit"
+              >
+                Developer
+              </Link>
             </Typography>
           </Grid>
-          <Grid item xs={12} sm={12} md={4}> {/* Use different column widths for different screen sizes */}
+          <Grid item xs={12} sm={12} md={4}>
             <Typography variant="h6" color="text.primary" gutterBottom>
-              Follow Us
+              Assurance of Quality
             </Typography>
-            <Link href="https://www.facebook.com/" color="inherit">
-              <Facebook />
-            </Link>
-            <Link
-              href="https://www.instagram.com/"
-              color="inherit"
-              sx={{ pl: 1, pr: 1 }}
-            >
-              <Instagram />
-            </Link>
-            <Link href="https://www.twitter.com/" color="inherit">
-              <Twitter />
-            </Link>
+            <Typography variant="body2" color="text.secondary">
+              CDIL is an ISO 9001, IATF 16949, ISO 14001 certified company
+              following strict quality standards for manufacturing of its
+              products.
+            </Typography>
           </Grid>
         </Grid>
-        <Box mt={3} textAlign="center"> {/* Adjust margin and alignment for different screen sizes */}
+        <Box mt={3} textAlign="center">
+          {" "}
+          {/* Adjust margin and alignment for different screen sizes */}
           <Typography variant="body2" color="text.secondary">
             {"Copyright © "}
             <Link color="inherit" href="https://cdil.com/">

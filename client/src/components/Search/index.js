@@ -216,7 +216,7 @@ export default function Search() {
       component="form"
       sx={{
         width: "100%",
-        height: "65vh",
+        minHeight: "65vh",
       }}
       noValidate
       autoComplete="off"
@@ -230,7 +230,9 @@ export default function Search() {
       <Grid container spacing={2}>
         <Grid
           item
-          xs={6}
+          xs={12}
+          sm={12}
+          md={6}
           sx={{
             "& > :not(style)": { mb: 2 },
           }}
@@ -300,7 +302,7 @@ export default function Search() {
             />
           </FormGroup>
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={12} sm={12} md={6}>
           {loading ? (
             <Box sx={{ width: "100%" }}>
               <LinearProgress />

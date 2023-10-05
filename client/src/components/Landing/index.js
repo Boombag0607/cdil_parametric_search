@@ -29,7 +29,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import YoutubeEmbed from "./YoutubeEmbed";
-import CableIcon from "../../icons/Cable";
+import CableIcon from "../../icons/CableIcon";
+import SemiconductorIcon from "../../icons/semiconductor-icon.svg";
 
 const DRAWERWIDTH = 280;
 
@@ -128,7 +129,8 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
-  backgroundColor: "white",
+  backgroundColor: theme.palette.secondary.main,
+  color: theme.palette.secondary.contrastText,
   zIndex: theme.zIndex.drawer + 1,
   transition: theme.transitions.create(["width", "margin"], {
     easing: theme.transitions.easing.sharp,
@@ -191,6 +193,12 @@ function Landing() {
 
   return (
     <Container className="Landing" sx={{ display: "flex", width: "100%" }}>
+      <img
+        src={SemiconductorIcon}
+        alt="category"
+        width="200px"
+        style={{ position: "fixed", top: 0, right: "-5%", opacity: 0.25 }}
+      />
       <AppBar position="fixed" open={categoryDrawerOpen}>
         <Toolbar>
           <IconButton
@@ -333,7 +341,7 @@ function Landing() {
               </Typography>
               <Box sx={{ my: 5 }}>
                 <Button variant="contained" href="/search">
-                  Go to Main Search
+                  Search Now
                 </Button>
               </Box>
             </Box>

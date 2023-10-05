@@ -1,6 +1,18 @@
 import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
+  components: {
+    MuiButton: {
+      styleOverrides: {},
+    },
+  },
+  // overrides: {
+  //   MuiButton: {
+  //     raisedPrimary: {
+  //       color: "white",
+  //     },
+  //   },
+  // },
   typography: {
     fontSize: 14,
     h1: {
@@ -14,10 +26,10 @@ const theme = createTheme({
       fontFamily: "Roboto",
     },
     button: {
-      fontFamily: "Roboto",
-      fontWeight: 600
+      fontWeight: 600,
     },
     a: {
+      fontColor: "#f0b128", // Link text color
       fontWeight: 600, // Bold font weight for links
     },
     h4: {
@@ -30,6 +42,11 @@ const theme = createTheme({
   palette: {
     primary: {
       main: "#f0b128", // Set the primary color to #f0b128
+      contrastText: "#fff",
+    },
+    secondary: {
+      main: "#fff",
+      contrastText: "#333",
     },
   },
 });
