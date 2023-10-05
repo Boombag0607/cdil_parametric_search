@@ -292,7 +292,7 @@ function AdminComponent() {
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }} open={profileDrawerOpen}>
         <DrawerHeader />
-        <Typography variant="h2" component="h2">
+        <Typography variant="h2" component="h2" >
           Admin DashBoard
         </Typography>
         <Grid container spacing={2} sx={{ height: "50vh" }}>
