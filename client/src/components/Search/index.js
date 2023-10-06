@@ -67,7 +67,7 @@ export default function Search() {
         const packagesResponse = await axios.get(
           `http://localhost:3000/packages`
         );
-        const packagesData = packagesResponse.data.map((element) => {
+        const allPackageData = packagesResponse.data.map((element) => {
           return {
             value: element.id.toLowerCase(),
             label: element.id,
@@ -123,7 +123,7 @@ export default function Search() {
           })
         );
 
-        setPackages(packagesData);
+        setPackages(allPackageData);
         setDevices(allDevicesData);
         setMatchedDevices(allDevicesData);
         setIndustry(industryList);

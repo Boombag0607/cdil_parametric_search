@@ -1,6 +1,5 @@
 import { Box, Container, Grid, Link, Typography } from "@mui/material";
 
-
 export default function Footer() {
   return (
     <Box
@@ -28,12 +27,6 @@ export default function Footer() {
               Continental Device India Pvt. Ltd., (CDIL) is a pioneer and a
               world class Semiconductor Manufacturer of silicon chips and
               devices since 1964.
-              <br></br>
-              With 50 years of semiconductor manufacturing experience, strict
-              standards of quality, constant improvements in R&D, technology,
-              and processes, and the hard work of a team of dedicated
-              professionals, CDIL today is an Indian brand that is recognized
-              globally.
             </Typography>
           </Grid>
           <Grid item xs={12} sm={6} md={4}>

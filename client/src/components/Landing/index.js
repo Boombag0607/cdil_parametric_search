@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import "./Landing.css";
 import {
   Accordion,
   AccordionSummary,
@@ -9,7 +8,6 @@ import {
   ListItem,
   ListItemButton,
   ListItemIcon,
-  ListItemText,
   LinearProgress,
   Box,
   Grid,
@@ -17,22 +15,21 @@ import {
   Container,
   Toolbar,
   Divider,
+  IconButton,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import { styled } from "@mui/material/styles";
+import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar from "@mui/material/AppBar";
-import IconButton from "@mui/material/IconButton";
+import MuiListItemText from "@mui/material/ListItemText";
+import { styled } from "@mui/material/styles";
+import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import MuiDrawer from "@mui/material/Drawer";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import YoutubeEmbed from "./YoutubeEmbed";
 import CableIcon from "../../icons/CableIcon";
-import SemiconductorIcon from "../../icons/semiconductor-icon.svg";
-
-const DRAWERWIDTH = 280;
+import { LANDINGDRAWERWIDTH, Logo } from "../../utils/constants";
 
 // const Accordion = styled((props) => (
 //   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -79,7 +76,7 @@ const DRAWERWIDTH = 280;
 // });
 
 const openedMixin = (theme) => ({
-  width: DRAWERWIDTH,
+  width: LANDINGDRAWERWIDTH,
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.enteringScreen,
@@ -102,7 +99,7 @@ const closedMixin = (theme) => ({
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
-  width: DRAWERWIDTH,
+  width: LANDINGDRAWERWIDTH,
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
@@ -137,13 +134,18 @@ const AppBar = styled(MuiAppBar, {
     duration: theme.transitions.duration.leavingScreen,
   }),
   ...(open && {
-    marginLeft: DRAWERWIDTH,
-    width: `calc(100% - ${DRAWERWIDTH}px)`,
+    marginLeft: LANDINGDRAWERWIDTH,
+    width: `calc(100% - ${LANDINGDRAWERWIDTH}px)`,
     transition: theme.transitions.create(["width", "margin"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
+}));
+
+const ListItemText = styled(MuiListItemText)(({ theme }) => ({
+  color: theme.palette.secondary.contrastText,
+  overflowX: "hidden",
 }));
 
 function Landing() {
@@ -192,13 +194,7 @@ function Landing() {
   };
 
   return (
-    <Container className="Landing" sx={{ display: "flex", width: "100%" }}>
-      <img
-        src={SemiconductorIcon}
-        alt="category"
-        width="200px"
-        style={{ position: "fixed", top: 0, right: "-5%", opacity: 0.25 }}
-      />
+    <Container className="Landing" sx={{ display: "flex", maxWidth: "95%" }}>
       <AppBar position="fixed" open={categoryDrawerOpen}>
         <Toolbar>
           <IconButton
@@ -207,7 +203,7 @@ function Landing() {
             onClick={handleDrawerOpen}
             edge="start"
             sx={{
-              marginRight: 4,
+              mr: 2,
               ...(categoryDrawerOpen && { display: "none" }),
             }}
           >
@@ -217,9 +213,9 @@ function Landing() {
             variant="h6"
             noWrap
             component="div"
-            sx={{ mx: categoryDrawerOpen ? 7 : 0 }}
+            sx={{ ...(categoryDrawerOpen && { ml: 6 }) }}
           >
-            <img src={"/imgs/logo.png"} alt={"CDIL"} width={"100"} />
+            <Logo />
           </Typography>
         </Toolbar>
       </AppBar>

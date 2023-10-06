@@ -7,7 +7,6 @@ import theme from "../utils/theme";
 
 export default function PublicLayout({ children }) {
   return (
-    <>
       <ThemeProvider theme={theme}>
         <Header />
         <Container sx={{ width: "90%", mt: 12 }}>
@@ -46,6 +45,5 @@ export default function PublicLayout({ children }) {
         </Container>
         <Footer />
       </ThemeProvider>
-    </>
   );
 }

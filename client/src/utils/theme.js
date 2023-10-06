@@ -2,8 +2,10 @@ import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
   components: {
-    MuiButton: {
-      styleOverrides: {},
+    MuiLink: {
+      styleOverrides: {
+        color: "#f0b128",
+      },
     },
   },
   // overrides: {
@@ -40,6 +42,9 @@ const theme = createTheme({
     },
   },
   palette: {
+    background: {
+      default: "#fff",
+    },
     primary: {
       main: "#f0b128", // Set the primary color to #f0b128
       contrastText: "#fff",
