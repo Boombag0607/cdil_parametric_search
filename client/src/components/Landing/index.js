@@ -19,17 +19,19 @@ import {
 } from "@mui/material";
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar from "@mui/material/AppBar";
+import MuiLink from "@mui/material/Link";
 import MuiListItemText from "@mui/material/ListItemText";
 import { styled } from "@mui/material/styles";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import YoutubeEmbed from "./YoutubeEmbed";
 import CableIcon from "../../icons/CableIcon";
 import { LANDINGDRAWERWIDTH, Logo } from "../../utils/constants";
+import { Link } from "react-router-dom";
+// import  from "../../utils/constants"
 
 // const Accordion = styled((props) => (
 //   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -74,6 +76,13 @@ import { LANDINGDRAWERWIDTH, Logo } from "../../utils/constants";
 //   flexDirection: "column",
 //   justifyContent: "center",
 // });
+
+const StyledLink = styled(MuiLink)({
+  textDecoration: "none",
+  color: "#f0b128",
+  underline: "hover",
+  fontWeight: 700,
+});
 
 const openedMixin = (theme) => ({
   width: LANDINGDRAWERWIDTH,
@@ -123,9 +132,14 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
+const AppBar = styled((props) => (
+  <MuiAppBar
+    {...props}
+    elevation={0}
+    position="fixed"
+    sx={{ border: "1px solid #ddd", background: "white", color: "#222" }}
+  />
+))(({ theme, open }) => ({
   backgroundColor: theme.palette.secondary.main,
   color: theme.palette.secondary.contrastText,
   zIndex: theme.zIndex.drawer + 1,
@@ -248,7 +262,7 @@ function Landing() {
               >
                 <CableIcon />
               </ListItemIcon>
-              <ListItemText primary="High Relaibility Devices" />
+              <ListItemText primary="High Reliability Devices" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding key={`Add Another Admin`}>
@@ -268,7 +282,7 @@ function Landing() {
               >
                 <CableIcon />
               </ListItemIcon>
-              <ListItemText primary="High Relaibility Devices" />
+              <ListItemText primary="High Reliability Devices" />
             </ListItemButton>
           </ListItem>
           {/* {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
@@ -324,18 +338,23 @@ function Landing() {
               }}
             >
               <Typography>
-                This is a simple web app that allows you to explore data from
-                the{" "}
-                <Link
+                With 50 years of semiconductor manufacturing experience, strict
+                standards of quality, constant improvements in R&D, technology,
+                and processes, and the hard work of a team of dedicated
+                professionals, CDIL today is an Indian brand that is recognized
+                globally. This is a simple website application that allows you
+                to explore data from the{" "}
+                <StyledLink
                   href="https://www.cdil.com/"
                   target="_blank"
                   rel="noreferrer"
+                  sx={{ color: "#f0b128", underline: "hover" }}
                 >
-                  CDIL
-                </Link>{" "}
-                website.
+                  main website
+                </StyledLink>
+                .
               </Typography>
-              <Box sx={{ my: 5 }}>
+              <Box sx={{ my: 2 }}>
                 <Button variant="contained" href="/search">
                   Search Now
                 </Button>

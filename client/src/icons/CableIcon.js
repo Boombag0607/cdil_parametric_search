@@ -1,3 +1,3 @@
 export default function CableIcon() {
-  return <span class="material-symbols-outlined">cable</span>;
+  return <span className="material-symbols-outlined">cable</span>;
 }

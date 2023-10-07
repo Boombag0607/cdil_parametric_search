@@ -1,13 +1,6 @@
 import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
-  components: {
-    MuiLink: {
-      styleOverrides: {
-        color: "#f0b128",
-      },
-    },
-  },
   // overrides: {
   //   MuiButton: {
   //     raisedPrimary: {
@@ -32,11 +25,11 @@ const theme = createTheme({
     },
     a: {
       fontColor: "#f0b128", // Link text color
-      fontWeight: 600, // Bold font weight for links
+      fontWeight: 700, // Bold font weight for links
     },
     h4: {
       fontSize: "1.5rem",
-      fontWeight: 700,
+      fontWeight: 400,
       color: "#222",
       fontFamily: "Raleway",
     },
@@ -52,6 +45,19 @@ const theme = createTheme({
     secondary: {
       main: "#fff",
       contrastText: "#333",
+    },
+    action: {
+      activeOpacity: 1,
+    },
+  },
+  components: {
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          color: "#f0b128",
+          textDecoration: "none",
+        },
+      },
     },
   },
 });

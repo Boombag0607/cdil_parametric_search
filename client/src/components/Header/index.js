@@ -1,12 +1,21 @@
-import AppBar from "@mui/material/AppBar";
+import MuiAppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/material"; // Import Box component
-import {Logo} from "../../utils/constants";
+import { Logo } from "../../utils/constants";
+
+const AppBar = (props) => (
+  <MuiAppBar
+    elevation={0}
+    position="static"
+    {...props}
+    sx={{ border: "1px solid #ddd", background: "white", color: "#222" }}
+  />
+);
 
 const Header = () => {
   return (
-    <AppBar position="fixed" sx={{ background: "white" }}>
+    <AppBar position="fixed">
       <Toolbar>
         {/* Logo */}
         <Logo />
