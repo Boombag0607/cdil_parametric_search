@@ -18,6 +18,7 @@ app.use('/admin', adminRoutes);
 
 // Start the server
 const port = 3000;
+app.use(express.static(path.join(__dirname, 'client/build')));
 
 // const dbname = process.env.DB_NAME;
 // const passport = require('passport');
