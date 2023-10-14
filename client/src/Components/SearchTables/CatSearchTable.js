@@ -398,19 +398,19 @@ export default function SearchTableWithCat(props) {
     const fetchData = async () => {
       try {
         const devicesForACatResponse = await axios.get(
-          `http://localhost:3000/devicesInCat/${category}`
+          `${process.env.ENDPOINT_PREFIX}/devicesInCat/${category}`
         );
         const packagesResponse = await axios.get(
-          `http://localhost:3000/packages`
+          `${process.env.ENDPOINT_PREFIX}/packages`
         );
         const industriesResponse = await axios.get(
-          `http://localhost:3000/industries`
+          `${process.env.ENDPOINT_PREFIX}/industries`
         );
 
         const deviceDataArray = await Promise.all(
           devicesForACatResponse.data.map(async (device) => {
             const response = await axios.get(
-              `http://localhost:3000/data/${encodeURIComponent(device.id)}`
+              `${process.env.ENDPOINT_PREFIX}/data/${encodeURIComponent(device.id)}`
             );
             return response?.data;
           })

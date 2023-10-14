@@ -421,25 +421,25 @@ export default function SubCatSearchTable() {
     const fetchData = async () => {
       try {
         const dataHeaderNameResponse = await axios.get(
-          `http://localhost:3000/headers/${subCat}`
+          `${process.env.ENDPOINT_PREFIX}/headers/${subCat}`
         );
         const dataHeaderUnitResponse = await axios.get(
-          `http://localhost:3000/units/${subCat}`
+          `${process.env.ENDPOINT_PREFIX}/units/${subCat}`
         );
         const devicesForASubCatResponse = await axios.get(
-          `http://localhost:3000/devices/${subCat}`
+          `${process.env.ENDPOINT_PREFIX}/devices/${subCat}`
         );
         const packagesResponse = await axios.get(
-          `http://localhost:3000/packages`
+          `${process.env.ENDPOINT_PREFIX}/packages`
         );
         const industriesResponse = await axios.get(
-          `http://localhost:3000/industries`
+          `${process.env.ENDPOINT_PREFIX}/industries`
         );
 
         const deviceDataArray = await Promise.all(
           devicesForASubCatResponse.data.map(async (device) => {
             const response = await axios.get(
-              `http://localhost:3000/data/${encodeURIComponent(device.id)}`
+              `${process.env.ENDPOINT_PREFIX}/data/${encodeURIComponent(device.id)}`
             );
             return response?.data;
           })
@@ -487,7 +487,7 @@ export default function SubCatSearchTable() {
           await devicesForASubCatResponse.data.map(
             async (deviceObject, index) => {
               const categoryResponse = await axios.get(
-                `http://localhost:3000/categories`
+                `${process.env.ENDPOINT_PREFIX}/categories`
               );
               const subcategory = deviceObject.subcat_id;
               const categoryData = categoryResponse.data
