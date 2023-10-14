@@ -26,7 +26,7 @@ function Landing() {
     const getLandingData = async () => {
       try {
         const categoriesResponse = await axios.get(
-          "http://localhost:3000/categories"
+          `${process.env.ENDPOINT_PREFIX}/categories`
         );
         const filteredCategories = categoriesResponse.data.filter(
           (categoryElement) => categoryElement.name === category

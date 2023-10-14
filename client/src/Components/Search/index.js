@@ -65,7 +65,7 @@ export default function Search() {
     const fetchData = async () => {
       try {
         const packagesResponse = await axios.get(
-          `http://localhost:3000/packages`
+          `${process.env.ENDPOINT_PREFIX}/packages`
         );
         const allPackageData = packagesResponse.data.map((element) => {
           return {
@@ -76,7 +76,7 @@ export default function Search() {
         });
 
         const industryResponse = await axios.get(
-          `http://localhost:3000/industries`
+          `${process.env.ENDPOINT_PREFIX}/industries`
         );
         const industryList = industryResponse.data.map((element) => {
           return {
@@ -86,18 +86,18 @@ export default function Search() {
         });
 
         const devicesResponse = await axios.get(
-          `http://localhost:3000/devices`
+          `${process.env.ENDPOINT_PREFIX}/devices`
         );
         const devicesData = devicesResponse.data;
 
         const allDevicesData = await Promise.all(
           devicesData.map(async (element) => {
             const dataResponse = await axios.get(
-              `http://localhost:3000/data/${encodeURIComponent(element.id)}`
+              `${process.env.ENDPOINT_PREFIX}/data/${encodeURIComponent(element.id)}`
             );
             const deviceData = dataResponse.data;
             const categoryResponse = await axios.get(
-              `http://localhost:3000/categories`
+              `${process.env.ENDPOINT_PREFIX}/categories`
             );
             const subcategory = await element.subcat_id;
             const categoryData = categoryResponse.data

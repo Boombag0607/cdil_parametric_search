@@ -30,12 +30,12 @@ export default function Display() {
 
   useEffect(() => {
     const fetchDevices = async () => {
-      const res = await axios.get(`http://localhost:3000/devices/`);
+      const res = await axios.get(`${process.env.ENDPOINT_PREFIX}/devices/`);
       // console.log(res.data);
       setAllDevices(res.data);
     };
     const fetchPackages = async () => {
-      const res = await axios.get(`http://localhost:3000/packages/`);
+      const res = await axios.get(`${process.env.ENDPOINT_PREFIX}/packages/`);
       // console.log(res.data);
       setAllPackages(res.data);
     };
