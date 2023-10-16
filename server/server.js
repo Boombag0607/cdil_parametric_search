@@ -1,25 +1,24 @@
-const cors = require("cors");
-const express = require("express");
-const path = require("path");
+import express from "express";
+import path from "path";
 // const bodyParser = require("body-parser");
 // const pool = require("./db");
 // require("dotenv").config({ path: ".env.local" });
 
 const app = express();
-const userRoutes = require('./routes/user');
-const adminRoutes = require('./routes/admin');
+import userRoutes from "./routes/user.js";
+import adminRoutes from "./routes/admin.js";
 
 // Middleware and other server configurations
 
 // Use clientRoutes for the main client application
-app.use('/user', userRoutes);
+app.use("/user", userRoutes);
 
 // Use adminRoutes for the admin section
-app.use('/admin', adminRoutes);
+app.use("/admin", adminRoutes);
 
 // Start the server
 const port = 3000;
-app.use(express.static(path.join(__dirname, 'client/build')));
+app.use(express.static(path.join(process.env.BUILD_PATH || " ")));
 
 // const dbname = process.env.DB_NAME;
 // const passport = require('passport');

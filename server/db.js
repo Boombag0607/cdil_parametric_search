@@ -1,4 +1,5 @@
-const Pool = require("pg").Pool;
+import pkg from 'pg';
+const { Pool } = pkg;
 
 const pool = new Pool({
     user: process.env.DB_USER,
@@ -8,4 +9,4 @@ const pool = new Pool({
     database: 'cdillocal',
 });
 
-module.exports = pool;
+export default pool;

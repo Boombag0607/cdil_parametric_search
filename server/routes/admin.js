@@ -1,6 +1,6 @@
-const express = require("express");
+import express from 'express';
 const router = express.Router();
-const bodyParser = require("body-parser");
+import bodyParser from 'body-parser';
 
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -88,4 +88,4 @@ router.post("/device", urlencodedParser, (req, res) => {
     });
 });
 
-module.exports = router;
+export default router;

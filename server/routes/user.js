@@ -1,7 +1,7 @@
-const express = require("express");
-const pool = require("../db");
+import express from 'express';
+import pool from '../db.js';
 const router = express.Router();
-const { convertUrlToName } = require("../lib/url");
+import { convertUrlToName } from '../lib/url.js';
 
 /* GET users listing. */
 router.get("/", function (req, res, next) {
@@ -186,4 +186,4 @@ router.get("/industries", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
