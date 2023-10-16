@@ -111,7 +111,7 @@ router.get("/devices", async (req, res) => {
 
 router.get("/devices/:subCat", async (req, res) => {
   try {
-    const subCat = req.params.subCat.replace(/_/g, " ");
+    const subCat = convertUrlToName(req.params.subCat);
     const allData = await pool.query(
       `SELECT * FROM devices WHERE subcat_id = $1`,
       [subCat]
@@ -125,7 +125,7 @@ router.get("/devices/:subCat", async (req, res) => {
 
 router.get("/devicesInCat/:category", async (req, res) => {
   try {
-    const category = req.params.category.replace(/_/g, " ").trim();
+    const category = convertUrlToName(req.params.category);
     console.log(category);
     const subCatData = await pool.query(
       `SELECT sub_cat FROM categories WHERE name=$1`,
