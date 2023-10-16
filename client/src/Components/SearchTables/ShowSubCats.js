@@ -16,7 +16,7 @@ import {
 import { Link } from "react-router-dom";
 import axios from "axios";
 import SearchTableWithCat from "./CatSearchTable";
-import { convertUrlToName } from "../../lib/url";
+import { convertNameToUrl, convertUrlToName } from "../../lib/url";
 
 function Landing() {
   const [categoryArray, setCategoryArray] = useState([]);
@@ -81,7 +81,7 @@ function Landing() {
                       <ListItem disablePadding key={typeIdx}>
                         <ListItemButton
                           component={Link}
-                          to={`/search/${type.split(" ").join("_")}`}
+                          to={`/search/${convertNameToUrl(type)}`}
                         >
                           <ListItemIcon>
                             <ListItemText
