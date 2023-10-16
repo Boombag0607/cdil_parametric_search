@@ -37,6 +37,7 @@ import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import ViewListRoundedIcon from "@mui/icons-material/ViewListRounded";
 import { visuallyHidden } from "@mui/utils";
 import axios from "axios";
+import { convertUrlToName } from "../../lib/url";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -351,7 +352,7 @@ function EnhancedTableToolbar(props) {
               id="tableTitle"
               component="div"
             >
-              {subCat.split("_").join(" ")}
+              {convertUrlToName(subCat)}
             </Typography>
           </Grid>
           <Grid item xs={3}>
@@ -439,7 +440,9 @@ export default function SubCatSearchTable() {
         const deviceDataArray = await Promise.all(
           devicesForASubCatResponse.data.map(async (device) => {
             const response = await axios.get(
-              `${process.env.ENDPOINT_PREFIX}/data/${encodeURIComponent(device.id)}`
+              `${process.env.ENDPOINT_PREFIX}/data/${encodeURIComponent(
+                device.id
+              )}`
             );
             return response?.data;
           })

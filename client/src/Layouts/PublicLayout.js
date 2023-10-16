@@ -4,6 +4,7 @@ import { Container, Breadcrumbs, Link, Typography, Box } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import { useLocation } from "react-router-dom";
 import theme from "../utils/theme";
+import { convertUrlToName } from "../lib/url";
 
 export default function PublicLayout({ children }) {
   return (
@@ -34,7 +35,7 @@ export default function PublicLayout({ children }) {
                   } else {
                     return (
                       <Typography underline="hover" color="inherit">
-                        {path.split("_").join(" ")}
+                        {convertUrlToName(path)}
                       </Typography>
                     );
                   }

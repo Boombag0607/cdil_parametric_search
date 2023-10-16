@@ -16,6 +16,7 @@ import {
 import { Link } from "react-router-dom";
 import axios from "axios";
 import SearchTableWithCat from "./CatSearchTable";
+import { convertUrlToName } from "../../lib/url";
 
 function Landing() {
   const [categoryArray, setCategoryArray] = useState([]);
@@ -63,7 +64,7 @@ function Landing() {
   return (
     <Box className="landing container m-4">
       <Typography variant="h4" component="h4">
-        {category}
+        {convertUrlToName(category)}
       </Typography>
       {loading ? (
         <Box sx={{ display: "flex" }}>

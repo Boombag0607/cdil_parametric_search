@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const router = express.Router();
+import { convertUrlToName } from "../lib/url";
 
 /* GET users listing. */
 router.get("/", function (req, res, next) {
@@ -47,7 +48,7 @@ router.get("/data/:device", async (req, res) => {
 
 router.get("/headers/:subCat", async (req, res) => {
   try {
-    const subCat = req.params.subCat.replace(/_/g, " ");
+    const subCat = convertUrlToName(req.params.subCat);
     const subcategoryData = await pool.query(
       `SELECT subcat_h1, subcat_h2, subcat_h3, subcat_h4, subcat_h5,
               subcat_h6, subcat_h7, subcat_h8, subcat_h9, subcat_h10,
@@ -74,7 +75,7 @@ router.get("/headers/:subCat", async (req, res) => {
 
 router.get("/units/:subCat", async (req, res) => {
   try {
-    const subCat = req.params.subCat.replace(/_/g, " ");
+    const subCat = convertUrlToName(req.params.subCat);
     const subcategoryData = await pool.query(
       `SELECT subcat_u1, subcat_u2, subcat_u3, subcat_u4, subcat_u5,
               subcat_u6, subcat_u7, subcat_u8, subcat_u9, subcat_u10,

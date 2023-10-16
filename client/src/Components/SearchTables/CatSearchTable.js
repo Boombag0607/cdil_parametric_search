@@ -564,7 +564,6 @@ export default function SearchTableWithCat(props) {
         <Paper sx={{ width: "100%", mb: 2 }}>
           <EnhancedTableToolbar
             numSelected={selected.length}
-            category={category}
             rowCount={rows.length}
             onSelectAllClick={handleSelectAllClick}
             selectedDevices={selected}
