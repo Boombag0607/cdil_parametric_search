@@ -17,6 +17,7 @@ router.get("/data", async (req, res) => {
     res.json(jsonData);
   } catch (err) {
     console.error(err.message);
+    res.status(404).send('Not found');
   }
 });
 
@@ -43,6 +44,7 @@ router.get("/data/:device", async (req, res) => {
     res.json(deviceDataArray);
   } catch (err) {
     console.error(err.message);
+    res.status(404).send('Not found');
   }
 });
 
@@ -69,7 +71,7 @@ router.get("/headers/:subCat", async (req, res) => {
     res.json(subcatHeadersArray);
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(404).send('Not found');
   }
 });
 
@@ -96,7 +98,7 @@ router.get("/units/:subCat", async (req, res) => {
     res.json(subcatHeadersArray);
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(404).send('Not found');
   }
 });
 
@@ -106,6 +108,7 @@ router.get("/devices", async (req, res) => {
     res.json(allData.rows);
   } catch (err) {
     console.error(err.message);
+    res.status(404).send('Not found');
   }
 });
 
@@ -120,6 +123,7 @@ router.get("/devices/:subCat", async (req, res) => {
     res.json(jsonData);
   } catch (err) {
     console.error(err.message);
+    res.status(404).send('Not found');
   }
 });
 
@@ -147,6 +151,7 @@ router.get("/devicesInCat/:category", async (req, res) => {
     res.json(devices);
   } catch (err) {
     console.error(err.message);
+    res.status(404).send('Not found');
   }
 });
 
@@ -156,6 +161,7 @@ router.get("/subcategories", async (req, res) => {
     res.json(allData.rows);
   } catch (err) {
     console.error(err.message);
+    res.status(404).send('Not found');
   }
 });
 
@@ -165,6 +171,7 @@ router.get("/categories", async (req, res) => {
     res.json(allData.rows);
   } catch (err) {
     console.error(err.message);
+    res.status(404).send('Not found');
   }
 });
 
@@ -174,6 +181,7 @@ router.get("/packages", async (req, res) => {
     res.json(allData.rows);
   } catch (err) {
     console.error(err.message);
+    res.status(404).send('Not found');
   }
 });
 
@@ -183,6 +191,7 @@ router.get("/industries", async (req, res) => {
     res.json(allData.rows);
   } catch (err) {
     console.error(err.message);
+    res.status(404).send('Not found');
   }
 });
 

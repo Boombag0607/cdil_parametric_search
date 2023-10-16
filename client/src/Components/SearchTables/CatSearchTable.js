@@ -410,7 +410,9 @@ export default function SearchTableWithCat(props) {
         const deviceDataArray = await Promise.all(
           devicesForACatResponse.data.map(async (device) => {
             const response = await axios.get(
-              `${process.env.ENDPOINT_PREFIX}/data/${encodeURIComponent(device.id)}`
+              `${process.env.ENDPOINT_PREFIX}/data/${encodeURIComponent(
+                device.id
+              )}`
             );
             return response?.data;
           })
@@ -449,19 +451,17 @@ export default function SearchTableWithCat(props) {
           devicesObjectArrayResponse
         );
 
-        const rows = await devicesForACatResponse.data.map(
-          (deviceObject) => {
-            let rowObject = {
-              name: deviceObject.id.toLowerCase(),
-              device: deviceObject.id,
-              package: deviceObject.package,
-              industry: deviceObject.industry.slice(1, -1).split(","),
-              status: deviceObject.status,
-              pdf_link: deviceObject.pdf_link,
-            };
-            return rowObject;
-          }
-        );
+        const rows = await devicesForACatResponse.data.map((deviceObject) => {
+          let rowObject = {
+            name: deviceObject.id.toLowerCase(),
+            device: deviceObject.id,
+            package: deviceObject.package,
+            industry: deviceObject.industry.slice(1, -1).split(","),
+            status: deviceObject.status,
+            pdf_link: deviceObject.pdf_link,
+          };
+          return rowObject;
+        });
 
         setColumns([
           { id: "device", numeric: false, label: "Device" },

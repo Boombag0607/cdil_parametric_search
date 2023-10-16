@@ -16,15 +16,17 @@ import {
 import { Link } from "react-router-dom";
 import axios from "axios";
 import SearchTableWithCat from "./CatSearchTable";
+import NotFound from "../NotFound";
 import { convertNameToUrl, convertUrlToName } from "../../lib/url";
 
-function Landing() {
+export default function ShowSubCats() {
   const [categoryArray, setCategoryArray] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const { category } = useParams();
 
   useEffect(() => {
-    const getLandingData = async () => {
+    const getShowSubCatsData = async () => {
       try {
         const categoriesResponse = await axios.get(
           `${process.env.ENDPOINT_PREFIX}/categories`
@@ -45,10 +47,11 @@ function Landing() {
 
         setCategoryArray(filteredSubCategoriesArray);
       } catch (err) {
+        setError(true);
         console.error(err.message);
       }
     };
-    getLandingData();
+    getShowSubCatsData();
   }, [category]);
 
   const checkLoading = useCallback(() => {
@@ -62,49 +65,53 @@ function Landing() {
   }, [checkLoading]);
 
   return (
-    <Box className="landing container m-4">
-      <Typography variant="h4" component="h4">
-        {convertUrlToName(category)}
-      </Typography>
-      {loading ? (
-        <Box sx={{ display: "flex" }}>
-          <CircularProgress />
-        </Box>
+    <Box>
+      {error ? (
+        <NotFound />
       ) : (
-        <Box sx={{ display: "flex" }}>
-          <Grid container spacing={2} className="mt-1 p-1">
-            {categoryArray.map((categoryObject, categoryIndex) => (
-              <Grid item xs={3} className="col" key={"col" + categoryIndex}>
-                <Grid container direction="column">
-                  <List>
-                    {categoryObject.types.map((type, typeIdx) => (
-                      <ListItem disablePadding key={typeIdx}>
-                        <ListItemButton
-                          component={Link}
-                          to={`/search/${convertNameToUrl(type)}`}
-                        >
-                          <ListItemIcon>
-                            <ListItemText
-                              sx={{ color: "text.primary" }}
-                              primary={type}
-                            />
-                          </ListItemIcon>
-                        </ListItemButton>
-                      </ListItem>
-                    ))}
-                  </List>
+        <Box>
+          <Typography variant="h4" component="h4">
+            {convertUrlToName(category)}
+          </Typography>
+          {loading ? (
+            <Box sx={{ display: "flex" }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Box sx={{ display: "flex" }}>
+              <Grid container spacing={2} className="mt-1 p-1">
+                {categoryArray.map((categoryObject, categoryIndex) => (
+                  <Grid item xs={3} className="col" key={"col" + categoryIndex}>
+                    <Grid container direction="column">
+                      <List>
+                        {categoryObject.types.map((type, typeIdx) => (
+                          <ListItem disablePadding key={typeIdx}>
+                            <ListItemButton
+                              component={Link}
+                              to={`/search/${convertNameToUrl(type)}`}
+                            >
+                              <ListItemIcon>
+                                <ListItemText
+                                  sx={{ color: "text.primary" }}
+                                  primary={type}
+                                />
+                              </ListItemIcon>
+                            </ListItemButton>
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Grid>
+                  </Grid>
+                ))}
+                <Grid item xs={9}>
+                  <SearchTableWithCat category={category} />
                 </Grid>
               </Grid>
-            ))}
-            <Grid item xs={9}>
-              <SearchTableWithCat category={category} />
-            </Grid>
-          </Grid>
+            </Box>
+          )}
+          <Button href="/search">Go to Main Search</Button>
         </Box>
       )}
-      <Button href="/search">Go to Main Search</Button>
     </Box>
   );
 }
-
-export default Landing;

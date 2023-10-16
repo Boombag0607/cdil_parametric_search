@@ -24,7 +24,7 @@ const theme = createTheme({
       fontWeight: 600,
     },
     a: {
-      fontColor: "#f0b128", // Link text color
+      fontColor: "#27c7ff", // Link text color
       fontWeight: 700, // Bold font weight for links
     },
     h4: {
@@ -54,7 +54,7 @@ const theme = createTheme({
     MuiLink: {
       styleOverrides: {
         root: {
-          color: "#f0b128",
+          color: "#27c7ff",
           textDecoration: "none",
         },
       },
