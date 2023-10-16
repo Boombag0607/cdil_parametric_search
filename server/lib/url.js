@@ -1,4 +1,4 @@
-export const convertUrlToName = (str) => {
+const convertUrlToName = (str) => {
   const name = str.split("-");
 
   return name
@@ -6,6 +6,8 @@ export const convertUrlToName = (str) => {
     .join(" ");
 };
 
-export const convertNameToUrl = (str) => {
+const convertNameToUrl = (str) => {
   return str.toLowerCase().replace(/ /g, "-");
 };
+
+(module.exports = convertNameToUrl), convertUrlToName;

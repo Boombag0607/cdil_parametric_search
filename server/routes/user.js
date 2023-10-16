@@ -1,7 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const router = express.Router();
-import { convertUrlToName } from "../lib/url";
+const { convertUrlToName } = require("../lib/url");
 
 /* GET users listing. */
 router.get("/", function (req, res, next) {

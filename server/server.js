@@ -1,5 +1,6 @@
 const cors = require("cors");
 const express = require("express");
+const path = require("path");
 // const bodyParser = require("body-parser");
 // const pool = require("./db");
 // require("dotenv").config({ path: ".env.local" });
