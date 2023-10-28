@@ -3,6 +3,7 @@ import AdminOAuth from "./Components/Admin/AdminOAuth";
 import Display from "./Components/Display";
 import Landing from "./Components/Landing";
 import Search from "./Components/Search";
+import Packages from "./Components/Packages";
 import SearchTableWithSubCat from "./Components/SearchTables/SubCatSearchTable";
 import ShowSubCats from "./Components/SearchTables/ShowSubCats";
 import AdminLayout from "./Layouts/AdminLayout";
@@ -44,6 +45,7 @@ const App = () => (
                 element={<SearchTableWithSubCat />}
               />
               <Route path="display" element={<Display />} />
+              <Route path="/view/packages" element={<Packages />} />
               <Route path=":category" element={<ShowSubCats />} />
             </Routes>
           </PublicLayout>

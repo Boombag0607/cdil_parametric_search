@@ -21,7 +21,7 @@ export default function Footer() {
               About Us
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {footer.aboutUs}
+              {footer.about}
             </Typography>
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
@@ -29,13 +29,13 @@ export default function Footer() {
               Contact Us
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {footer.contactUs.address}
+              {footer.contact.address}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Email: {footer.contactUs.email}
+              Email: {footer.contact.email}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Phone: {footer.contactUs.phone}
+              Phone: {footer.contact.phone}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               <Link

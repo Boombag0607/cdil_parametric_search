@@ -3,15 +3,15 @@ export const links = {
 };
 
 export const footer = {
-  aboutUs:
+  about:
     "Continental Device India Pvt. Ltd., (CDIL) is a pioneer and a world class Semiconductor Manufacturer of silicon chips and devices since 1964.",
   qualityAssurance:
     "CDIL is an ISO 9001, IATF 16949, ISO 14001 certified company following strict quality standards for manufacturing of its products.",
-    contactUs: {
-        address: "C-120 Naraina Industrial Area -I, New Delhi - 110028",
-        email: "email@cdil.com",
-        phone: "(+91) 11 4141 1112, (+91) 11 2579 6150"
-    }
+  contact: {
+    address: "C-120 Naraina Industrial Area -I, New Delhi - 110028",
+    email: "email@cdil.com",
+    phone: "(+91) 11 4141 1112, (+91) 11 2579 6150",
+  },
 };
 
 export const landing = {

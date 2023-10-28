@@ -24,7 +24,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import axios from "axios";
 import YoutubeEmbed from "./YoutubeEmbed";
 import {
-  CableIcon,
+  DiodeIcon,
   ShieldIcon,
   PackageIcon,
   TransistorIcon,
@@ -38,37 +38,11 @@ import {
   Drawer,
   ListItemText,
   DrawerHeader,
+  LandingListItem
 } from "../../utils/constants/components";
 import { landing } from "../../utils/constants/data";
 import { convertNameToUrl } from "../../lib/url";
 import { removeCategorySuffix } from "../../lib/name";
-
-function LandingListItem({ name, drawerOpen, icon }) {
-  return (
-    <ListItem disablePadding>
-      <ListItemButton
-        sx={{
-          minHeight: 48,
-          justifyContent: drawerOpen ? "initial" : "center",
-          px: 2.5,
-        }}
-        component={Link}
-        to={`/search/${convertNameToUrl(name)}`}
-      >
-        <ListItemIcon
-          sx={{
-            minWidth: 0,
-            mr: drawerOpen ? 3 : "auto",
-            justifyContent: "center",
-          }}
-        >
-          {icon}
-        </ListItemIcon>
-        <ListItemText primary={name} />
-      </ListItemButton>
-    </ListItem>
-  );
-}
 
 function Landing() {
   const [categoryArray, setCategoryArray] = useState([]);
@@ -157,24 +131,28 @@ function Landing() {
             name="All Packages"
             drawerOpen={categoryDrawerOpen}
             icon={<PackageIcon />}
+            href="view/packages"
           />
 
           <LandingListItem
             name="High Reliability Devices"
             drawerOpen={categoryDrawerOpen}
             icon={<ShieldIcon />}
+            href="high-reliability-devices"
           />
 
           <LandingListItem
             name="Diodes"
             drawerOpen={categoryDrawerOpen}
-            icon={<CableIcon />}
+            icon={<DiodeIcon />}
+            href="diodes"
           />
 
           <LandingListItem
             name="Transistors"
             drawerOpen={categoryDrawerOpen}
             icon={<TransistorIcon />}
+            href="transistors"
           />
         </List>
       </Drawer>

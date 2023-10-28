@@ -1,10 +1,11 @@
-import { Box } from "@mui/material";
+import { Box, ListItem, ListItemButton, ListItemIcon } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { Link } from "react-router-dom";
 import MuiLink from "@mui/material/Link";
 import MuiListItemText from "@mui/material/ListItemText";
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar from "@mui/material/AppBar";
 
-import styled from "@mui/material/styles/styled";
 export const LOGOWIDTH = 100;
 export const LANDINGDRAWERWIDTH = 270;
 export function Logo() {
@@ -19,6 +20,39 @@ export function NotFoundImage() {
     />
   );
 }
+
+export const ListItemText = styled(MuiListItemText)(({ theme }) => ({
+  color: theme.palette.secondary.contrastText,
+  overflowX: "hidden",
+}));
+
+export function LandingListItem({ name, drawerOpen, icon, href }) {
+  return (
+    <ListItem disablePadding>
+      <ListItemButton
+        sx={{
+          minHeight: 48,
+          justifyContent: drawerOpen ? "initial" : "center",
+          px: 2.5,
+        }}
+        component={Link}
+        to={`/${href}`}
+      >
+        <ListItemIcon
+          sx={{
+            minWidth: 0,
+            mr: drawerOpen ? 3 : "auto",
+            justifyContent: "center",
+          }}
+        >
+          {icon}
+        </ListItemIcon>
+        <ListItemText primary={name} />
+      </ListItemButton>
+    </ListItem>
+  );
+}
+
 export const BULL = (
   <Box
     component="span"
@@ -106,11 +140,6 @@ export const AppBar = styled((props) => (
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
-}));
-
-export const ListItemText = styled(MuiListItemText)(({ theme }) => ({
-  color: theme.palette.secondary.contrastText,
-  overflowX: "hidden",
 }));
 
 export const palette = {

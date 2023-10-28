@@ -1,5 +1,5 @@
-export function CableIcon() {
-  return <span className="material-symbols-outlined">cable</span>;
+export function DiodeIcon() {
+  return <span class="material-symbols-outlined">developer_board</span>;
 }
 
 export function PackageIcon() {
