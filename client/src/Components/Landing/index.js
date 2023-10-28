@@ -17,150 +17,25 @@ import {
   Divider,
   IconButton,
 } from "@mui/material";
-import MuiDrawer from "@mui/material/Drawer";
-import MuiAppBar from "@mui/material/AppBar";
-import MuiLink from "@mui/material/Link";
-import MuiListItemText from "@mui/material/ListItemText";
-import { styled } from "@mui/material/styles";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import axios from "axios";
 import YoutubeEmbed from "./YoutubeEmbed";
-import CableIcon from "../../icons/CableIcon";
-import { LANDINGDRAWERWIDTH, Logo } from "../../utils/constants";
+import CableIcon from "../../utils/icons/CableIcon";
+import { Logo } from "../../utils/constants/components";
 import { Link } from "react-router-dom";
-// import  from "../../utils/constants"
-
-// const Accordion = styled((props) => (
-//   <MuiAccordion disableGutters elevation={0} square {...props} />
-// ))(({ theme }) => ({
-//   border: `1px solid ${theme.palette.divider}`,
-//   "&:not(:last-child)": {
-//     borderBottom: 0,
-//   },
-//   "&:before": {
-//     display: "none",
-//   },
-// }));
-
-// const AccordionSummary = styled((props) => (
-//   <MuiAccordionSummary
-//     expandIcon={<ExpandMoreIcon sx={{ fontSize: "0.9rem" }} />}
-//     {...props}
-//   />
-// ))(({ theme }) => ({
-//   backgroundColor:
-//     theme.palette.mode === "dark"
-//       ? "rgba(255, 255, 255, .05)"
-//       : "rgba(0, 0, 0, .03)",
-//   flexDirection: "row-reverse",
-//   "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
-//     transform: "rotate(180deg)",
-//   },
-//   "& .MuiAccordionSummary-content": {
-//     marginLeft: theme.spacing(1),
-//   },
-// }));
-
-// const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-//   padding: theme.spacing(2),
-//   borderTop: "1px solid rgba(0, 0, 0, .125)",
-// }));
-
-// const ActionBox = styled(Box)({
-//   width: "100%",
-//   minHeight: "50px",
-//   display: "flex",
-//   flexDirection: "column",
-//   justifyContent: "center",
-// });
-
-const StyledLink = styled(MuiLink)({
-  textDecoration: "none",
-  color: "#f0b128",
-  underline: "hover",
-  fontWeight: 700,
-});
-
-const openedMixin = (theme) => ({
-  width: LANDINGDRAWERWIDTH,
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  overflowX: "hidden",
-});
-
-const closedMixin = (theme) => ({
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  overflowX: "hidden",
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up("sm")]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
-});
-
-const Drawer = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  width: LANDINGDRAWERWIDTH,
-  flexShrink: 0,
-  whiteSpace: "nowrap",
-  boxSizing: "border-box",
-  ...(open && {
-    ...openedMixin(theme),
-    "& .MuiDrawer-paper": openedMixin(theme),
-  }),
-  ...(!open && {
-    ...closedMixin(theme),
-    "& .MuiDrawer-paper": closedMixin(theme),
-  }),
-}));
-
-const DrawerHeader = styled("div")(({ theme }) => ({
-  backgroundColor: "#eee",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-end",
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-}));
-
-const AppBar = styled((props) => (
-  <MuiAppBar
-    {...props}
-    elevation={0}
-    position="fixed"
-    sx={{ border: "1px solid #ddd", background: "white", color: "#222" }}
-  />
-))(({ theme, open }) => ({
-  backgroundColor: theme.palette.secondary.main,
-  color: theme.palette.secondary.contrastText,
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(["width", "margin"], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: LANDINGDRAWERWIDTH,
-    width: `calc(100% - ${LANDINGDRAWERWIDTH}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
-const ListItemText = styled(MuiListItemText)(({ theme }) => ({
-  color: theme.palette.secondary.contrastText,
-  overflowX: "hidden",
-}));
+import {
+  StyledLink,
+  AppBar,
+  Drawer,
+  ListItemText,
+  DrawerHeader,
+} from "../../utils/constants/components";
+import { landing } from "../../utils/constants/data";
+import { convertNameToUrl } from "../../lib/url";
+import { removeCategorySuffix } from "../../lib/name";
 
 function Landing() {
   const [categoryArray, setCategoryArray] = useState([]);
@@ -171,12 +46,12 @@ function Landing() {
     const getLandingData = async () => {
       try {
         const categoriesResponse = await axios.get(
-          `${process.env.ENDPOINT_PREFIX}/categories`
+          `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/categories`
         );
         const categoriesData = categoriesResponse.data.map((dataElement) => {
           return {
             name: dataElement.name,
-            types: dataElement.sub_cat,
+            types: dataElement.sub_cat.types,
           };
         });
         console.log(categoriesData);
@@ -338,12 +213,7 @@ function Landing() {
               }}
             >
               <Typography>
-                With 50 years of semiconductor manufacturing experience, strict
-                standards of quality, constant improvements in R&D, technology,
-                and processes, and the hard work of a team of dedicated
-                professionals, CDIL today is an Indian brand that is recognized
-                globally. This is a simple website application that allows you
-                to explore data from the{" "}
+                {landing.description}
                 <StyledLink
                   href="https://www.cdil.com/"
                   target="_blank"
@@ -380,7 +250,7 @@ function Landing() {
           <Typography
             variant="h4"
             component="div"
-            sx={{ fontSize: { xs: "1.5rem", sm: "1.5rem", md: "2rem" } }}
+            sx={{ fontSize: { xs: "1.5rem", sm: "1.5rem", md: "2rem" }, my: 5 }}
           >
             Browse By Category
           </Typography>
@@ -389,7 +259,7 @@ function Landing() {
               <LinearProgress />
             </Box>
           ) : (
-            <Grid container spacing={2}>
+            <Grid container spacing={2} sx={{ my: 5 }}>
               {categoryArray.map((categoryObject, categoryIndex) => (
                 <Grid item className="col" key={"col" + categoryIndex}>
                   <Accordion>
@@ -404,22 +274,31 @@ function Landing() {
                       <Grid container direction="column">
                         <List>
                           {categoryObject.types.map((type, typeIdx) => (
-                            <ListItem disablePadding key={typeIdx}>
+                            <ListItem
+                              disablePadding
+                              key={typeIdx}
+                              sx={{ overflowX: "hidden" }}
+                            >
                               <ListItemButton
                                 component={Link}
-                                to={`/search/${type.split(" ").join("_")}`}
+                                to={`/search/${convertNameToUrl(type)}`}
                               >
                                 <ListItemIcon>
                                   <ListItemText
                                     disableTypography
-                                    primary={type}
+                                    primary={removeCategorySuffix(
+                                      type,
+                                      categoryObject.name
+                                    )}
                                   />
                                 </ListItemIcon>
                               </ListItemButton>
                             </ListItem>
                           ))}
                         </List>
-                        <Button href={`/${categoryObject.name}`}>
+                        <Button
+                          href={`/${convertNameToUrl(categoryObject.name)}`}
+                        >
                           Select All
                         </Button>
                       </Grid>

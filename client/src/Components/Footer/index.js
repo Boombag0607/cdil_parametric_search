@@ -1,4 +1,5 @@
 import { Box, Container, Grid, Link, Typography } from "@mui/material";
+import { footer, links } from "../../utils/constants/data";
 
 export default function Footer() {
   return (
@@ -15,42 +16,34 @@ export default function Footer() {
     >
       <Container>
         <Grid sx={{ width: "100%" }} container spacing={6}>
-          {" "}
-          {/* Adjust the spacing for different screen sizes */}
           <Grid item xs={12} sm={6} md={4}>
-            {" "}
-            {/* Use different column widths for different screen sizes */}
             <Typography variant="h6" color="text.primary" gutterBottom>
               About Us
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Continental Device India Pvt. Ltd., (CDIL) is a pioneer and a
-              world class Semiconductor Manufacturer of silicon chips and
-              devices since 1964.
+              {footer.aboutUs}
             </Typography>
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
-            {" "}
-            {/* Use different column widths for different screen sizes */}
             <Typography variant="h6" color="text.primary" gutterBottom>
               Contact Us
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              C-120 Naraina Industrial Area -I, New Delhi - 110028
+              {footer.contactUs.address}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Email: email@cdil.com
+              Email: {footer.contactUs.email}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Phone: (+91) 11 4141 1112, (+91) 11 2579 6150
+              Phone: {footer.contactUs.phone}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Contact the{" "}
               <Link
-                href="https://www.linkedin.com/in/ananya-gautam-7342b4201/"
+                href={links.developerContact}
+                underline="hover"
                 color="inherit"
               >
-                Developer
+                Contact the Developer
               </Link>
             </Typography>
           </Grid>
@@ -59,15 +52,11 @@ export default function Footer() {
               Assurance of Quality
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              CDIL is an ISO 9001, IATF 16949, ISO 14001 certified company
-              following strict quality standards for manufacturing of its
-              products.
+              {footer.qualityAssurance}
             </Typography>
           </Grid>
         </Grid>
         <Box mt={3} textAlign="center">
-          {" "}
-          {/* Adjust margin and alignment for different screen sizes */}
           <Typography variant="body2" color="text.secondary">
             {"Copyright © "}
             <Link color="inherit" href="https://cdil.com/">

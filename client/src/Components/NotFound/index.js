@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Button, Grid, Typography } from "@mui/material";
-import { NotFoundImage } from "../../utils/constants";
+import { NotFoundImage } from "../../utils/constants/components";
 
 export default function NotFound() {
   return (
@@ -10,7 +10,9 @@ export default function NotFound() {
     >
       <Grid container>
         <Grid item xs={12} md={6}>
-          <Box sx={{ height: "100%", display: "flex", justifyContent: "center" }}>
+          <Box
+            sx={{ height: "100%", display: "flex", justifyContent: "center" }}
+          >
             <NotFoundImage />
           </Box>
         </Grid>

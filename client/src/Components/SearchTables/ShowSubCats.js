@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import {
   Box,
-  Button,
   CircularProgress,
   Grid,
   List,
@@ -12,12 +11,12 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
-// import BoltIcon from "@mui/icons-material/Bolt";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import SearchTableWithCat from "./CatSearchTable";
+import CatSearchTable from "./CatSearchTable";
 import NotFound from "../NotFound";
 import { convertNameToUrl, convertUrlToName } from "../../lib/url";
+import { removeCategorySuffix } from "../../lib/name";
 
 export default function ShowSubCats() {
   const [categoryArray, setCategoryArray] = useState([]);
@@ -29,16 +28,17 @@ export default function ShowSubCats() {
     const getShowSubCatsData = async () => {
       try {
         const categoriesResponse = await axios.get(
-          `${process.env.ENDPOINT_PREFIX}/categories`
+          `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/categories`
         );
         const filteredCategories = categoriesResponse.data.filter(
-          (categoryElement) => categoryElement.name === category
+          (categoryElement) =>
+            categoryElement.name === convertUrlToName(category)
         );
         const filteredSubCategoriesArray = filteredCategories.map(
           (filteredCategoryElement) => {
             return {
               name: filteredCategoryElement.name,
-              types: filteredCategoryElement.sub_cat,
+              types: filteredCategoryElement.sub_cat.types,
             };
           }
         );
@@ -69,8 +69,8 @@ export default function ShowSubCats() {
       {error ? (
         <NotFound />
       ) : (
-        <Box>
-          <Typography variant="h4" component="h4">
+        <Box sx={{ minHeight: "60vh" }}>
+          <Typography variant="h4" component="h4" sx={{ mb: 2 }}>
             {convertUrlToName(category)}
           </Typography>
           {loading ? (
@@ -79,13 +79,20 @@ export default function ShowSubCats() {
             </Box>
           ) : (
             <Box sx={{ display: "flex" }}>
-              <Grid container spacing={2} className="mt-1 p-1">
+              <Grid container spacing={2}>
                 {categoryArray.map((categoryObject, categoryIndex) => (
-                  <Grid item xs={3} className="col" key={"col" + categoryIndex}>
+                  <Grid
+                    item
+                    md={3}
+                    sm={12}
+                    xs={12}
+                    className="col"
+                    key={"col" + categoryIndex}
+                  >
                     <Grid container direction="column">
                       <List>
                         {categoryObject.types.map((type, typeIdx) => (
-                          <ListItem disablePadding key={typeIdx}>
+                          <ListItem disablePadding key={type + typeIdx}>
                             <ListItemButton
                               component={Link}
                               to={`/search/${convertNameToUrl(type)}`}
@@ -93,7 +100,10 @@ export default function ShowSubCats() {
                               <ListItemIcon>
                                 <ListItemText
                                   sx={{ color: "text.primary" }}
-                                  primary={type}
+                                  primary={removeCategorySuffix(
+                                    type,
+                                    categoryObject.name
+                                  )}
                                 />
                               </ListItemIcon>
                             </ListItemButton>
@@ -103,13 +113,12 @@ export default function ShowSubCats() {
                     </Grid>
                   </Grid>
                 ))}
-                <Grid item xs={9}>
-                  <SearchTableWithCat category={category} />
+                <Grid item md={9} sm={12} xs={12}>
+                  <CatSearchTable category={convertUrlToName(category)} />
                 </Grid>
               </Grid>
             </Box>
           )}
-          <Button href="/search">Go to Main Search</Button>
         </Box>
       )}
     </Box>

@@ -8,43 +8,47 @@ import { convertUrlToName } from "../lib/url";
 
 export default function PublicLayout({ children }) {
   return (
-      <ThemeProvider theme={theme}>
-        <Header />
-        <Container sx={{ width: "90%", mt: 12 }}>
-          <Box
-            sx={{
-              width: "100%",
-            }}
-          >
-            <Breadcrumbs aria-label="breadcrumb">
-              <Link underline="hover" color="inherit" href="/">
-                Home
-              </Link>
-              {useLocation()
-                .pathname.split("/")
-                .filter((path) => path !== "")
-                .map((path) => {
-                  if (path === "search") {
-                    return (
-                      <Link underline="hover" color="inherit" href="/search">
-                        <Typography underline="hover" color="inherit">
-                          Search
-                        </Typography>
-                      </Link>
-                    );
-                  } else {
-                    return (
-                      <Typography underline="hover" color="inherit">
-                        {convertUrlToName(path)}
+    <ThemeProvider theme={theme}>
+      <Header />
+      <Container sx={{ width: "90%", mt: 12 }}>
+        <Box
+          sx={{
+            width: "100%",
+          }}
+        >
+          <Breadcrumbs aria-label="breadcrumb" sx={{ my: 3 }}>
+            <Link underline="hover" color="inherit" href="/">
+              Home
+            </Link>
+            {useLocation()
+              .pathname.split("/")
+              .filter((path) => path !== "")
+              .map((path) => {
+                if (path === "search") {
+                  return (
+                    <Link underline="hover" color="inherit" href="/search">
+                      <Typography
+                        key={`search`}
+                        underline="hover"
+                        color="inherit"
+                      >
+                        Search
                       </Typography>
-                    );
-                  }
-                })}
-            </Breadcrumbs>
-          </Box>
-          {children}
-        </Container>
-        <Footer />
-      </ThemeProvider>
+                    </Link>
+                  );
+                } else {
+                  return (
+                    <Typography underline="hover" color="inherit">
+                      {convertUrlToName(path)}
+                    </Typography>
+                  );
+                }
+              })}
+          </Breadcrumbs>
+        </Box>
+        {children}
+      </Container>
+      <Footer />
+    </ThemeProvider>
   );
 }

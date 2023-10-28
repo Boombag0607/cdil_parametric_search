@@ -1,5 +1,7 @@
 import express from "express";
 import path from "path";
+import supabase from "./supabase.js";
+import cors from "cors";
 // const bodyParser = require("body-parser");
 // const pool = require("./db");
 // require("dotenv").config({ path: ".env.local" });
@@ -7,11 +9,16 @@ import path from "path";
 const app = express();
 import userRoutes from "./routes/user.js";
 import adminRoutes from "./routes/admin.js";
+import supabaseRoutes from "./routes/supabase-routes.js";
 
 // Middleware and other server configurations
 
 // Use clientRoutes for the main client application
+
+app.use(cors());
 app.use("/user", userRoutes);
+
+app.use("/supabase", supabaseRoutes);
 
 // Use adminRoutes for the admin section
 app.use("/admin", adminRoutes);

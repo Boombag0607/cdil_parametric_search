@@ -183,7 +183,7 @@ function EnhancedTableHead(props) {
           }
           const minColumnValue = Math.min(...columnDataForIndex);
           const maxColumnValue = Math.max(...columnDataForIndex);
-          const markArray = columnDataForIndex.map((val) => ({ value: val }));
+          const markArray = columnDataForIndex?.map((val) => ({ value: val }));
           return (
             <TableCell
               key={headCell.id}
@@ -217,13 +217,12 @@ function EnhancedTableHead(props) {
                 </AccordionSummary>
                 <AccordionDetails>
                   {headCell.numeric ? (
-                    <Box sx={{ width: "15ch" }}>
+                    <Box sx={{minWidth: "12ch"}}>
                       <FormGroup>
                         {maxColumnValue === minColumnValue ? (
                           <Slider disabled />
                         ) : (
                           <Slider
-                            sx={{ width: "15ch" }}
                             value={filterValues[index]}
                             onChange={(event, newValue) =>
                               handleFilters(
@@ -248,10 +247,9 @@ function EnhancedTableHead(props) {
                       </FormGroup>
                     </Box>
                   ) : (
-                    <Box sx={{ width: "15ch" }}>
+                    <Box>
                       <FormGroup>
                         <Autocomplete
-                          sx={{ width: "15ch" }}
                           multiple
                           id="tags-outlined"
                           options={columnDataForIndex}
@@ -267,8 +265,8 @@ function EnhancedTableHead(props) {
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              label={headCell.label}
-                              placeholder="Select industry for filtering"
+                              label={`Select`}
+                              placeholder="Select filter"
                             />
                           )}
                         />
@@ -345,7 +343,7 @@ function EnhancedTableToolbar(props) {
           container
           spacing={2}
         >
-          <Grid item xs={4}>
+          <Grid item xs={12} sm={12} md={4}>
             <Typography
               sx={{ flex: "1 1 100%" }}
               variant="h6"
@@ -355,14 +353,14 @@ function EnhancedTableToolbar(props) {
               {convertUrlToName(subCat)}
             </Typography>
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={12} sm={6} md={2}>
             <FormControlLabel
               variant="outlined"
               control={<Switch checked={dense} onChange={handleClickDense} />}
               label={dense ? "Dense" : "Normal"}
             />
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs={12} sm={6} md={4}>
             <Button color="primary" href="/search" underline="none">
               {"Go to main search"}
             </Button>
@@ -422,27 +420,33 @@ export default function SubCatSearchTable() {
     const fetchData = async () => {
       try {
         const dataHeaderNameResponse = await axios.get(
-          `${process.env.ENDPOINT_PREFIX}/headers/${subCat}`
+          `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/headers/${subCat}`
         );
+
+        console.log("dataHeaderNameResponse ::: ==== ", dataHeaderNameResponse);
         const dataHeaderUnitResponse = await axios.get(
-          `${process.env.ENDPOINT_PREFIX}/units/${subCat}`
+          `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/units/${subCat}`
         );
+        console.log("dataheaderunitresponse ::: ==== ", dataHeaderUnitResponse);
         const devicesForASubCatResponse = await axios.get(
-          `${process.env.ENDPOINT_PREFIX}/devices/${subCat}`
+          `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/devices/${subCat}`
         );
+        console.log("devicesForASubCat ::: ==== ", devicesForASubCatResponse);
         const packagesResponse = await axios.get(
-          `${process.env.ENDPOINT_PREFIX}/packages`
+          `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/packages`
         );
+        console.log("packagesResponse ::: ==== ", packagesResponse);
         const industriesResponse = await axios.get(
-          `${process.env.ENDPOINT_PREFIX}/industries`
+          `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/industries`
         );
+        console.log("industryresponse ::: ==== ", industriesResponse);
 
         const deviceDataArray = await Promise.all(
           devicesForASubCatResponse.data.map(async (device) => {
             const response = await axios.get(
-              `${process.env.ENDPOINT_PREFIX}/data/${encodeURIComponent(
-                device.id
-              )}`
+              `${
+                process.env.REACT_APP_ENDPOINT_USER_PREFIX
+              }/data/${encodeURIComponent(device.id)}`
             );
             return response?.data;
           })
@@ -490,11 +494,11 @@ export default function SubCatSearchTable() {
           await devicesForASubCatResponse.data.map(
             async (deviceObject, index) => {
               const categoryResponse = await axios.get(
-                `${process.env.ENDPOINT_PREFIX}/categories`
+                `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/categories`
               );
               const subcategory = deviceObject.subcat_id;
               const categoryData = categoryResponse.data
-                .filter((cat) => cat.sub_cat.includes(subcategory))
+                .filter((cat) => cat.sub_cat.types.includes(subcategory))
                 .map((cat) => cat.name);
 
               return {
@@ -633,7 +637,7 @@ export default function SubCatSearchTable() {
   );
 
   return (
-    <Box className="p-3" sx={{ width: "100%" }}>
+    <Box className="p-3" sx={{ minHeight: "60vh", width: "100%" }}>
       {loading ? (
         <CircularProgress
           sx={{ position: "absolute", top: "50%", left: "50%" }}

@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
-
 import {
   Accordion,
   AccordionSummary,
@@ -11,7 +10,6 @@ import {
   Box,
   Button,
   Checkbox,
-  CircularProgress,
   FormGroup,
   FormControlLabel,
   Grid,
@@ -31,8 +29,8 @@ import {
   Toolbar,
   Tooltip,
   Typography,
+  LinearProgress,
 } from "@mui/material";
-
 import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import ViewListRoundedIcon from "@mui/icons-material/ViewListRounded";
 import { visuallyHidden } from "@mui/utils";
@@ -211,13 +209,12 @@ function EnhancedTableHead(props) {
                 </AccordionSummary>
                 <AccordionDetails>
                   {headCell.numeric ? (
-                    <Box sx={{ width: "15ch" }}>
+                    <Box sx={{ minWidth: "15ch" }}>
                       <FormGroup>
                         {maxColumnValue === minColumnValue ? (
                           <Slider disabled />
                         ) : (
                           <Slider
-                            sx={{ width: "15ch" }}
                             value={filterValues[index]}
                             onChange={(event, newValue) =>
                               handleFilters(
@@ -242,10 +239,9 @@ function EnhancedTableHead(props) {
                       </FormGroup>
                     </Box>
                   ) : (
-                    <Box sx={{ width: "15ch" }}>
+                    <Box>
                       <FormGroup>
                         <Autocomplete
-                          sx={{ width: "15ch" }}
                           multiple
                           id="tags-outlined"
                           options={columnDataForIndex}
@@ -261,8 +257,8 @@ function EnhancedTableHead(props) {
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              label={headCell.label}
-                              placeholder="Select industry for filtering"
+                              label={`Select`}
+                              placeholder="Select filter"
                             />
                           )}
                         />
@@ -380,7 +376,7 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function SearchTableWithCat(props) {
+export default function CatSearchTable(props) {
   const { category } = props;
   const [columns, setColumns] = useState([]);
   const [columnData, setColumnData] = useState([]);
@@ -398,21 +394,25 @@ export default function SearchTableWithCat(props) {
     const fetchData = async () => {
       try {
         const devicesForACatResponse = await axios.get(
-          `${process.env.ENDPOINT_PREFIX}/devicesInCat/${category}`
+          `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/devicesInCat/${category}`
+        );
+        console.log(
+          "devices for a cat response :: ------",
+          devicesForACatResponse
         );
         const packagesResponse = await axios.get(
-          `${process.env.ENDPOINT_PREFIX}/packages`
+          `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/packages`
         );
         const industriesResponse = await axios.get(
-          `${process.env.ENDPOINT_PREFIX}/industries`
+          `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/industries`
         );
 
         const deviceDataArray = await Promise.all(
           devicesForACatResponse.data.map(async (device) => {
             const response = await axios.get(
-              `${process.env.ENDPOINT_PREFIX}/data/${encodeURIComponent(
-                device.id
-              )}`
+              `${
+                process.env.REACT_APP_ENDPOINT_USER_PREFIX
+              }/data/${encodeURIComponent(device.id)}`
             );
             return response?.data;
           })
@@ -557,8 +557,8 @@ export default function SearchTableWithCat(props) {
   return (
     <Box sx={{ width: "100%" }}>
       {loading ? (
-        <CircularProgress
-          sx={{ position: "absolute", top: "50%", left: "50%" }}
+        <LinearProgress
+          sx={{ width: "100%", display: "flex", justifyContent: "center" }}
         />
       ) : (
         <Paper sx={{ width: "100%", mb: 2 }}>

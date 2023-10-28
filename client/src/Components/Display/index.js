@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import {
-  Box,
   Button,
   Grid,
   Paper,
@@ -11,15 +10,7 @@ import {
   CardContent,
 } from "@mui/material";
 import axios from "axios";
-
-const bull = (
-  <Box
-    component="span"
-    sx={{ display: "inline-block", mx: "5px", transform: "scale(1.2)" }}
-  >
-    •
-  </Box>
-);
+import { BULL } from "../../utils/constants/components";
 
 export default function Display() {
   const location = useLocation();
@@ -29,35 +20,39 @@ export default function Display() {
   const { devices } = location.state || {};
 
   useEffect(() => {
-    const fetchDevices = async () => {
-      const res = await axios.get(`${process.env.ENDPOINT_PREFIX}/devices/`);
+    const fetchData = async () => {
+      const deviceResponse = await axios.get(
+        `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/devices/`
+      );
+      console.log("deviceResponse.data :: --- ", deviceResponse.data);
+      setAllDevices(deviceResponse.data);
+
+      const packageResponse = await axios.get(
+        `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/packages/`
+      );
       // console.log(res.data);
-      setAllDevices(res.data);
+      setAllPackages(packageResponse.data);
     };
-    const fetchPackages = async () => {
-      const res = await axios.get(`${process.env.ENDPOINT_PREFIX}/packages/`);
-      // console.log(res.data);
-      setAllPackages(res.data);
-    };
-    fetchDevices();
-    fetchPackages();
+
+    fetchData();
   }, []);
 
   useEffect(() => {
     setSelectedDevices(
-      allDevices.filter((device) => devices.includes(device.id.toLowerCase()))
+      allDevices?.data?.filter((device) =>
+        devices.includes(device.id.toLowerCase())
+      )
     );
     // console.log("selected Devices in display: ", selectedDevices)
   }, [allDevices, devices]);
 
   return (
-    <Grid className="p-3" sx={{ flexGrow: 1 }} container spacing={2}>
-      <Typography className="m-3" variant="h3" component="h3">
+    <Grid container spacing={2}>
+      <Typography variant="h4" component="h4">
         Your Selected Devices
       </Typography>
-      <Grid className="mt-4" item xs={12}>
+      <Grid item xs={12}>
         <Grid container justifyContent="center" spacing={15.5}>
-          {/* {devices.map((device) => ( */}
           {selectedDevices.map((device) => (
             <Grid key={device.id} item>
               <Paper
@@ -90,7 +85,7 @@ export default function Display() {
                         .map((ind, indIndex, industryArray) => (
                           <span key={ind}>
                             {ind}
-                            {indIndex === industryArray.length - 1 ? "" : bull}
+                            {indIndex === industryArray.length - 1 ? "" : BULL}
                           </span>
                         ))}
                       <br />

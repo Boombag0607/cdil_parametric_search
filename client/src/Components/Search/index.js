@@ -12,10 +12,14 @@ import {
   Button,
   Autocomplete,
   LinearProgress,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import TuneIcon from "@mui/icons-material/Tune";
+import SearchPageIcon from "../../utils/icons/SearchPageIcon";
 import axios from "axios";
+import { removeCategorySuffix } from "../../lib/name";
 
 const StyledAutocomplete = styled(Autocomplete)({
   width: "100%",
@@ -42,14 +46,6 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   alignItems: "center",
 }));
 
-const Item = styled(Box)(({ theme }) => ({
-  bgcolor: (theme) => (theme.palette.mode === "dark" ? "#101010" : "grey.100"),
-  color: (theme) => (theme.palette.mode === "dark" ? "grey.300" : "grey.800"),
-  fontSize: "0.875rem",
-  width: "80%",
-  height: 260,
-}));
-
 export default function Search() {
   const [packages, setPackages] = useState([]);
   const [industry, setIndustry] = useState([]);
@@ -65,7 +61,7 @@ export default function Search() {
     const fetchData = async () => {
       try {
         const packagesResponse = await axios.get(
-          `${process.env.ENDPOINT_PREFIX}/packages`
+          `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/packages`
         );
         const allPackageData = packagesResponse.data.map((element) => {
           return {
@@ -76,7 +72,7 @@ export default function Search() {
         });
 
         const industryResponse = await axios.get(
-          `${process.env.ENDPOINT_PREFIX}/industries`
+          `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/industries`
         );
         const industryList = industryResponse.data.map((element) => {
           return {
@@ -86,22 +82,25 @@ export default function Search() {
         });
 
         const devicesResponse = await axios.get(
-          `${process.env.ENDPOINT_PREFIX}/devices`
+          `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/devices`
         );
         const devicesData = devicesResponse.data;
+        console.log("devicesdata :: ", devicesData);
 
         const allDevicesData = await Promise.all(
-          devicesData.map(async (element) => {
+          devicesData.data.map(async (element) => {
             const dataResponse = await axios.get(
-              `${process.env.ENDPOINT_PREFIX}/data/${encodeURIComponent(element.id)}`
+              `${
+                process.env.REACT_APP_ENDPOINT_USER_PREFIX
+              }/data/${encodeURIComponent(element.id)}`
             );
             const deviceData = dataResponse.data;
             const categoryResponse = await axios.get(
-              `${process.env.ENDPOINT_PREFIX}/categories`
+              `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/categories`
             );
             const subcategory = await element.subcat_id;
             const categoryData = categoryResponse.data
-              .filter((cat) => cat.sub_cat.includes(subcategory))
+              .filter((cat) => cat.sub_cat.types.includes(subcategory))
               .map((cat) => cat.name);
 
             const industry =
@@ -222,7 +221,7 @@ export default function Search() {
       autoComplete="off"
     >
       <Box sx={{ display: "flex", mb: 4, alignItems: "center" }}>
-        <TuneIcon fontSize="large" />
+        <SearchPageIcon />
         <Typography variant="h4" sx={{ px: 1 }}>
           Search Your Product Here
         </Typography>
@@ -308,90 +307,84 @@ export default function Search() {
               <LinearProgress />
             </Box>
           ) : (
-            <Box
-              sx={{
-                p: 1,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                bgcolor: "background.paper",
-                overflowY: "scroll",
-                maxHeight: "90vh",
-              }}
-            >
+            <Box sx={{ maxHeight: "35vh", overflowY: "scroll" }}>
               {matchedDevices.length === 0 ? (
-                <Item>
-                  <StyledPaper>
-                    <Box
-                      sx={{
-                        height: "100%",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Typography
-                        variant="body1"
-                        fontSize="1rem"
-                        component="div"
-                      >
-                        No Device with applied filters found
-                      </Typography>
-                    </Box>
-                  </StyledPaper>
-                </Item>
+                <StyledPaper>
+                  <Box
+                    sx={{
+                      height: "100%",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography variant="body1" fontSize="1rem" component="div">
+                      No Device with applied filters found
+                    </Typography>
+                  </Box>
+                </StyledPaper>
               ) : (
                 matchedDevices.map((md, index) => (
-                  <Item key={md.label + index}>
-                    <StyledPaper className="w-50 text-center">
-                      {md ? (
-                        <Card className="h-100 text-center">
-                          <CardMedia
-                            sx={{ height: 180 }}
-                            component="img"
-                            image={md.image}
-                            title="Device Package"
-                          />
-                          <CardContent>
-                            <Typography
-                              gutterBottom
-                              variant="body1"
-                              component="div"
-                              fontWeight={700}
-                              fontSize={20}
-                            >
-                              {md.category}
+                  <Grid container>
+                    <Grid item xs={6}>
+                      <Card sx={{ border: "1px solid #bbb" }}>
+                        <CardMedia
+                          sx={{ height: 180 }}
+                          component="img"
+                          image={md.image}
+                          title="Device Package"
+                        />
+                        <CardContent>
+                          <Box
+                            sx={{
+                              width: "100%",
+                              height: "100%",
+                              display: "flex",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Typography variant="body.1" fontWeight={500}>
+                              {removeCategorySuffix(
+                                md.subcategory,
+                                md.category
+                              ) +
+                                " " +
+                                md.category}
                             </Typography>
-                          </CardContent>
-                        </Card>
-                      ) : (
-                        <Card className="h-100 text-center">
-                          <CardMedia
-                            sx={{ height: 90 }}
-                            component="img"
-                            title="No Device Selected"
-                          />
-                          <CardContent>
-                            <Typography
-                              gutterBottom
-                              variant="body1"
-                              component="div"
-                            >
-                              No Device Selected
-                            </Typography>
-                          </CardContent>
-                        </Card>
-                      )}
-                    </StyledPaper>
-                    <Box sx={{ alignItems: "center", height: "100%" }}>
-                      <Item>Device: {md.label}</Item>
-                      <Item>Package: {md.package}</Item>
-                      <Item>Industry: {md.industry.join(", ")}</Item>
-                      <Item>Status: {md.status}</Item>
-                      <Item>Subcateorgy: {md.subcategory}</Item>
-                      <Button href={`${md.pdf_link}`}>See Data Sheet</Button>
-                    </Box>
-                  </Item>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <List dense={true} sx={{}}>
+                        <ListItem>
+                          <ListItemText
+                            primary={`Device: ${md.label}`}
+                          ></ListItemText>
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText
+                            primary={`Package: ${md.package}`}
+                          ></ListItemText>
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText
+                            primary={`Industry: ${md.industry.join(", ")}`}
+                          ></ListItemText>
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText
+                            primary={`Status: ${md.status}`}
+                          ></ListItemText>
+                        </ListItem>
+                        <ListItem>
+                          <Button href={`${md.pdf_link}`}>
+                            See Data Sheet
+                          </Button>
+                        </ListItem>
+                      </List>
+                    </Grid>
+                  </Grid>
                 ))
               )}
             </Box>
