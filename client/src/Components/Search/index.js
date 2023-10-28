@@ -17,7 +17,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import SearchPageIcon from "../../utils/icons/SearchPageIcon";
+import TuneIcon from "@mui/icons-material/Tune";
 import axios from "axios";
 import { removeCategorySuffix } from "../../lib/name";
 
@@ -221,7 +221,7 @@ export default function Search() {
       autoComplete="off"
     >
       <Box sx={{ display: "flex", mb: 4, alignItems: "center" }}>
-        <SearchPageIcon />
+        <TuneIcon fontSize="large" />
         <Typography variant="h4" sx={{ px: 1 }}>
           Search Your Product Here
         </Typography>

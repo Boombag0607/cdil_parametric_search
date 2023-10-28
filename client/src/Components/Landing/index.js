@@ -23,7 +23,13 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import axios from "axios";
 import YoutubeEmbed from "./YoutubeEmbed";
-import CableIcon from "../../utils/icons/CableIcon";
+import {
+  CableIcon,
+  ShieldIcon,
+  PackageIcon,
+  TransistorIcon,
+} from "../../utils/icons/icons";
+
 import { Logo } from "../../utils/constants/components";
 import { Link } from "react-router-dom";
 import {
@@ -36,6 +42,33 @@ import {
 import { landing } from "../../utils/constants/data";
 import { convertNameToUrl } from "../../lib/url";
 import { removeCategorySuffix } from "../../lib/name";
+
+function LandingListItem({ name, drawerOpen, icon }) {
+  return (
+    <ListItem disablePadding>
+      <ListItemButton
+        sx={{
+          minHeight: 48,
+          justifyContent: drawerOpen ? "initial" : "center",
+          px: 2.5,
+        }}
+        component={Link}
+        to={`/search/${convertNameToUrl(name)}`}
+      >
+        <ListItemIcon
+          sx={{
+            minWidth: 0,
+            mr: drawerOpen ? 3 : "auto",
+            justifyContent: "center",
+          }}
+        >
+          {icon}
+        </ListItemIcon>
+        <ListItemText primary={name} />
+      </ListItemButton>
+    </ListItem>
+  );
+}
 
 function Landing() {
   const [categoryArray, setCategoryArray] = useState([]);
@@ -120,68 +153,29 @@ function Landing() {
         </DrawerHeader>
         <Divider />
         <List>
-          <ListItem disablePadding>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                justifyContent: categoryDrawerOpen ? "initial" : "center",
-                px: 2.5,
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: categoryDrawerOpen ? 3 : "auto",
-                  justifyContent: "center",
-                }}
-              >
-                <CableIcon />
-              </ListItemIcon>
-              <ListItemText primary="High Reliability Devices" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding key={`Add Another Admin`}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                justifyContent: categoryDrawerOpen ? "initial" : "center",
-                px: 2.5,
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: categoryDrawerOpen ? 3 : "auto",
-                  justifyContent: "center",
-                }}
-              >
-                <CableIcon />
-              </ListItemIcon>
-              <ListItemText primary="High Reliability Devices" />
-            </ListItemButton>
-          </ListItem>
-          {/* {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: profileDrawerOpen ? "initial" : "center",
-                  px: 2.5,
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: profileDrawerOpen ? 3 : "auto",
-                    justifyContent: "center",
-                  }}
-                >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))} */}
+          <LandingListItem
+            name="All Packages"
+            drawerOpen={categoryDrawerOpen}
+            icon={<PackageIcon />}
+          />
+
+          <LandingListItem
+            name="High Reliability Devices"
+            drawerOpen={categoryDrawerOpen}
+            icon={<ShieldIcon />}
+          />
+
+          <LandingListItem
+            name="Diodes"
+            drawerOpen={categoryDrawerOpen}
+            icon={<CableIcon />}
+          />
+
+          <LandingListItem
+            name="Transistors"
+            drawerOpen={categoryDrawerOpen}
+            icon={<TransistorIcon />}
+          />
         </List>
       </Drawer>
       <Box component="main" open={categoryDrawerOpen}>
