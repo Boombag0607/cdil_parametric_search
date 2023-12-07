@@ -20,6 +20,7 @@ import { styled } from "@mui/material/styles";
 import TuneIcon from "@mui/icons-material/Tune";
 import axios from "axios";
 import { removeCategorySuffix } from "../../lib/name";
+import { extractStringsInQuotes } from "../../lib/string";
 
 const StyledAutocomplete = styled(Autocomplete)({
   width: "100%",
@@ -100,7 +101,7 @@ export default function Search() {
             );
             const subcategory = await element.subcat_id;
             const categoryData = categoryResponse.data
-              .filter((cat) => cat.sub_cat.types.includes(subcategory))
+              .filter((cat) => extractStringsInQuotes(cat.sub_cat).includes(subcategory))
               .map((cat) => cat.name);
 
             const industry =

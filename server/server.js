@@ -1,96 +1,92 @@
-import express from "express";
-import path from "path";
-import supabase from "./supabase.js";
-import cors from "cors";
-// const bodyParser = require("body-parser");
-// const pool = require("./db");
+const pool = require("./db");
+const cors = require("cors");
+const express = require("express");
+const bodyParser = require("body-parser");
 // require("dotenv").config({ path: ".env.local" });
 
 const app = express();
-import userRoutes from "./routes/user.js";
-import adminRoutes from "./routes/admin.js";
-import supabaseRoutes from "./routes/supabase-routes.js";
-
-// Middleware and other server configurations
-
-// Use clientRoutes for the main client application
-
-app.use(cors());
-app.use("/user", userRoutes);
-
-app.use("/supabase", supabaseRoutes);
-
-// Use adminRoutes for the admin section
-app.use("/admin", adminRoutes);
-
-// Start the server
 const port = 3000;
-app.use(express.static(path.join(process.env.BUILD_PATH || " ")));
 
 // const dbname = process.env.DB_NAME;
-// const passport = require('passport');
-// const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
-// passport.use(
-//   new GoogleStrategy(
-//     {
-//       clientID: 'YOUR_CLIENT_ID',
-//       clientSecret: 'YOUR_CLIENT_SECRET',
-//       callbackURL: '/auth/google/callback', // Specify the callback URL
-//     },
-//     (accessToken, refreshToken, profile, done) => {
-//       // Handle the user's profile data and store it in your database
-//       // The profile parameter contains user information
-//       // You can use the "done" callback to handle user authentication
-//       // and return the user's information to your routes.
-//       return done(null, profile);
-//     }
-//   )
-// );
+// middleware
+app.use(cors());
+app.use(express.json());
+app.use(bodyParser.json());
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-// app.get(
-//   '/auth/google',
-//   passport.authenticate('google', {
-//     scope: ['profile', 'email'], // Define the required permissions
-//   })
-// );
+// server
 
-// app.get(
-//   '/auth/google/callback',
-//   passport.authenticate('google', {
-//     successRedirect: '/admin', // Redirect on successful authentication
-//     failureRedirect: '/', // Redirect on failure
-//   })
-// );
+app.get("/", async (req, res) => {
+  try {
+    const allData = await pool.query("SELECT * FROM parameters");
+    res.json(allData.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
 
-// function isAuthenticated(req, res, next) {
-//   if (req.isAuthenticated()) {
-//     return next();
-//   }
-//   res.redirect('/'); // Redirect unauthenticated users
-// }
+app.get("/:id", async (req, res) => {
+  try {
+    // const allPosts = await pool.query("SELECT * FROM cdillocal");
+    // res.json();
+    const { id } = req.params;
+    const data = await pool.query("SELECT * FROM device WHERE id = $1", [id]);
+    res.json(data.rows[0]);
+  } catch (error) {
+    console.log(error.message);
+  }
+});
 
-// // Apply the isAuthenticated middleware to your admin route
-// app.get('/admin', isAuthenticated, (req, res) => {
-//   // Render the admin page or handle admin functionality
-// });
+// Assuming you have set up the Express app as 'app', the PostgreSQL pool as 'pool', and the server is running on port 5000
 
-// // middleware
-// app.use(passport.initialize());
-// app.use(passport.session());
-// app.use(cors());
-// app.use(express.json());
-// app.use(bodyParser.json());
+// POST route to handle adding data to a dynamic column
+app.post("/admin/:device_name", urlencodedParser, (req, res) => {
+  const { device_name } = req.params; // Get the dynamic column name from the route parameters
+  const { val_dict } = req.body; // Get the value to be added to the dynamic column from the request body
 
-// passport.serializeUser((user, done) => {
-//   // Serialize the user data to be stored in the session
-//   done(null, user);
-// });
+  // Validate that "value" is not empty or null
+  if (!val_dict) {
+    return res.status(400).json({ error: "Value cannot be empty or null." });
+  }
 
-// passport.deserializeUser((user, done) => {
-//   // Deserialize the user data from the session
-//   done(null, user);
-// });
+  const pairArray = Object.entries(val_dict).map(([param, val]) => [param, val]);
+  console.log(pairArray);
+  const paraCols = pairArray.map((x, i) => pairArray[i][0]).join(',');
+  const valArray = pairArray.map((x, i) => pairArray[i][1]);
+
+  // const val_dict_jsonb = JSON.stringify(val_dict);
+
+  // Check if the dynamic column exists in the table
+  const upsertQuery = `
+    INSERT INTO parameters (device_name, ${paraCols})
+    VALUES ($1, ${valArray.map((_, i) => `$${i + 2}`).join(', ')})
+    ON CONFLICT (device_name)
+    DO UPDATE SET ${paraCols.split(',').map(col => `${col} = EXCLUDED.${col}`).join(', ')}
+  `;
+  // Check if the dynamic column exists in the table
+  // const upsertQuery = `
+  //   INSERT INTO parameters (device_name, ${paraCols})
+  //   VALUES ($1, (JSONB_TO_RECORD(${pairArray})).*)
+  //   ON CONFLICT (device_name)
+  //   DO UPDATE SET val_dict = EXCLUDED.val_dict
+  // `;
+
+  pool
+    .query(upsertQuery, [device_name, ...valArray])
+    .then(() => {
+      res.json({
+        success: true,
+        message: `Value '${val_dict}' added to the '${device_name}' column for device_name '${device_name}'`,
+      });
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      res
+        .status(500)
+        .json({ error: "An error occurred while updating the database." });
+    });
+});
 
 app.listen(port, () => {
   console.log(`App running on port ${port}.`);

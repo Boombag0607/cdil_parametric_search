@@ -38,6 +38,7 @@ import ViewListRoundedIcon from "@mui/icons-material/ViewListRounded";
 import { visuallyHidden } from "@mui/utils";
 import axios from "axios";
 import { convertUrlToName } from "../../lib/url";
+import { extractStringsInQuotes } from "../../lib/string";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -217,7 +218,7 @@ function EnhancedTableHead(props) {
                 </AccordionSummary>
                 <AccordionDetails>
                   {headCell.numeric ? (
-                    <Box sx={{minWidth: "12ch"}}>
+                    <Box sx={{ minWidth: "12ch" }}>
                       <FormGroup>
                         {maxColumnValue === minColumnValue ? (
                           <Slider disabled />
@@ -498,7 +499,9 @@ export default function SubCatSearchTable() {
               );
               const subcategory = deviceObject.subcat_id;
               const categoryData = categoryResponse.data
-                .filter((cat) => cat.sub_cat.types.includes(subcategory))
+                .filter((cat) =>
+                  extractStringsInQuotes(cat.sub_cat).includes(subcategory)
+                )
                 .map((cat) => cat.name);
 
               return {

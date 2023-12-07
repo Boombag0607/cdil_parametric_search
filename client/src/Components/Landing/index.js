@@ -43,6 +43,7 @@ import {
 import { landing } from "../../utils/constants/data";
 import { convertNameToUrl } from "../../lib/url";
 import { removeCategorySuffix } from "../../lib/name";
+import { extractStringsInQuotes } from "../../lib/string";
 
 function Landing() {
   const [categoryArray, setCategoryArray] = useState([]);
@@ -58,7 +59,7 @@ function Landing() {
         const categoriesData = categoriesResponse.data.map((dataElement) => {
           return {
             name: dataElement.name,
-            types: dataElement.sub_cat.types,
+            types: extractStringsInQuotes(dataElement.sub_cat),
           };
         });
         console.log(categoriesData);

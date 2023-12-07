@@ -17,6 +17,7 @@ import CatSearchTable from "./CatSearchTable";
 import NotFound from "../NotFound";
 import { convertNameToUrl, convertUrlToName } from "../../lib/url";
 import { removeCategorySuffix } from "../../lib/name";
+import { extractStringsInQuotes } from "../../lib/string";
 
 export default function ShowSubCats() {
   const [categoryArray, setCategoryArray] = useState([]);
@@ -38,7 +39,7 @@ export default function ShowSubCats() {
           (filteredCategoryElement) => {
             return {
               name: filteredCategoryElement.name,
-              types: filteredCategoryElement.sub_cat.types,
+              types: extractStringsInQuotes(filteredCategoryElement.sub_cat),
             };
           }
         );
