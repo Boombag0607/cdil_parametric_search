@@ -3,7 +3,7 @@ import mysql from 'mysql';
 const dbConfig = {
   host: 'localhost',
   user: 'cdiladmin',
-  password: 'BHTyuu@J897fgV@',
+  password: '***************',
   port: '3306',
   database: 'parametric_search_db',
 };
