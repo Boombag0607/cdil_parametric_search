@@ -1,12 +1,13 @@
-import pkg from 'pg';
-const { Pool } = pkg;
+import mysql from 'mysql';
 
-const pool = new Pool({
-    user: 'postgres',
-    password: process.env.DB_PASSWORD,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    database: 'postgres',
-});
+const dbConfig = {
+  host: 'localhost',
+  user: 'cdiladmin',
+  password: 'BHTyuu@J897fgV@',
+  port: '3306',
+  database: 'parametric_search_db',
+};
+
+const pool = mysql.createPool(dbConfig);
 
 export default pool;

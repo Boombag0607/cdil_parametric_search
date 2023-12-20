@@ -31,7 +31,7 @@ const App = () => (
                 element={<SearchTableWithSubCat />}
               />
               <Route path="display" element={<Display />} />
-              <Route path="/view/packages" element={<Packages />} />
+              <Route path="packages" element={<Packages />} />
               <Route path=":category" element={<ShowSubCats />} />
             </Routes>
           </PublicLayout>

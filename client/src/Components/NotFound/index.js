@@ -2,7 +2,8 @@ import React from "react";
 import { Box, Button, Grid, Typography } from "@mui/material";
 import { NotFoundImage } from "../../utils/constants/components";
 
-export default function NotFound() {
+export default function NotFound(props) {
+  const {text} = props
   return (
     <Box
       className="not-found"
@@ -28,7 +29,7 @@ export default function NotFound() {
             }}
           >
             <Typography variant="h4">
-              Uh oh! this page could not be found
+              {text ? text : `Uh oh! this page could not be found`}
             </Typography>
             <Box sx={{ my: 3 }}>
               <Button href="/" variant="contained">

@@ -31,19 +31,24 @@ export default function ShowSubCats() {
         const categoriesResponse = await axios.get(
           `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/categories`
         );
-        const filteredCategories = categoriesResponse.data.filter(
+        const filteredCategories = categoriesResponse?.data.filter(
           (categoryElement) =>
             categoryElement.name === convertUrlToName(category)
         );
+
+        if (filteredCategories.length === 0) {
+          setError(true);
+        }
+
         const filteredSubCategoriesArray = filteredCategories.map(
           (filteredCategoryElement) => {
             return {
               name: filteredCategoryElement.name,
-              types: extractStringsInQuotes(filteredCategoryElement.sub_cat),
+              types: extractStringsInQuotes(filteredCategoryElement.subcat),
             };
           }
         );
-        console.log(filteredSubCategoriesArray);
+        
         setLoading(false);
 
         setCategoryArray(filteredSubCategoriesArray);
@@ -115,7 +120,7 @@ export default function ShowSubCats() {
                   </Grid>
                 ))}
                 <Grid item md={9} sm={12} xs={12}>
-                  <CatSearchTable category={convertUrlToName(category)} />
+                  <CatSearchTable category={convertUrlToName(category)}/>
                 </Grid>
               </Grid>
             </Box>

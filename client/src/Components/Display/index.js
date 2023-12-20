@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import {
+  Box,
   Button,
   Grid,
   Paper,
@@ -11,12 +12,14 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { BULL } from "../../utils/constants/components";
+import NotFound from '../NotFound';
 
 export default function Display() {
   const location = useLocation();
   const [allDevices, setAllDevices] = useState([]);
   const [allPackages, setAllPackages] = useState([]);
   const [selectedDevices, setSelectedDevices] = useState([]);
+  const [receivedFlag, setReceivedFlag] = useState(false);
   const { devices } = location.state || {};
 
   useEffect(() => {
@@ -24,36 +27,54 @@ export default function Display() {
       const deviceResponse = await axios.get(
         `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/devices/`
       );
-      console.log("deviceResponse.data :: --- ", deviceResponse.data);
-      setAllDevices(deviceResponse.data);
+      setAllDevices(deviceResponse?.data);
+      console.log("allDevices --- ", allDevices);
 
       const packageResponse = await axios.get(
         `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/packages/`
       );
-      // console.log(res.data);
-      setAllPackages(packageResponse.data);
+      console.log("devices :: ", devices);
+      setAllPackages(packageResponse?.data);  
     };
 
     fetchData();
-  }, []);
+  }, [allDevices, devices]);
 
   useEffect(() => {
-    setSelectedDevices(
-      allDevices?.data?.filter((device) =>
-        devices.includes(device.id.toLowerCase())
-      )
-    );
-    // console.log("selected Devices in display: ", selectedDevices)
+    const setDisplayVariables = async () => {
+      if (!devices || devices.length===0) {
+        setReceivedFlag(false);
+      } else {
+        setSelectedDevices(
+          allDevices?.filter((device) =>
+            devices.includes(device.id.toLowerCase())
+          )
+        );
+        setReceivedFlag(true);
+      }
+    }
+    
+    setDisplayVariables();
   }, [allDevices, devices]);
 
   return (
-    <Grid container spacing={2}>
-      <Typography variant="h4" component="h4">
-        Your Selected Devices
-      </Typography>
-      <Grid item xs={12}>
-        <Grid container justifyContent="center" spacing={15.5}>
-          {selectedDevices.map((device) => (
+    <Box>
+      <Box sx={{ display: "flex", mb: 4 }}>
+        <Typography variant="h4" >
+          Your Selected Devices
+        </Typography>
+      </Box>
+      <Box item xs={12} sx={{minHeight: "50vh"}}>
+        {
+          !receivedFlag 
+          ? 
+          (<Box>
+            <NotFound text={`Please Select Devices from Subcategory tables`}/>
+          </Box>)
+         : ( 
+        
+        <Grid container justifyContent="center" sx={{mb: 6}} spacing={2}>
+          {selectedDevices?.map((device) => (
             <Grid key={device.id} item>
               <Paper
                 className="border"
@@ -70,7 +91,7 @@ export default function Display() {
                       color="text.secondary"
                       gutterBottom
                     >
-                      {`Device: ${device.name + 1}`}
+                      {`Type: ${device.subcat_id}`}
                     </Typography>
                     <Typography variant="h5" component="div">
                       {device.id}
@@ -79,7 +100,7 @@ export default function Display() {
                       {device.package}
                     </Typography>
                     <Typography variant="body2">
-                      {device.industry
+                      {device?.industry
                         .slice(1, -1)
                         .split(",")
                         .map((ind, indIndex, industryArray) => (
@@ -103,9 +124,9 @@ export default function Display() {
               </Paper>
             </Grid>
           ))}
-        </Grid>
-      </Grid>
-      <Grid item xs={12}></Grid>
-    </Grid>
+        </Grid> )}
+      </Box>
+      
+    </Box>
   );
 }

@@ -2,6 +2,7 @@ import express from 'express';
 import pool from '../db.js';
 const router = express.Router();
 import { convertUrlToName } from '../lib/url.js';
+import { extractStringsInQuotes } from '../lib/string.js';
 
 /* GET users listing. */
 router.get("/", function (req, res, next) {
@@ -9,190 +10,169 @@ router.get("/", function (req, res, next) {
 });
 
 // server
-router.get("/data", async (req, res) => {
-  try {
-    const allData = await pool.query(`SELECT * FROM devices`);
-    const jsonData = allData.rows;
-
-    res.json(jsonData);
-  } catch (err) {
-    console.error(err.message);
-    res.status(404).send('Not found');
-  }
-});
-
-router.get("/data/:device", async (req, res) => {
-  try {
-    const { device } = req.params;
-    const deviceData = await pool.query(
-      `SELECT d1,d2,d3,d4,d5,
-              d6,d7,d8,d9,d10,
-              d11,d12,d13,d14,d15,
-              d16,d17,d18,d19,d20
+router.get("/data/:device", (req, res) => {
+  const { device } = req.params;
+  pool.query(`SELECT d1, d2, d3, d4, d5,
+              d6, d7, d8, d9, d10,
+              d11, d12, d13, d14, d15,
+              d16, d17, d18, d19, d20
        FROM devices 
-       WHERE id = $1`,
-      [device]
-    );
-
-    const jsonData = deviceData.rows[0];
-
-    // Construct an array with device data
-    const deviceDataArray = Object.values(jsonData).filter(
-      (data) => data !== null || ""
-    );
-
-    res.json(deviceDataArray);
-  } catch (err) {
-    console.error(err.message);
-    res.status(404).send('Not found');
-  }
+       WHERE id = ?`,
+      [device],
+      (error, results) => {
+    if (error) {
+      console.error(error);
+      return res.status(404).send('Internal Server Error');
+    }
+    res.json(results[0]);
+   });
 });
 
-router.get("/headers/:subCat", async (req, res) => {
-  try {
-    const subCat = convertUrlToName(req.params.subCat);
-    const subcategoryData = await pool.query(
-      `SELECT subcat_h1, subcat_h2, subcat_h3, subcat_h4, subcat_h5,
-              subcat_h6, subcat_h7, subcat_h8, subcat_h9, subcat_h10,
-              subcat_h11, subcat_h12, subcat_h13, subcat_h14, subcat_h15,
-              subcat_h16, subcat_h17, subcat_h18, subcat_h19, subcat_h20
-       FROM subcategories
-       WHERE id = $1`,
-      [subCat]
+router.get("/headers/:subCat", (req, res) => {
+  const subCat = convertUrlToName(req.params.subCat);
+  pool.query(
+    `SELECT h1, h2, h3, h4, h5,
+            h6, h7, h8, h9, h10,
+            h11, h12, h13, h14, h15,
+            h16, h17, h18, h19, h20
+      FROM subcategories
+      WHERE id = ?`,
+    [subCat],
+    (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(404).send('Internal Server Error or Not Found');
+    }
+    const subcatHeadersArray = Object.values(results[0]).filter(
+      (header) => header !== ""
     );
-
-    const jsonData = subcategoryData.rows[0];
-
-    // Construct an array with subcategory headers
-    const subcatHeadersArray = Object.values(jsonData).filter(
-      (header) => header !== null
-    );
-
     res.json(subcatHeadersArray);
-  } catch (err) {
-    console.error(err.message);
-    res.status(404).send('Not found');
-  }
+  });
 });
 
-router.get("/units/:subCat", async (req, res) => {
-  try {
-    const subCat = convertUrlToName(req.params.subCat);
-    const subcategoryData = await pool.query(
-      `SELECT subcat_u1, subcat_u2, subcat_u3, subcat_u4, subcat_u5,
-              subcat_u6, subcat_u7, subcat_u8, subcat_u9, subcat_u10,
-              subcat_u11, subcat_u12, subcat_u13, subcat_u14, subcat_u15,
-              subcat_u16, subcat_u17, subcat_u18, subcat_u19, subcat_u20
-       FROM subcategories
-       WHERE id = $1`,
-      [subCat]
-    );
-
-    const jsonData = subcategoryData.rows[0];
-
-    // Construct an array with subcategory headers
-    const subcatHeadersArray = Object.values(jsonData).filter(
-      (header) => header !== null
-    );
-
-    res.json(subcatHeadersArray);
-  } catch (err) {
-    console.error(err.message);
-    res.status(404).send('Not found');
-  }
+router.get("/units/:subCat", (req, res) => {
+  const subCat = convertUrlToName(req.params.subCat);
+  pool.query(
+    `SELECT u1, u2, u3, u4, u5,
+            u6, u7, u8, u9, u10,
+            u11, u12, u13, u14, u15,
+            u16, u17, u18, u19, u20
+      FROM subcategories
+      WHERE id = ?`,
+    [subCat],
+    (error, results) => {
+      if (error) {
+        res.status(404).send('Internal Server Error or Not Found');
+      }
+      const subcatUnitsArray = Object.values(results[0]).filter(
+        (header) => header !== ""
+      );
+      res.json(subcatUnitsArray);
+  });
 });
 
-router.get("/devices", async (req, res) => {
-  try {
-    const allData = await pool.query(`SELECT * FROM devices`);
-    res.json(allData.rows);
-  } catch (err) {
-    console.error(err.message);
-    res.status(404).send('Not found');
-  }
+router.get("/devices", (req, res) => {
+  pool.query(`SELECT * FROM devices`, 
+  (error, results) => {
+    if (error) {
+      console.log(error);
+      res.status(404).send('Internal Server Error or Not Found');
+    }
+    res.json(results);
+  });
 });
 
-router.get("/devices/:subCat", async (req, res) => {
-  try {
-    const subCat = convertUrlToName(req.params.subCat);
-    const allData = await pool.query(
-      `SELECT * FROM devices WHERE subcat_id = $1`,
-      [subCat]
-    );
-    const jsonData = allData.rows;
-    res.json(jsonData);
-  } catch (err) {
-    console.error(err.message);
-    res.status(404).send('Not found');
-  }
+router.get("/devices/:subCat", (req, res) => {
+  const subCat = convertUrlToName(req.params.subCat);
+  console.log("subcat :: -- ", subCat);
+  pool.query(
+    `SELECT * FROM devices WHERE subcat_id = ?`,
+    [subCat],
+    (error, results) => {
+      if (error) {
+        console.log(error);
+        res.status(404).send('Internal Server Error or Not Found');
+      }
+    res.json(results);
+  });
 });
 
-router.get("/devicesInCat/:category", async (req, res) => {
-  try {
-    const category = convertUrlToName(req.params.category);
-    console.log(category);
-    const subCatData = await pool.query(
-      `SELECT sub_cat FROM categories WHERE name=$1`,
-      [category]
-    );
-    // console.log("SQL Query:", subCatData.query.text);
-    const subCatArray = subCatData.rows[0].sub_cat;
+router.get("/devicesInCat/:category", (req, res) => {
+  const category = convertUrlToName(req.params.category);
+  pool.query(
+    `SELECT subcat FROM categories WHERE name = ?`,
+    [category],
+    (error, results) => {
+    if (error) {
+      console.error(error);
+      return res.status(404).send('Internal Server Error or Not Found');
+    }
+
+    const subCatArray = extractStringsInQuotes(results[0].subcat);
+    console.log(subCatArray);
     let devices = [];
+
+    let queriesCompleted = 0;
 
     for (let i = 0; i < subCatArray.length; i++) {
       const subCat = subCatArray[i];
-      const deviceData = await pool.query(
-        `SELECT * FROM devices WHERE subcat_id = $1`,
-        [subCat]
-      );
-      devices.push(...deviceData.rows);
+      pool.query(
+        `SELECT * FROM devices WHERE subcat_id = ?`,
+        [subCat],
+        (err, deviceRes) => {
+        if (err) {
+          console.error(err);
+          res.status(404).send('Internal Server Error or Not Found');
+        }
+        devices.push(...deviceRes);
+        queriesCompleted++;
+        if (queriesCompleted === subCatArray.length) {
+          res.json(devices);
+        }
+      });
     }
-
-    res.json(devices);
-  } catch (err) {
-    console.error(err.message);
-    res.status(404).send('Not found');
-  }
+  });
 });
 
-router.get("/subcategories", async (req, res) => {
-  try {
-    const allData = await pool.query(`SELECT * FROM subcategories`);
-    res.json(allData.rows);
-  } catch (err) {
-    console.error(err.message);
-    res.status(404).send('Not found');
-  }
+
+router.get("/subcategories", (req, res) => {
+  pool.query(`SELECT * FROM subcategories`, (error, results)=> {
+    if (error) {
+      console.log(error);
+      res.status(404).send('Internal Server Error or Not Found');
+    }
+    res.json(results); 
+  });
 });
 
 router.get("/categories", async (req, res) => {
-  try {
-    const allData = await pool.query(`SELECT * FROM categories`);
-    res.json(allData.rows);
-  } catch (err) {
-    console.error(err.message);
-    res.status(404).send('Not found');
-  }
+  pool.query('SELECT * FROM categories', (error, results) => {
+    if (error) {
+      console.error(error);
+      return res.status(404).send('Internal Server Error or Not Found');
+    }
+    res.json(results);
+  });
 });
 
-router.get("/packages", async (req, res) => {
-  try {
-    const allData = await pool.query(`SELECT * FROM packages`);
-    res.json(allData.rows);
-  } catch (err) {
-    console.error(err.message);
-    res.status(404).send('Not found');
-  }
+router.get("/packages", (req, res) => {
+  pool.query(`SELECT * FROM packages`, (error, results) => {
+    if (error) {
+      console.log(error);
+      return res.status(404).send('Internal Server Error or Not Found');
+    }
+    res.json(results);
+  });
 });
 
 router.get("/industries", async (req, res) => {
-  try {
-    const allData = await pool.query(`SELECT * FROM industries`);
-    res.json(allData.rows);
-  } catch (err) {
-    console.error(err.message);
-    res.status(404).send('Not found');
-  }
+  pool.query(`SELECT * FROM industries`, (error, results) => {
+    if (error) {
+        console.log(error);
+        return res.status(404).send('Internal Server Error or Not Found');
+    }
+    res.json(results);
+  });
 });
 
 export default router;

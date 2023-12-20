@@ -396,10 +396,6 @@ export default function CatSearchTable(props) {
         const devicesForACatResponse = await axios.get(
           `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/devicesInCat/${category}`
         );
-        console.log(
-          "devices for a cat response :: ------",
-          devicesForACatResponse
-        );
         const packagesResponse = await axios.get(
           `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/packages`
         );
@@ -555,7 +551,7 @@ export default function CatSearchTable(props) {
   );
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box sx={{ width: "100%", mb: 5 }}>
       {loading ? (
         <LinearProgress
           sx={{ width: "100%", display: "flex", justifyContent: "center" }}

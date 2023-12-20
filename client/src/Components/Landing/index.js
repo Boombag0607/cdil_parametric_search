@@ -59,10 +59,9 @@ function Landing() {
         const categoriesData = categoriesResponse.data.map((dataElement) => {
           return {
             name: dataElement.name,
-            types: extractStringsInQuotes(dataElement.sub_cat),
+            types: extractStringsInQuotes(dataElement.subcat),
           };
         });
-        console.log(categoriesData);
         setCategoryArray(categoriesData);
         setLoading(false);
       } catch (err) {
@@ -132,14 +131,7 @@ function Landing() {
             name="All Packages"
             drawerOpen={categoryDrawerOpen}
             icon={<PackageIcon />}
-            href="view/packages"
-          />
-
-          <LandingListItem
-            name="High Reliability Devices"
-            drawerOpen={categoryDrawerOpen}
-            icon={<ShieldIcon />}
-            href="high-reliability-devices"
+            href="packages"
           />
 
           <LandingListItem
@@ -234,7 +226,7 @@ function Landing() {
           ) : (
             <Grid container spacing={2} sx={{ my: 5 }}>
               {categoryArray.map((categoryObject, categoryIndex) => (
-                <Grid item className="col" key={"col" + categoryIndex}>
+                <Grid item xs={6} className="col" key={"col" + categoryIndex}>
                   <Accordion>
                     <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
@@ -259,10 +251,7 @@ function Landing() {
                                 <ListItemIcon>
                                   <ListItemText
                                     disableTypography
-                                    primary={removeCategorySuffix(
-                                      type,
-                                      categoryObject.name
-                                    )}
+                                    primary={type}
                                   />
                                 </ListItemIcon>
                               </ListItemButton>

@@ -20,7 +20,7 @@ import { styled } from "@mui/material/styles";
 import TuneIcon from "@mui/icons-material/Tune";
 import axios from "axios";
 import { removeCategorySuffix } from "../../lib/name";
-import { extractStringsInQuotes } from "../../lib/string";
+// import { extractStringsInQuotes } from "../../lib/string";
 
 const StyledAutocomplete = styled(Autocomplete)({
   width: "100%",
@@ -55,7 +55,7 @@ export default function Search() {
   const [selectedDevices, setSelectedDevices] = useState([]);
   const [selectedPackages, setSelectedPackages] = useState([]);
   const [selectedIndustries, setSelectedIndustries] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState(["Active"]);
+  const [selectedStatus, setSelectedStatus] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -85,24 +85,12 @@ export default function Search() {
         const devicesResponse = await axios.get(
           `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/devices`
         );
-        const devicesData = devicesResponse.data;
-        console.log("devicesdata :: ", devicesData);
+        const devicesData = devicesResponse?.data;
 
         const allDevicesData = await Promise.all(
-          devicesData.data.map(async (element) => {
-            const dataResponse = await axios.get(
-              `${
-                process.env.REACT_APP_ENDPOINT_USER_PREFIX
-              }/data/${encodeURIComponent(element.id)}`
-            );
-            const deviceData = dataResponse.data;
-            const categoryResponse = await axios.get(
-              `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/categories`
-            );
+          devicesData?.map(async (element) => {
             const subcategory = await element.subcat_id;
-            const categoryData = categoryResponse.data
-              .filter((cat) => extractStringsInQuotes(cat.sub_cat).includes(subcategory))
-              .map((cat) => cat.name);
+            const deconSubCat = subcategory.split(" ");
 
             const industry =
               (await element.industry) !== null
@@ -116,9 +104,8 @@ export default function Search() {
               industry: industry,
               status: element.status,
               pdf_link: element.pdf_link,
-              data: deviceData,
               subcategory,
-              category: categoryData,
+              category: deconSubCat[deconSubCat.length - 1],
             };
           })
         );
@@ -136,7 +123,6 @@ export default function Search() {
 
   const handleDeviceChange = (event, newValue) => {
     setLoading(true);
-    console.log("inside: handleDeviceChange newValue ::: ", newValue);
     setSelectedDevices(newValue);
   };
 
@@ -164,19 +150,15 @@ export default function Search() {
     if (selectedDevices.length > 0) {
       filteredDevices = filteredDevices.filter((element) =>
         selectedDevices.some((device) => device.label === element.label)
-      );
+      )
     }
 
     if (selectedPackages.length > 0) {
-      console.log(
-        "inside handleInputs selectedPackages ::: ",
-        selectedPackages
-      );
       filteredDevices = filteredDevices.filter((element) =>
         selectedPackages.some(
           (selectedPackage) => selectedPackage.label === element.package
         )
-      );
+      )
     }
 
     if (selectedIndustries.length > 0) {
@@ -184,7 +166,7 @@ export default function Search() {
         selectedIndustries.some((industry) =>
           element.industry.includes(industry.label)
         )
-      );
+      )
     }
 
     if (selectedStatus.length > 0) {
@@ -203,10 +185,6 @@ export default function Search() {
   ]);
 
   useEffect(() => {
-    console.log(
-      "inside: handleDeviceChange selected Devices ::: ",
-      selectedDevices
-    );
     handleInputs();
     setLoading(false);
   }, [selectedDevices, selectedPackages, selectedIndustries, handleInputs]);

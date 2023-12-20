@@ -39,6 +39,7 @@ import { visuallyHidden } from "@mui/utils";
 import axios from "axios";
 import { convertUrlToName } from "../../lib/url";
 import { extractStringsInQuotes } from "../../lib/string";
+import { convertToSubscript } from "../../lib/header";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -206,7 +207,7 @@ function EnhancedTableHead(props) {
                     direction={orderBy === headCell.id ? order : "asc"}
                     onClick={createSortHandler(headCell.id)}
                   >
-                    {headCell.label}
+                    <div dangerouslySetInnerHTML={{ __html: convertToSubscript(headCell.label) }} />
                     {orderBy === headCell.id ? (
                       <Box component="span" sx={visuallyHidden}>
                         {order === "desc"
@@ -408,7 +409,7 @@ export default function SubCatSearchTable() {
   const [columns, setColumns] = useState([]);
   const [columnData, setColumnData] = useState([]);
   const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("calories");
+  const [orderBy, setOrderBy] = useState("device");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [dense, setDense] = useState(false);
@@ -424,41 +425,39 @@ export default function SubCatSearchTable() {
           `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/headers/${subCat}`
         );
 
-        console.log("dataHeaderNameResponse ::: ==== ", dataHeaderNameResponse);
+        dataHeaderNameResponse?.data?.shift();
+
         const dataHeaderUnitResponse = await axios.get(
           `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/units/${subCat}`
         );
-        console.log("dataheaderunitresponse ::: ==== ", dataHeaderUnitResponse);
+
         const devicesForASubCatResponse = await axios.get(
           `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/devices/${subCat}`
         );
-        console.log("devicesForASubCat ::: ==== ", devicesForASubCatResponse);
+
+        dataHeaderUnitResponse?.data?.shift();
+
         const packagesResponse = await axios.get(
           `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/packages`
         );
-        console.log("packagesResponse ::: ==== ", packagesResponse);
+
         const industriesResponse = await axios.get(
           `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/industries`
         );
-        console.log("industryresponse ::: ==== ", industriesResponse);
 
-        const deviceDataArray = await Promise.all(
-          devicesForASubCatResponse.data.map(async (device) => {
-            const response = await axios.get(
-              `${
-                process.env.REACT_APP_ENDPOINT_USER_PREFIX
-              }/data/${encodeURIComponent(device.id)}`
-            );
-            return response?.data;
-          })
-        );
+
+        const deviceDataArray = await Promise.all(devicesForASubCatResponse.data.map(async (device) => {
+          let resDataArr = [];
+          for (let idx=1; idx<21; idx++) {resDataArr.push(await device[`d${idx}`])}
+          return resDataArr.filter(data => data !== "");
+        }));
 
         const headersWithDataArray = await dataHeaderNameResponse?.data.map(
           (header, index) => {
             let headerData = [];
             for (let i = 0; i < devicesForASubCatResponse.data.length; i++) {
               headerData.push(
-                devicesForASubCatResponse.data[i][`d${index + 1}`]
+                devicesForASubCatResponse.data[i][`d${index+1}`]
               );
             }
             return headerData.filter((v, i, self) => i === self.indexOf(v));
@@ -489,7 +488,7 @@ export default function SubCatSearchTable() {
             value: ind.id.toLowerCase(),
             label: ind.id,
           };
-        });
+        }) || [];
 
         const devicesObjectArrayResponse =
           await devicesForASubCatResponse.data.map(
@@ -500,7 +499,7 @@ export default function SubCatSearchTable() {
               const subcategory = deviceObject.subcat_id;
               const categoryData = categoryResponse.data
                 .filter((cat) =>
-                  extractStringsInQuotes(cat.sub_cat).includes(subcategory)
+                  extractStringsInQuotes(cat.subcat).includes(subcategory)
                 )
                 .map((cat) => cat.name);
 
@@ -508,7 +507,7 @@ export default function SubCatSearchTable() {
                 value: deviceObject.id.toLowerCase(),
                 label: deviceObject.id,
                 package: deviceObject.package,
-                industry: deviceObject.industry.slice(1, -1).split(","),
+                industry: deviceObject.industry.slice(1, -1).split(",") || [],
                 status: deviceObject.status,
                 pdf_link: deviceObject.pdf_link,
                 data: deviceDataArray[index],
@@ -528,9 +527,8 @@ export default function SubCatSearchTable() {
               name: deviceObject.id.toLowerCase(),
               device: deviceObject.id,
               package: deviceObject.package,
-              industry: deviceObject.industry.slice(1, -1).split(","),
+              industry: deviceObject.industry.slice(1, -1).split(",") || [],
               status: deviceObject.status,
-              pdf_link: deviceObject.pdf_link,
             };
             for (
               let dataHeaderIndex = 0;
@@ -551,7 +549,6 @@ export default function SubCatSearchTable() {
           { id: "package", numeric: false, label: "Package" },
           { id: "industry", numeric: false, label: "Industry" },
           { id: "status", numeric: false, label: "Status" },
-          { id: "pdf_link", numeric: false, label: "PDF Link" },
           ...dataHeaderNamesArray,
         ]);
 
@@ -560,7 +557,6 @@ export default function SubCatSearchTable() {
           packagesArray.map((pkg) => pkg.label),
           industriesArray,
           ["Active", "Inactive"],
-          ["pdf_link", "no_pdf_link"],
           ...headersWithDataArray,
         ]);
         setOriginalRows(rows);
