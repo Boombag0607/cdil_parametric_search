@@ -1,10 +1,22 @@
 import express from 'express';
 import pool from '../db.js';
-const router = express.Router();
 import { convertUrlToName } from '../lib/url.js';
 import { extractStringsInQuotes } from '../lib/string.js';
+import { createLogger, transports, format } from 'winston';
+const router = express.Router();
 
-router.get("/", function (req, res, next) {
+const logger = createLogger({
+  format: format.combine(
+    format.timestamp(),
+    format.simple()
+  ),
+  transports: [
+    new transports.Console(),
+    new transports.File({ filename: 'error.log', level: 'error' }),
+  ],
+});
+
+router.get("/", function (_, res, next) {
   res.send("user path");
 });
 
@@ -19,8 +31,11 @@ router.get("/data/:device", (req, res) => {
       [device],
       (error, results) => {
     if (error) {
-      console.error(error);
-      return res.status(404).send('Internal Server Error');
+      logger.error('Error in /data/[device] query: ', error);
+      return res.status(404).json({
+        error: 'Internal Server Error',
+        message: 'An error occurred while processing your request.',
+      });
     }
     res.json(results[0]);
    });
@@ -38,8 +53,11 @@ router.get("/headers/:subCat", (req, res) => {
     [subCat],
     (error, results) => {
     if (error) {
-      console.error(error);
-      res.status(404).send('Internal Server Error or Not Found');
+      logger.error('Error in /headers/[subCat] query: ', error);
+      return res.status(404).json({
+        error: 'Internal Server Error',
+        message: 'An error occurred while processing your request.',
+      });
     }
     const subcatHeadersArray = Object.values(results[0]).filter(
       (header) => header !== ""
@@ -60,7 +78,11 @@ router.get("/units/:subCat", (req, res) => {
     [subCat],
     (error, results) => {
       if (error) {
-        res.status(404).send('Internal Server Error or Not Found');
+        logger.error('Error in /units/[subCat] query: ', error);
+        return res.status(404).json({
+          error: 'Internal Server Error',
+          message: 'An error occurred while processing your request.',
+        });
       }
       const subcatUnitsArray = Object.values(results[0]).filter(
         (header) => header !== ""
@@ -69,12 +91,15 @@ router.get("/units/:subCat", (req, res) => {
   });
 });
 
-router.get("/devices", (req, res) => {
+router.get("/devices", (_, res) => {
   pool.query(`SELECT * FROM devices`, 
   (error, results) => {
     if (error) {
-      console.log(error);
-      res.status(404).send('Internal Server Error or Not Found');
+      logger.error('Error in /devices query: ', error);
+      return res.status(404).json({
+        error: 'Internal Server Error',
+        message: 'An error occurred while processing your request.',
+      });
     }
     res.json(results);
   });
@@ -82,14 +107,16 @@ router.get("/devices", (req, res) => {
 
 router.get("/devices/:subCat", (req, res) => {
   const subCat = convertUrlToName(req.params.subCat);
-  console.log("subcat :: -- ", subCat);
   pool.query(
     `SELECT * FROM devices WHERE subcat_id = ?`,
     [subCat],
     (error, results) => {
       if (error) {
-        console.log(error);
-        res.status(404).send('Internal Server Error or Not Found');
+        logger.error('Error in /data/[device] query: ', error);
+        return res.status(404).json({
+          error: 'Internal Server Error',
+          message: 'An error occurred while processing your request.',
+        });
       }
     res.json(results);
   });
@@ -102,12 +129,14 @@ router.get("/devicesInCat/:category", (req, res) => {
     [category],
     (error, results) => {
     if (error) {
-      console.error(error);
-      return res.status(404).send('Internal Server Error or Not Found');
+      logger.error('Error in /devicesInCat/[category] query: ', error);
+      return res.status(404).json({
+        error: 'Internal Server Error',
+        message: 'An error occurred while processing your request.',
+      });
     }
 
     const subCatArray = extractStringsInQuotes(results[0].subcat);
-    console.log(subCatArray);
     let devices = [];
 
     let queriesCompleted = 0;
@@ -119,8 +148,11 @@ router.get("/devicesInCat/:category", (req, res) => {
         [subCat],
         (err, deviceRes) => {
         if (err) {
-          console.error(err);
-          res.status(404).send('Internal Server Error or Not Found');
+          logger.error('Error in /devicesInCat/[category] query: ', error);
+          return res.status(404).json({
+            error: 'Internal Server Error',
+            message: 'An error occurred while processing your request.',
+          });
         }
         devices.push(...deviceRes);
         queriesCompleted++;
@@ -136,8 +168,11 @@ router.get("/devicesInCat/:category", (req, res) => {
 router.get("/subcategories", (req, res) => {
   pool.query(`SELECT * FROM subcategories`, (error, results)=> {
     if (error) {
-      console.log(error);
-      res.status(404).send('Internal Server Error or Not Found');
+      logger.error('Error in /subcategories query: ', error);
+      return res.status(404).json({
+        error: 'Internal Server Error',
+        message: 'An error occurred while processing your request.',
+      });
     }
     res.json(results); 
   });
@@ -146,8 +181,11 @@ router.get("/subcategories", (req, res) => {
 router.get("/categories", async (req, res) => {
   pool.query('SELECT * FROM categories', (error, results) => {
     if (error) {
-      console.error(error);
-      return res.status(404).send('Internal Server Error or Not Found');
+      logger.error('Error in /categories query: ', error);
+      return res.status(404).json({
+        error: 'Internal Server Error',
+        message: 'An error occurred while processing your request.',
+      }); 
     }
     res.json(results);
   });
@@ -156,8 +194,11 @@ router.get("/categories", async (req, res) => {
 router.get("/packages", (req, res) => {
   pool.query(`SELECT * FROM packages`, (error, results) => {
     if (error) {
-      console.log(error);
-      return res.status(404).send('Internal Server Error or Not Found');
+      logger.error('Error in /packages query: ', error);
+      return res.status(404).json({
+        error: 'Internal Server Error',
+        message: 'An error occurred while processing your request.',
+      }); 
     }
     res.json(results);
   });
@@ -166,8 +207,11 @@ router.get("/packages", (req, res) => {
 router.get("/industries", async (req, res) => {
   pool.query(`SELECT * FROM industries`, (error, results) => {
     if (error) {
-        console.log(error);
-        return res.status(404).send('Internal Server Error or Not Found');
+      logger.error('Error in /industries query: ', error);
+      return res.status(404).json({
+        error: 'Internal Server Error',
+        message: 'An error occurred while processing your request.',
+      }); 
     }
     res.json(results);
   });
