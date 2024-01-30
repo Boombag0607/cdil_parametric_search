@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import { Box, Typography, Grid, Card, CardMedia, CardContent } from "@mui/material";
 import axios from "axios";
 

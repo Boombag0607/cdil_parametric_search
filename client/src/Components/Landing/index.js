@@ -42,7 +42,6 @@ import {
 } from "../../utils/constants/components";
 import { landing } from "../../utils/constants/data";
 import { convertNameToUrl } from "../../lib/url";
-import { removeCategorySuffix } from "../../lib/name";
 import { extractStringsInQuotes } from "../../lib/string";
 
 function Landing() {

@@ -4,12 +4,10 @@ const router = express.Router();
 import { convertUrlToName } from '../lib/url.js';
 import { extractStringsInQuotes } from '../lib/string.js';
 
-/* GET users listing. */
 router.get("/", function (req, res, next) {
-  res.send("respond with a resource");
+  res.send("user path");
 });
 
-// server
 router.get("/data/:device", (req, res) => {
   const { device } = req.params;
   pool.query(`SELECT d1, d2, d3, d4, d5,

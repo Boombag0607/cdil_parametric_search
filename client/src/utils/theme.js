@@ -1,13 +1,6 @@
 import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
-  // overrides: {
-  //   MuiButton: {
-  //     raisedPrimary: {
-  //       color: "white",
-  //     },
-  //   },
-  // },
   typography: {
     fontSize: 14,
     h1: {
@@ -17,15 +10,15 @@ const theme = createTheme({
       fontFamily: "Raleway",
     },
     body1: {
-      color: "#666", // Body text color
+      color: "#666", 
       fontFamily: "Roboto",
     },
     button: {
       fontWeight: 600,
     },
     a: {
-      fontColor: "#27c7ff", // Link text color
-      fontWeight: 700, // Bold font weight for links
+      fontColor: "#27c7ff", 
+      fontWeight: 700, 
     },
     h4: {
       fontSize: "1.5rem",
@@ -39,7 +32,7 @@ const theme = createTheme({
       default: "#fff",
     },
     primary: {
-      main: "#f0b128", // Set the primary color to #f0b128
+      main: "#f0b128", 
       contrastText: "#fff",
     },
     secondary: {
