@@ -28,12 +28,10 @@ export default function Display() {
         `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/devices/`
       );
       setAllDevices(deviceResponse?.data);
-      console.log("allDevices --- ", allDevices);
 
       const packageResponse = await axios.get(
         `${process.env.REACT_APP_ENDPOINT_USER_PREFIX}/packages/`
       );
-      console.log("devices :: ", devices);
       setAllPackages(packageResponse?.data);  
     };
 

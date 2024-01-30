@@ -20,7 +20,6 @@ import { styled } from "@mui/material/styles";
 import TuneIcon from "@mui/icons-material/Tune";
 import axios from "axios";
 import { removeCategorySuffix } from "../../lib/name";
-// import { extractStringsInQuotes } from "../../lib/string";
 
 const StyledAutocomplete = styled(Autocomplete)({
   width: "100%",

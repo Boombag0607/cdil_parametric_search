@@ -339,7 +339,6 @@ function EnhancedTableToolbar(props) {
             <Button color="primary" href="/search" underline="none">
               {"Go to main search"}
             </Button>
-            {/* </Box> */}
           </Grid>
         </Grid>
       )}
